@@ -1227,7 +1227,7 @@ public Rectangle getBounds() {
 	return getBounds (100);
 }
 
-Rectangle getBounds(int zoom) {
+public Rectangle getBounds(int zoom) {
 	Rectangle bounds = getBoundsInPixels();
 	if (bounds != null && zoom != currentDeviceZoom) {
 		bounds = DPIUtil.autoScaleBounds(bounds, zoom, currentDeviceZoom);
