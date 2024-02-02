@@ -395,7 +395,7 @@ public ExpandItem [] getItems () {
  */
 public int getSpacing () {
 	checkWidget ();
-	return DPIUtil.autoScaleDown(getSpacingInPixels ());
+	return DPIUtil.autoScaleDown(getSpacingInPixels (), getShell());
 }
 
 int getSpacingInPixels () {
@@ -565,7 +565,7 @@ void setScrollbar () {
  */
 public void setSpacing (int spacing) {
 	checkWidget ();
-	setSpacingInPixels(DPIUtil.autoScaleUp(spacing));
+	setSpacingInPixels(DPIUtil.autoScaleUp(spacing, getShell()));
 }
 
 void setSpacingInPixels (int spacing) {

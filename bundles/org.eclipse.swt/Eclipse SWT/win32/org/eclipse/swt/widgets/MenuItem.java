@@ -1145,7 +1145,7 @@ LRESULT wmDrawChild (long wParam, long lParam) {
 		*/
 		int x = (parent.style & SWT.BAR) != 0 ? MARGIN_WIDTH * 2 : struct.left;
 		Image image = getEnabled () ? this.image : new Image (display, this.image, SWT.IMAGE_DISABLE);
-		gc.drawImage (image, DPIUtil.autoScaleDown(x), DPIUtil.autoScaleDown(struct.top + MARGIN_HEIGHT));
+		gc.drawImage (image, DPIUtil.autoScaleDown(x, parent.getShell()), DPIUtil.autoScaleDown(struct.top + MARGIN_HEIGHT, parent.getShell()));
 		if (this.image != image) image.dispose ();
 		gc.dispose ();
 	}
