@@ -21,6 +21,7 @@ package org.eclipse.swt.snippets;
  */
 import org.eclipse.swt.*;
 import org.eclipse.swt.graphics.*;
+import org.eclipse.swt.internal.*;
 import org.eclipse.swt.widgets.*;
 
 public class Snippet285 {
@@ -63,6 +64,7 @@ public class Snippet285 {
 	public static void main(String[] args) {
 		int width = 250, height = 250;
 		final Display display = new Display();
+		DPIUtil.setDeviceZoom(250);
 		final Shell shell = new Shell(display, SWT.NO_TRIM);
 		shell.setText("Snippet 285");
 		final Path path = new Path(display);
@@ -74,6 +76,7 @@ public class Snippet285 {
 		Region region = new Region(display);
 		loadPath(region, data.points, data.types);
 		shell.setRegion(region);
+		DPIUtil.setDeviceZoom(600);
 		Listener listener = event -> {
 			switch (event.type) {
 				case SWT.MouseDown: {

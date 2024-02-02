@@ -614,9 +614,9 @@ public Point computeSize (int wHint, int hHint) {
  */
 public Point computeSize (int wHint, int hHint, boolean changed){
 	checkWidget ();
-	wHint = (wHint != SWT.DEFAULT ? DPIUtil.autoScaleUp(wHint) : wHint);
-	hHint = (hHint != SWT.DEFAULT ? DPIUtil.autoScaleUp(hHint) : hHint);
-	return DPIUtil.autoScaleDown(computeSizeInPixels(wHint, hHint, changed));
+	wHint = (wHint != SWT.DEFAULT ? DPIUtil.autoScaleUp(wHint, getShell()) : wHint);
+	hHint = (hHint != SWT.DEFAULT ? DPIUtil.autoScaleUp(hHint, getShell()) : hHint);
+	return DPIUtil.autoScaleDown(computeSizeInPixels(wHint, hHint, changed), getShell());
 }
 
 Point computeSizeInPixels (int wHint, int hHint, boolean changed) {
@@ -819,7 +819,7 @@ public boolean dragDetect (Event event) {
 public boolean dragDetect (MouseEvent event) {
 	checkWidget ();
 	if (event == null) error (SWT.ERROR_NULL_ARGUMENT);
-	return dragDetect (event.button, event.count, event.stateMask, DPIUtil.autoScaleUp(event.x), DPIUtil.autoScaleUp(event.y)); // To Pixels
+	return dragDetect (event.button, event.count, event.stateMask, DPIUtil.autoScaleUp(event.x, getShell()), DPIUtil.autoScaleUp(event.y, getShell())); // To Pixels
 }
 
 boolean dragDetect (int button, int count, int stateMask, int x, int y) {
@@ -1153,7 +1153,7 @@ int getBackgroundPixel () {
  */
 public int getBorderWidth () {
 	checkWidget ();
-	return DPIUtil.autoScaleDown(getBorderWidthInPixels ());
+	return DPIUtil.autoScaleDown(getBorderWidthInPixels (), getShell());
 }
 
 int getBorderWidthInPixels () {
@@ -1193,7 +1193,7 @@ int getBorderWidthInPixels () {
  */
 public Rectangle getBounds (){
 	checkWidget ();
-	return DPIUtil.autoScaleDown(getBoundsInPixels ());
+	return DPIUtil.autoScaleDown(getBoundsInPixels (), getShell());
 }
 
 Rectangle getBoundsInPixels () {
@@ -1361,7 +1361,7 @@ public Object getLayoutData () {
  */
 public Point getLocation () {
 	checkWidget ();
-	return DPIUtil.autoScaleDown(getLocationInPixels());
+	return DPIUtil.autoScaleDown(getLocationInPixels(), getShell());
 }
 
 Point getLocationInPixels () {
@@ -1517,7 +1517,7 @@ public Shell getShell () {
  */
 public Point getSize (){
 	checkWidget ();
-	return DPIUtil.autoScaleDown(getSizeInPixels ());
+	return DPIUtil.autoScaleDown(getSizeInPixels (), getShell());
 }
 
 Point getSizeInPixels () {
@@ -2425,10 +2425,10 @@ public void redraw () {
  */
 public void redraw (int x, int y, int width, int height, boolean all) {
 	checkWidget ();
-	x = DPIUtil.autoScaleUp(x);
-	y = DPIUtil.autoScaleUp(y);
-	width = DPIUtil.autoScaleUp(width);
-	height = DPIUtil.autoScaleUp(height);
+	x = DPIUtil.autoScaleUp(x, getShell());
+	y = DPIUtil.autoScaleUp(y, getShell());
+	width = DPIUtil.autoScaleUp(width, getShell());
+	height = DPIUtil.autoScaleUp(height, getShell());
 	if (width <= 0 || height <= 0) return;
 
 	RECT rect = new RECT ();
@@ -3158,10 +3158,10 @@ void setBackgroundPixel (int pixel) {
  */
 public void setBounds(int x, int y, int width, int height) {
 	checkWidget ();
-	x = DPIUtil.autoScaleUp(x);
-	y = DPIUtil.autoScaleUp(y);
-	width = DPIUtil.autoScaleUp(width);
-	height = DPIUtil.autoScaleUp(height);
+	x = DPIUtil.autoScaleUp(x, getShell());
+	y = DPIUtil.autoScaleUp(y, getShell());
+	width = DPIUtil.autoScaleUp(width, getShell());
+	height = DPIUtil.autoScaleUp(height, getShell());
 	setBoundsInPixels(x, y, width, height);
 }
 
@@ -3239,7 +3239,7 @@ void setBoundsInPixels (int x, int y, int width, int height, int flags, boolean 
 public void setBounds (Rectangle rect) {
 	checkWidget ();
 	if (rect == null) error (SWT.ERROR_NULL_ARGUMENT);
-	setBoundsInPixels(DPIUtil.autoScaleUp(rect));
+	setBoundsInPixels(DPIUtil.autoScaleUp(rect, getShell()));
 }
 
 void setBoundsInPixels (Rectangle rect) {
@@ -3493,8 +3493,8 @@ public void setLayoutData (Object layoutData) {
  */
 public void setLocation (int x, int y) {
 	checkWidget ();
-	x = DPIUtil.autoScaleUp(x);
-	y = DPIUtil.autoScaleUp(y);
+	x = DPIUtil.autoScaleUp(x, getShell());
+	y = DPIUtil.autoScaleUp(y, getShell());
 	setLocationInPixels(x, y);
 }
 
@@ -3520,7 +3520,7 @@ void setLocationInPixels (int x, int y) {
 public void setLocation (Point location) {
 	checkWidget ();
 	if (location == null) error (SWT.ERROR_NULL_ARGUMENT);
-	location = DPIUtil.autoScaleUp(location);
+	location = DPIUtil.autoScaleUp(location, getShell());
 	setLocationInPixels(location.x, location.y);
 }
 
@@ -3658,6 +3658,16 @@ public void setRedraw (boolean redraw) {
 }
 
 /**
+ * @since 3.125
+ */
+@Override
+public void sendEvent(int eventType, Event event, boolean send) {
+	if(event != null && event.gc != null && event.gc.getGCData() != null)
+		event.gc.getGCData().shell = getShell();
+	super.sendEvent(eventType, event, send);
+}
+
+/**
  * Sets the shape of the control to the region specified
  * by the argument.  When the argument is null, the
  * default shape of the control is restored.
@@ -3680,7 +3690,7 @@ public void setRegion (Region region) {
 	long hRegion = 0;
 	if (region != null) {
 		hRegion = OS.CreateRectRgn (0, 0, 0, 0);
-		OS.CombineRgn (hRegion, region.handle, hRegion, OS.RGN_OR);
+		OS.CombineRgn (hRegion, region.getHandle(getShell()), hRegion, OS.RGN_OR);
 	}
 	OS.SetWindowRgn (handle, hRegion, true);
 	this.region = region;
@@ -3709,8 +3719,8 @@ public void setRegion (Region region) {
  */
 public void setSize (int width, int height) {
 	checkWidget ();
-	width = DPIUtil.autoScaleUp(width);
-	height = DPIUtil.autoScaleUp(height);
+	width = DPIUtil.autoScaleUp(width, getShell());
+	height = DPIUtil.autoScaleUp(height, getShell());
 	setSizeInPixels(width, height);
 }
 
@@ -3745,7 +3755,7 @@ void setSizeInPixels (int width, int height) {
 public void setSize (Point size) {
 	checkWidget ();
 	if (size == null) error (SWT.ERROR_NULL_ARGUMENT);
-	size = DPIUtil.autoScaleUp(size);
+	size = DPIUtil.autoScaleUp(size, getShell());
 	setSizeInPixels(size.x, size.y);
 }
 
@@ -3958,7 +3968,7 @@ void subclass () {
  */
 public Point toControl (int x, int y) {
 	checkWidget ();
-	return DPIUtil.autoScaleDown(toControlInPixels(DPIUtil.autoScaleUp(x), DPIUtil.autoScaleUp(y)));
+	return DPIUtil.autoScaleDown(toControlInPixels(DPIUtil.autoScaleUp(x, getShell()), DPIUtil.autoScaleUp(y, getShell())), getShell());
 }
 
 Point toControlInPixels (int x, int y) {
@@ -3991,8 +4001,8 @@ Point toControlInPixels (int x, int y) {
 public Point toControl (Point point) {
 	checkWidget ();
 	if (point == null) error (SWT.ERROR_NULL_ARGUMENT);
-	point = DPIUtil.autoScaleUp(point);
-	return DPIUtil.autoScaleDown(toControlInPixels(point.x, point.y));
+	point = DPIUtil.autoScaleUp(point, getShell());
+	return DPIUtil.autoScaleDown(toControlInPixels(point.x, point.y), getShell());
 }
 
 /**
@@ -4017,7 +4027,7 @@ public Point toControl (Point point) {
  */
 public Point toDisplay (int x, int y) {
 	checkWidget ();
-	return DPIUtil.autoScaleDown(toDisplayInPixels(DPIUtil.autoScaleUp(x), DPIUtil.autoScaleUp(y)));
+	return DPIUtil.autoScaleDown(toDisplayInPixels(DPIUtil.autoScaleUp(x, getShell()), DPIUtil.autoScaleUp(y, getShell())), getShell());
 }
 
 Point toDisplayInPixels (int x, int y) {
@@ -4050,8 +4060,8 @@ Point toDisplayInPixels (int x, int y) {
 public Point toDisplay (Point point) {
 	checkWidget ();
 	if (point == null) error (SWT.ERROR_NULL_ARGUMENT);
-	point = DPIUtil.autoScaleUp(point);
-	return DPIUtil.autoScaleDown(toDisplayInPixels(point.x, point.y));
+	point = DPIUtil.autoScaleUp(point, getShell());
+	return DPIUtil.autoScaleDown(toDisplayInPixels(point.x, point.y), getShell());
 }
 
 long topHandle () {
@@ -4902,7 +4912,7 @@ LRESULT WM_DPICHANGED (long wParam, long lParam) {
 		}
 
 		notifyListeners(SWT.ZoomChanged, event);
-
+		
 		if (DPIUtil.autoScaleOnRuntime) {
 			RECT rect = new RECT ();
 			COM.MoveMemory(rect, lParam, RECT.sizeof);
