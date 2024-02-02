@@ -513,7 +513,7 @@ Point minimumSize (int wHint, int hHint, boolean flushCache) {
 			index++;
 		}
 		if (index == count) {
-			Rectangle rect = DPIUtil.autoScaleUp(child.getBounds ());
+			Rectangle rect = DPIUtil.autoScaleUp(child.getBounds (), getShell());
 			width = Math.max (width, rect.x + rect.width);
 			height = Math.max (height, rect.y + rect.height);
 		} else {
@@ -521,7 +521,7 @@ Point minimumSize (int wHint, int hHint, boolean flushCache) {
 			 * Since computeSize can be overridden by subclasses, we cannot
 			 * call computeSizeInPixels directly.
 			 */
-			Point size = DPIUtil.autoScaleUp(child.computeSize (DPIUtil.autoScaleDown(wHint), DPIUtil.autoScaleDown(hHint), flushCache));
+			Point size = DPIUtil.autoScaleUp(child.computeSize (DPIUtil.autoScaleDown(wHint, getShell()), DPIUtil.autoScaleDown(hHint, getShell()), flushCache), getShell());
 			width = Math.max (width, size.x);
 			height = Math.max (height, size.y);
 		}
