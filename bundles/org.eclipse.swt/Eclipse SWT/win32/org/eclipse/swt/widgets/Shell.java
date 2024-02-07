@@ -14,6 +14,9 @@
 package org.eclipse.swt.widgets;
 
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.swt.*;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.*;
@@ -129,6 +132,11 @@ public class Shell extends Decorations {
 	boolean showWithParent, fullScreen, wasMaximized, modified, center;
 	String toolTitle, balloonTitle;
 	long toolIcon, balloonIcon;
+	/* icons used in a text field if SWT.Search is set */
+	@Deprecated
+	long textSearchIcon, textCancelIcon;
+	Map<Integer, Long> textSearchIcons = new HashMap<>();
+	Map<Integer, Long> textCancelIcons = new HashMap<>();
 	long windowProc;
 	Control lastActive;
 	static /*final*/ long ToolTipProc;
@@ -147,6 +155,7 @@ public class Shell extends Decorations {
 		WNDCLASS lpWndClass = new WNDCLASS ();
 		OS.GetClassInfo (0, DialogClass, lpWndClass);
 		DialogProc = lpWndClass.lpfnWndProc;
+		DPIZoomChangeRegistry.registerHandler(Shell::handleDPIChange, Shell.class);
 	}
 
 /**
@@ -298,8 +307,23 @@ Shell (Display display, Shell parent, int style, long handle, boolean embedded) 
 	if (handle != 0 && !embedded) {
 		state |= FOREIGN_HANDLE;
 	}
+
+	int [] dpiX = new int [1];
+	int [] dpiY = new int [1];
+	int shellDeviceZoom;
+	if (parent != null) {
+		shellDeviceZoom = parent.getCurrentDeviceZoom();
+	} else {
+		Monitor monitor = getMonitor();
+		OS.GetDpiForMonitor (monitor.handle, 0, dpiX, dpiY);
+		shellDeviceZoom = DPIUtil.mapDPIToZoom(dpiX[0]);
+	}
+	this.setCurrentDeviceZoom(shellDeviceZoom);
+
 	reskinWidget();
 	createWidget ();
+
+	addListener(SWT.ZoomChanged, this::handleZoomEvent);
 }
 
 /**
@@ -1396,6 +1420,7 @@ void releaseWidget () {
 		long hHeap = OS.GetProcessHeap ();
 		OS.HeapFree (hHeap, 0, lpstrTip);
 	}
+	destroyTextIcons();
 	lpstrTip = 0;
 	toolTipHandle = balloonTipHandle = menuItemToolTipHandle = 0;
 	lastActive = null;
@@ -2108,6 +2133,26 @@ public void setVisible (boolean visible) {
 	}
 }
 
+private void destroyTextIcons() {
+	if (textSearchIcon != 0) {
+		OS.DestroyIcon (textSearchIcon);
+		textSearchIcon = 0;
+	}	
+	for (Long icon : textSearchIcons.values()) {
+		OS.DestroyIcon (icon);		
+	}
+	textSearchIcons.clear();
+
+	if (textCancelIcon != 0) {
+		OS.DestroyIcon (textCancelIcon);
+		textCancelIcon = 0;
+	}
+	for (Long icon : textCancelIcons.values()) {
+		OS.DestroyIcon (icon);		
+	}
+	textCancelIcons.clear();
+}
+
 @Override
 void subclass () {
 	super.subclass ();
@@ -2634,5 +2679,19 @@ LRESULT WM_WINDOWPOSCHANGING (long wParam, long lParam) {
 		OS.MoveMemory (lParam, lpwp, WINDOWPOS.sizeof);
 	}
 	return result;
+}
+
+private void handleZoomEvent(Event event) {
+	if (DPIUtil.autoScaleOnRuntime) {
+		DPIZoomChangeRegistry.applyChange(new DPIChangeEvent(getCurrentDeviceZoom(), event.detail), this);
+	}
+}
+
+private static void handleDPIChange(DPIChangeEvent event, Widget widget) {
+	if (!(widget instanceof Shell)) {
+		return;
+	}
+	Shell shell = (Shell) widget;
+	shell.layout (null, SWT.DEFER | SWT.ALL | SWT.CHANGED);
 }
 }

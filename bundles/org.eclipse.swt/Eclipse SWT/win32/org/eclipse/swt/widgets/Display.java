@@ -270,8 +270,10 @@ public class Display extends Device implements Executor {
 	static final String USE_DARKTHEME_TEXT_ICONS = "org.eclipse.swt.internal.win32.Text.useDarkThemeIcons"; //$NON-NLS-1$
 	boolean textUseDarkthemeIcons = false;
 
-	/* Custom icons */
+	/* Custom icons were moved to Shell */
+	@Deprecated(since = "3.125.0")
 	long hIconSearch;
+	@Deprecated(since = "3.125.0")
 	long hIconCancel;
 
 	/* Focus */

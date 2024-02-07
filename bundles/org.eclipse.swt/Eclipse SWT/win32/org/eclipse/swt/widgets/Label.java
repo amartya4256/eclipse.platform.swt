@@ -63,6 +63,7 @@ public class Label extends Control {
 		WNDCLASS lpWndClass = new WNDCLASS ();
 		OS.GetClassInfo (0, LabelClass, lpWndClass);
 		LabelProc = lpWndClass.lpfnWndProc;
+		DPIZoomChangeRegistry.registerHandler(Label::handleDPIChange, Label.class);
 	}
 
 /**
@@ -619,4 +620,16 @@ LRESULT wmDrawChild (long wParam, long lParam) {
 	return null;
 }
 
+private static void handleDPIChange (DPIChangeEvent event, Widget widget) {
+	if (!(widget instanceof Label)) {
+		return;
+	}
+	Label label = (Label) widget;
+
+	Image image = label.getImage();
+	if (image != null) {
+		image.handleDPIChange(event.newZoom());
+		label.setImage(image);
+	}
+}
 }

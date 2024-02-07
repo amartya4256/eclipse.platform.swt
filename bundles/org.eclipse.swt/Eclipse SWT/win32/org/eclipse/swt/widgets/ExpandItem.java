@@ -46,6 +46,10 @@ public class ExpandItem extends Item {
 	static final int TEXT_INSET = 6;
 	static final int BORDER = 1;
 	static final int CHEVRON_SIZE = 24;
+	
+	static {
+		DPIZoomChangeRegistry.registerHandler(ExpandItem::handleDPIChange, ExpandItem.class);
+	}
 
 /**
  * Constructs a new instance of this class given its parent
@@ -519,5 +523,17 @@ public void setText (String string) {
 		updateTextDirection (AUTO_TEXT_DIRECTION);
 	}
 	redraw (true);
+}
+
+private static void handleDPIChange (DPIChangeEvent event, Widget widget) {
+	if (!(widget instanceof ExpandItem)) {
+		return;
+	}
+	ExpandItem item = (ExpandItem) widget;
+	if (item.height != 0 || item.width != 0) {
+		int newWidth = Math.round(item.width * event.getScalingFactor());
+		int newHeight = Math.round(item.height * event.getScalingFactor());
+		item.setBoundsInPixels(item.x, item.y, newWidth, newHeight, false, true);
+	}
 }
 }
