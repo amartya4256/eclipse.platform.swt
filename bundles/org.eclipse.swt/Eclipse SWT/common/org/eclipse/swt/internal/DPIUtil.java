@@ -18,6 +18,7 @@ import java.util.function.*;
 
 import org.eclipse.swt.*;
 import org.eclipse.swt.graphics.*;
+import org.eclipse.swt.widgets.Shell;
 
 /**
  * This class hold common constants and utility functions w.r.t. to SWT high DPI
@@ -333,6 +334,14 @@ public static int autoScaleUp (int size) {
 }
 
 /**
+ * Auto-scale up int dimensions to match the zoom level of the given shell
+ */
+public static int autoScaleUp (int size, Shell shell) {
+	float scaleFactor = getScalingFactor (shell);
+	return Math.round (size * scaleFactor);
+}
+
+/**
  * Auto-scale up int dimensions using Native DPI
  */
 public static int autoScaleUpUsingNativeDPI (int size) {
@@ -413,6 +422,20 @@ private static float getScalingFactor () {
 		return 1;
 	}
 	return deviceZoom / 100f;
+}
+
+/**
+ * Returns Scaling factor from the display
+ * @return float scaling factor
+ */
+private static float getScalingFactor (Shell shell) {
+	if (useCairoAutoScale) {
+		return 1;
+	}
+	if (shell == null) {
+		return getScalingFactor();
+	}
+	return shell.getCurrentDeviceZoom() / 100f;
 }
 
 /**
