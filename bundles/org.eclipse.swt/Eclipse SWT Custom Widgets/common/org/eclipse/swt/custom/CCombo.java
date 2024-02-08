@@ -1588,7 +1588,7 @@ public boolean setFocus () {
 @Override
 public void setFont (Font font) {
 	super.setFont (font);
-	this.font = font;
+	this.font = font.scaleFor(getCurrentDeviceZoom());
 	text.setFont (font);
 	list.setFont (font);
 	internalLayout (true);
