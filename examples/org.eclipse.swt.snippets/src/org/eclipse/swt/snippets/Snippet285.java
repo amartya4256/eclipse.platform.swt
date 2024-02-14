@@ -76,6 +76,7 @@ public class Snippet285 {
 		Region region = new Region(display);
 		loadPath(region, data.points, data.types);
 		shell.setRegion(region);
+		DPIUtil.setDeviceZoom(600);
 		Listener listener = event -> {
 			switch (event.type) {
 				case SWT.MouseDown: {

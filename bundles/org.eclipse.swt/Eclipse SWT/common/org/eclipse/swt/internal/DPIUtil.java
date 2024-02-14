@@ -404,6 +404,16 @@ public static Point autoScaleUp (Point point) {
 	return scaledPoint;
 }
 
+public static Point autoScaleUp (Point point, Shell shell) {
+	int zoom = Optional.ofNullable(shell).map(Shell::getCurrentDeviceZoom).orElse(deviceZoom);
+	if (zoom == 100 || point == null) return point;
+	float scaleFactor = getScalingFactor (shell);
+	Point scaledPoint = new Point (0,0);
+	scaledPoint.x = Math.round (point.x * scaleFactor);
+	scaledPoint.y = Math.round (point.y * scaleFactor);
+	return scaledPoint;
+}
+
 /**
  * Returns a new scaled up Point if enabled for Drawable class.
  */
@@ -416,10 +426,15 @@ public static Point autoScaleUp (Drawable drawable, Point point) {
  * Returns a new scaled up Rectangle.
  */
 public static Rectangle autoScaleUp (Rectangle rect) {
-	if (deviceZoom == 100 || rect == null) return rect;
+	return autoScaleUp(rect, null);
+}
+
+public static Rectangle autoScaleUp (Rectangle rect, Shell shell) {
+	int zoom = Optional.ofNullable(shell).map(Shell::getCurrentDeviceZoom).orElse(deviceZoom);
+	if (zoom == 100 || rect == null) return rect;
 	Rectangle scaledRect = new Rectangle (0,0,0,0);
-	Point scaledTopLeft = DPIUtil.autoScaleUp (new Point (rect.x, rect.y));
-	Point scaledBottomRight = DPIUtil.autoScaleUp (new Point (rect.x + rect.width, rect.y + rect.height));
+	Point scaledTopLeft = DPIUtil.autoScaleUp (new Point (rect.x, rect.y), shell);
+	Point scaledBottomRight = DPIUtil.autoScaleUp (new Point (rect.x + rect.width, rect.y + rect.height), shell);
 
 	scaledRect.x = scaledTopLeft.x;
 	scaledRect.y = scaledTopLeft.y;

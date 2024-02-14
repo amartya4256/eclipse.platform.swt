@@ -1385,7 +1385,7 @@ LRESULT wmNotifyChild (NMHDR hdr, long wParam, long lParam) {
 
 							int x = margin + (isRadioOrCheck() ? radioOrCheckTextPadding : 3);
 							int y = Math.max (0, (nmcd.bottom - image.getBoundsInPixels().height) / 2);
-							gc.drawImage (image, DPIUtil.autoScaleDown(x), DPIUtil.autoScaleDown(y));
+							gc.drawImage (image, DPIUtil.autoScaleDown(x, getShell()), DPIUtil.autoScaleDown(y, getShell()));
 							gc.dispose ();
 						}
 

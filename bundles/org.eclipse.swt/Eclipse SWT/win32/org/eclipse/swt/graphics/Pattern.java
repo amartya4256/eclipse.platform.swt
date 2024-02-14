@@ -58,6 +58,13 @@ public class Pattern extends Resource {
 
 	private Runnable bitmapDestructor;
 
+	private float x1, y1, x2, y2;
+	private Color color1, color2;
+	private int alpha1, alpha2;
+	private final boolean isImagePattern;
+
+	private HashMap<Integer, Pattern> scaledpattern = new HashMap<>();
+
 /**
  * Constructs a new Pattern given an image. Drawing with the resulting
  * pattern will cause the image to be tiled over the resulting area.
@@ -217,8 +224,6 @@ private Pattern(Shell shell, float x1, float y1, float x2, float y2, Color color
 	initializeSize(shell);
 }
 
-private HashMap<Integer, Pattern> scaledpattern = new HashMap<>();
-
 Pattern getScaledPattern(Shell shell) {
 	if(shell.getCurrentDeviceZoom() == this.device.getDeviceZoom() || this.isImagePattern) {
 		return this;
@@ -230,16 +235,7 @@ Pattern getScaledPattern(Shell shell) {
 	return this.scaledpattern.get(shell.getCurrentDeviceZoom());
 }
 
-private float x1, y1, x2, y2;
-private Color color1, color2;
-private int alpha1, alpha2;
-private final boolean isImagePattern;
-
-//void initializeSize(float x1, float y1, float x2, float y2, Color color1, int alpha1, Color color2, int alpha2) {
-/**
- * @since 3.125
- */
-public void initializeSize(Shell shell) {
+private void initializeSize(Shell shell) {
 	float x1, y1, x2, y2;
 	if(shell != null) {
 		x1 = DPIUtil.autoScaleUp(this.x1, shell);

@@ -371,7 +371,7 @@ public Color getBackground (int index) {
  */
 public Rectangle getBounds () {
 	checkWidget ();
-	return DPIUtil.autoScaleDown(getBoundsInPixels());
+	return DPIUtil.autoScaleDown(getBoundsInPixels(), parent.getShell());
 }
 
 Rectangle getBoundsInPixels () {
@@ -397,7 +397,7 @@ Rectangle getBoundsInPixels () {
  */
 public Rectangle getBounds (int index) {
 	checkWidget();
-	return DPIUtil.autoScaleDown(getBoundsInPixels(index));
+	return DPIUtil.autoScaleDown(getBoundsInPixels(index), parent.getShell());
 }
 
 Rectangle getBoundsInPixels (int index) {
@@ -813,7 +813,7 @@ public Image getImage (int index) {
  */
 public Rectangle getImageBounds (int index) {
 	checkWidget();
-	return DPIUtil.autoScaleDown(getImageBoundsInPixels(index));
+	return DPIUtil.autoScaleDown(getImageBoundsInPixels(index), parent.getShell());
 }
 
 Rectangle getImageBoundsInPixels (int index) {
@@ -908,7 +908,7 @@ public String getText (int index) {
  */
 public Rectangle getTextBounds (int index) {
 	checkWidget();
-	return DPIUtil.autoScaleDown(getTextBoundsInPixels(index));
+	return DPIUtil.autoScaleDown(getTextBoundsInPixels(index), parent.getShell());
 }
 
 Rectangle getTextBoundsInPixels (int index) {

@@ -565,7 +565,7 @@ void wmDrawChildImage(DRAWITEMSTRUCT struct) {
 	data.device = display;
 	GC gc = GC.win32_new (struct.hDC, data);
 	Image image = getEnabled () ? this.image : new Image (display, this.image, SWT.IMAGE_DISABLE);
-	gc.drawImage (image, DPIUtil.autoScaleDown(x), DPIUtil.autoScaleDown(Math.max (0, (height - imageRect.height) / 2)));
+	gc.drawImage (image, DPIUtil.autoScaleDown(x, getShell()), DPIUtil.autoScaleDown(Math.max (0, (height - imageRect.height) / 2), getShell()));
 	if (image != this.image) image.dispose ();
 	gc.dispose ();
 }

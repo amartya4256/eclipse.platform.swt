@@ -54,6 +54,9 @@ public class Transform extends Resource {
 	 */
 	public long handle;
 
+
+	private HashMap<Integer, Long> handleMap = new HashMap<>();
+
 /**
  * Constructs a new identity Transform.
  * <p>
@@ -319,10 +322,16 @@ public void setElements(float m11, float m12, float m21, float m22, float dx, fl
 	Gdip.Matrix_SetElements(handle, m11, m12, m21, m22, dx, dy);
 }
 
-private HashMap<Integer, Long> handleMap = new HashMap<>();
-
 /**
- * @since 3.125
+ * the handle to the OS resource for the right zoom level
+ * <p>
+ * <b>IMPORTANT:</b> This field is <em>not</em> part of the SWT
+ * public API. It is marked public only so that it can be shared
+ * within the packages provided by SWT. It is not available on all
+ * platforms and should never be accessed from application code.
+ * </p>
+ *
+ * @noreference This field is not intended to be referenced by clients.
  */
 public long getHandle(Shell shell) {
 	if(shell.getCurrentDeviceZoom() == this.device.getDeviceZoom()) {
@@ -333,9 +342,8 @@ public long getHandle(Shell shell) {
 		getElements(elements);
 		elements[4] = DPIUtil.autoScaleUp(shell.getDisplay(), elements[4], shell);
 		elements[5] = DPIUtil.autoScaleUp(shell.getDisplay(), elements[5], shell);
-		// that is not sufficient, we are now changing the matrix, so each time we call get handle it would get bigger, so we again need to store that probably per DPI level and manage that
-		setElements(elements[0], elements[1], elements[2], elements[3], elements[4], elements[5]);
-		handleMap.put(shell.getCurrentDeviceZoom(), handle);
+
+		handleMap.put(shell.getCurrentDeviceZoom(), Gdip.Matrix_new(elements[0], elements[1], elements[2], elements[3], elements[4], elements[5]));
 	}
 	return this.handleMap.get(shell.getCurrentDeviceZoom());
 }
@@ -376,14 +384,7 @@ public void transform(float[] pointArray) {
 	if (isDisposed()) SWT.error(SWT.ERROR_GRAPHIC_DISPOSED);
 	if (pointArray == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
 	int length = pointArray.length;
-	Drawable drawable = getDevice();
-	for (int i = 0; i < length; i++) {
-		pointArray[i] = DPIUtil.autoScaleUp(drawable, pointArray[i]);
-	}
 	Gdip.Matrix_TransformPoints(handle, pointArray, length / 2);
-	for (int i = 0; i < length; i++) {
-		pointArray[i] = DPIUtil.autoScaleDown(drawable, pointArray[i]);
-	}
 }
 
 /**
