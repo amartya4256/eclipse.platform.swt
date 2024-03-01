@@ -61,7 +61,7 @@ public final class Font extends Resource {
  */
 Font(Device device) {
 	super(device);
-	this.zoomLevel = device.getDeviceZoom();
+	//this.zoomLevel = device.getDeviceZoom();
 }
 
 /**
@@ -344,7 +344,7 @@ public Font scaleFor(int deviceZoom) {
  */
 public static Font win32_new(Device device, long handle) {
 	Font font = new Font(device);
-	font.zoomLevel = device.getDeviceZoom();
+	font.zoomLevel = 100;// device.getDeviceZoom();
 	font.handle = handle;
 	/*
 	 * When created this way, Font doesn't own its .handle, and

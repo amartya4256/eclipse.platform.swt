@@ -96,6 +96,7 @@ public class CommonWidgetsDPIChangeHandlers {
 		DPIZoomChangeRegistry.applyChange(event, styledText.getCaret());
 		DPIZoomChangeRegistry.applyChange(event, styledText.ime);
 
+		DPIZoomChangeRegistry.applyChange(event, styledText.defaultCaret);
 		for (Caret caret : styledText.carets) {
 			DPIZoomChangeRegistry.applyChange(event, caret);
 		}

@@ -172,7 +172,7 @@ public Widget (Widget parent, int style) {
 	checkSubclass ();
 	checkParent (parent);
 	this.style = style;
-	this.currentDeviceZoom = DPIUtil.getDeviceZoom();
+	this.currentDeviceZoom = parent != null ? parent.getCurrentDeviceZoom() : DPIUtil.getDeviceZoom();
 	display = parent.display;
 	reskinWidget ();
 	notifyCreationTracker();
@@ -1135,6 +1135,7 @@ boolean sendMouseEvent (int type, int button, long hwnd, long lParam) {
 boolean sendMouseEvent (int type, int button, int count, int detail, boolean send, long hwnd, long lParam) {
 	if (!hooks (type) && !filters (type)) return true;
 	Event event = new Event ();
+	event.widget = this;
 	event.button = button;
 	event.detail = detail;
 	event.count = count;

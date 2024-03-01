@@ -136,6 +136,11 @@ GC() {
  */
 public GC(Drawable drawable) {
 	this(drawable, SWT.NONE);
+	if(drawable instanceof Widget) {
+		data.deviceZoom = ((Widget) drawable).getCurrentDeviceZoom();
+	} else  if(drawable instanceof Image) {
+		data.deviceZoom = ((Image) drawable).getCurrentDeviceZoom();
+	}
 }
 
 /**
@@ -925,8 +930,8 @@ void drawFocusInPixels (int x, int y, int width, int height) {
  * </ul>
  */
 public void drawImage (Image image, int x, int y) {
-	x = DPIUtil.autoScaleUp(drawable, x, getShell());
-	y = DPIUtil.autoScaleUp(drawable, y, getShell());
+	x = DPIUtil.autoScaleUp(drawable, x, getDeviceZoom());
+	y = DPIUtil.autoScaleUp(drawable, y, getDeviceZoom());
 	drawImageInPixels(image, x, y);
 }
 
@@ -1002,10 +1007,17 @@ public void drawImage (Image image, int srcX, int srcY, int srcWidth, int srcHei
 	drawImage(image, src.x, src.y, src.width, src.height, dest.x, dest.y, dest.width, dest.height, false);
 }
 
+private int getDeviceZoom() {
+	if (data.deviceZoom != 0) {
+		return data.deviceZoom;
+	}
+	return DPIUtil.getDeviceZoom();
+}
+
 void drawImage(Image srcImage, int srcX, int srcY, int srcWidth, int srcHeight, int destX, int destY, int destWidth, int destHeight, boolean simple) {
 	/* Refresh Image as per zoom level, if required. */
 	if (data.shell != null)
-		srcImage.handleDPIChange(data.shell.getCurrentDeviceZoom());
+	srcImage.handleDPIChange(getDeviceZoom());
 	if (data.gdipGraphics != 0) {
 		//TODO - cache bitmap
 		long [] gdipImage = srcImage.createGdipImage(getZoomLevel());
@@ -1649,10 +1661,10 @@ void drawBitmapColor(Image srcImage, int srcX, int srcY, int srcWidth, int srcHe
  * </ul>
  */
 public void drawLine (int x1, int y1, int x2, int y2) {
-	x1 = DPIUtil.autoScaleUp (drawable, x1, getShell());
-	x2 = DPIUtil.autoScaleUp (drawable, x2, getShell());
-	y1 = DPIUtil.autoScaleUp (drawable, y1, getShell());
-	y2 = DPIUtil.autoScaleUp (drawable, y2, getShell());
+	x1 = DPIUtil.autoScaleUp (drawable, x1, data.deviceZoom);
+	x2 = DPIUtil.autoScaleUp (drawable, x2, data.deviceZoom);
+	y1 = DPIUtil.autoScaleUp (drawable, y1, data.deviceZoom);
+	y2 = DPIUtil.autoScaleUp (drawable, y2, data.deviceZoom);
 	drawLineInPixels(x1, y1, x2, y2);
 }
 
@@ -1859,7 +1871,7 @@ void drawPolygonInPixels(int[] pointArray) {
  * </ul>
  */
 public void drawPolyline (int[] pointArray) {
-	drawPolylineInPixels(DPIUtil.autoScaleUp(drawable, pointArray, getShell()));
+	drawPolylineInPixels(DPIUtil.autoScaleUp(drawable, pointArray, data.deviceZoom));
 }
 
 void drawPolylineInPixels(int[] pointArray) {
@@ -1912,10 +1924,10 @@ void drawPolylineInPixels(int[] pointArray) {
  * </ul>
  */
 public void drawRectangle (int x, int y, int width, int height) {
-	x = DPIUtil.autoScaleUp (drawable, x, getShell());
-	y = DPIUtil.autoScaleUp (drawable, y, getShell());
-	width = DPIUtil.autoScaleUp (drawable, width, getShell());
-	height = DPIUtil.autoScaleUp (drawable, height, getShell());
+	x = DPIUtil.autoScaleUp (drawable, x, getDeviceZoom());
+	y = DPIUtil.autoScaleUp (drawable, y, getDeviceZoom());
+	width = DPIUtil.autoScaleUp (drawable, width, getDeviceZoom());
+	height = DPIUtil.autoScaleUp (drawable, height, getDeviceZoom());
 	drawRectangleInPixels(x, y, width, height);
 }
 
@@ -1971,7 +1983,7 @@ void drawRectangleInPixels (int x, int y, int width, int height) {
  */
 public void drawRectangle (Rectangle rect) {
 	if (rect == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
-	rect = DPIUtil.autoScaleUp(drawable, rect, getShell());
+	rect = DPIUtil.autoScaleUp(drawable, rect, data.deviceZoom);
 	drawRectangleInPixels(rect.x, rect.y, rect.width, rect.height);
 }
 
@@ -2127,8 +2139,8 @@ public void drawString (String string, int x, int y) {
  * </ul>
  */
 public void drawString (String string, int x, int y, boolean isTransparent) {
-	x = DPIUtil.autoScaleUp(drawable, x, getShell());
-	y = DPIUtil.autoScaleUp(drawable, y, getShell());
+	x = DPIUtil.autoScaleUp(drawable, x, getDeviceZoom());
+	y = DPIUtil.autoScaleUp(drawable, y, getDeviceZoom());
 	drawStringInPixels(string, x, y, isTransparent);
 }
 
@@ -2303,8 +2315,8 @@ void drawTextInPixels (String string, int x, int y, boolean isTransparent) {
  * </ul>
  */
 public void drawText (String string, int x, int y, int flags) {
-	x = DPIUtil.autoScaleUp(drawable, x, getShell());
-	y = DPIUtil.autoScaleUp(drawable, y, getShell());
+	x = DPIUtil.autoScaleUp(drawable, x, getDeviceZoom());
+	y = DPIUtil.autoScaleUp(drawable, y, getDeviceZoom());
 	drawTextInPixels(string, x, y, flags);
 }
 
@@ -2761,10 +2773,10 @@ void fillArcInPixels (int x, int y, int width, int height, int startAngle, int a
  * @see #drawRectangle(int, int, int, int)
  */
 public void fillGradientRectangle (int x, int y, int width, int height, boolean vertical) {
-	x = DPIUtil.autoScaleUp (drawable, x, getShell());
-	y = DPIUtil.autoScaleUp (drawable, y, getShell());
-	width = DPIUtil.autoScaleUp (drawable, width, getShell());
-	height = DPIUtil.autoScaleUp (drawable, height, getShell());
+	x = DPIUtil.autoScaleUp (drawable, x, data.deviceZoom);
+	y = DPIUtil.autoScaleUp (drawable, y, data.deviceZoom);
+	width = DPIUtil.autoScaleUp (drawable, width, data.deviceZoom);
+	height = DPIUtil.autoScaleUp (drawable, height, data.deviceZoom);
 	fillGradientRectangleInPixels(x, y, width, height, vertical);
 }
 
@@ -3001,10 +3013,10 @@ void fillPolygonInPixels (int[] pointArray) {
  * @see #drawRectangle(int, int, int, int)
  */
 public void fillRectangle (int x, int y, int width, int height) {
-	x = DPIUtil.autoScaleUp (drawable, x, getShell());
-	y = DPIUtil.autoScaleUp (drawable, y, getShell());
-	width = DPIUtil.autoScaleUp (drawable, width, getShell());
-	height = DPIUtil.autoScaleUp (drawable, height, getShell());
+	x = DPIUtil.autoScaleUp (drawable, x, getDeviceZoom());
+	y = DPIUtil.autoScaleUp (drawable, y, getDeviceZoom());
+	width = DPIUtil.autoScaleUp (drawable, width, getDeviceZoom());
+	height = DPIUtil.autoScaleUp (drawable, height, getDeviceZoom());
 	fillRectangleInPixels(x, y, width, height);
 }
 
@@ -3044,7 +3056,7 @@ void fillRectangleInPixels (int x, int y, int width, int height) {
  */
 public void fillRectangle (Rectangle rect) {
 	if (rect == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
-	rect = DPIUtil.autoScaleUp(drawable, rect, getShell());
+	rect = DPIUtil.autoScaleUp(drawable, rect, data.deviceZoom);
 	fillRectangleInPixels(rect.x, rect.y, rect.width, rect.height);
 }
 
@@ -3330,7 +3342,7 @@ public int getCharWidth(char ch) {
  * </ul>
  */
 public Rectangle getClipping () {
-	return DPIUtil.autoScaleDown(drawable, getClippingInPixels(), getShell());
+	return DPIUtil.autoScaleDown(drawable, getClippingInPixels(), data.deviceZoom);
 }
 
 Rectangle getClippingInPixels() {
@@ -3482,7 +3494,7 @@ public FontMetrics getFontMetrics() {
 	checkGC(FONT);
 	TEXTMETRIC lptm = new TEXTMETRIC();
 	OS.GetTextMetrics(handle, lptm);
-	return FontMetrics.win32_new(lptm);
+	return FontMetrics.win32_new(lptm, getDeviceZoom());
 }
 
 /**
@@ -3693,7 +3705,7 @@ public int getLineStyle() {
  * </ul>
  */
 public int getLineWidth () {
-	return DPIUtil.autoScaleDown(drawable, getLineWidthInPixels(), getShell());
+	return DPIUtil.autoScaleDown(drawable, getLineWidthInPixels(), getDeviceZoom());
 }
 
 int getLineWidthInPixels() {
@@ -4251,10 +4263,10 @@ void setClipping(long clipRgn) {
  * </ul>
  */
 public void setClipping (int x, int y, int width, int height) {
-	x = DPIUtil.autoScaleUp(drawable, x, getShell());
-	y = DPIUtil.autoScaleUp(drawable, y, getShell());
-	width = DPIUtil.autoScaleUp(drawable, width, getShell());
-	height = DPIUtil.autoScaleUp(drawable, height, getShell());
+	x = DPIUtil.autoScaleUp(drawable, x, data.deviceZoom);
+	y = DPIUtil.autoScaleUp(drawable, y, data.deviceZoom);
+	width = DPIUtil.autoScaleUp(drawable, width, data.deviceZoom);
+	height = DPIUtil.autoScaleUp(drawable, height, data.deviceZoom);
 	setClippingInPixels(x, y, width, height);
 }
 
@@ -4322,7 +4334,7 @@ public void setClipping (Rectangle rect) {
 		setClipping(0);
 	}
 	else {
-		rect = DPIUtil.autoScaleUp(drawable, rect, getShell());
+		rect = DPIUtil.autoScaleUp(drawable, rect, getDeviceZoom());
 		setClippingInPixels(rect.x, rect.y, rect.width, rect.height);
 	}
 }
@@ -4395,7 +4407,7 @@ public void setFillRule(int rule) {
 public void setFont (Font font) {
 	if (handle == 0) SWT.error(SWT.ERROR_GRAPHIC_DISPOSED);
 	if (font != null && font.isDisposed()) SWT.error(SWT.ERROR_INVALID_ARGUMENT);
-	data.font = font != null ? font.scaleFor(DPIUtil.getDeviceZoom(data.shell)) : data.device.systemFont;
+	data.font = font != null ? font.scaleFor(getDeviceZoom()) : data.device.systemFont;
 	data.state &= ~FONT;
 }
 
@@ -4783,7 +4795,7 @@ public void setLineStyle(int lineStyle) {
  * </ul>
  */
 public void setLineWidth(int lineWidth) {
-	lineWidth = DPIUtil.autoScaleUp (drawable, lineWidth, getShell());
+	lineWidth = DPIUtil.autoScaleUp (drawable, lineWidth, getDeviceZoom());
 	setLineWidthInPixels(lineWidth);
 }
 
@@ -4974,7 +4986,7 @@ Point stringExtentInPixels (String string) {
  * </ul>
  */
 public Point textExtent (String string) {
-	return DPIUtil.autoScaleDown(drawable, textExtentInPixels(string, SWT.DRAW_DELIMITER | SWT.DRAW_TAB), getShell());
+	return DPIUtil.autoScaleDown(drawable, textExtentInPixels(string, SWT.DRAW_DELIMITER | SWT.DRAW_TAB), getDeviceZoom());
 }
 
 /**
@@ -5009,7 +5021,7 @@ public Point textExtent (String string) {
  * </ul>
  */
 public Point textExtent (String string, int flags) {
-	return DPIUtil.autoScaleDown(drawable, textExtentInPixels(string, flags), getShell());
+	return DPIUtil.autoScaleDown(drawable, textExtentInPixels(string, flags), getDeviceZoom());
 }
 
 Point textExtentInPixels(String string, int flags) {
