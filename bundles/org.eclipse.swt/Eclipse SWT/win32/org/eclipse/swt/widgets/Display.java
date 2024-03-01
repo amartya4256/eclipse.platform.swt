@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.*;
 import java.util.function.*;
 
 import org.eclipse.swt.*;
-import org.eclipse.swt.custom.CommonWidgetsDPIChangeHandlers;
+import org.eclipse.swt.custom.*;
 import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.internal.*;
 import org.eclipse.swt.internal.ole.win32.*;
@@ -542,7 +542,7 @@ public class Display extends Device implements Executor {
 			setDevice (device);
 		};
 	}
-	
+
 	static {
 		CommonWidgetsDPIChangeHandlers.registerCommonHandlers();
 	}
@@ -2148,9 +2148,11 @@ Monitor getMonitor (long hmonitor) {
 	Monitor monitor = new Monitor ();
 	monitor.handle = hmonitor;
 	Rectangle boundsInPixels = new Rectangle (lpmi.rcMonitor_left, lpmi.rcMonitor_top, lpmi.rcMonitor_right - lpmi.rcMonitor_left,lpmi.rcMonitor_bottom - lpmi.rcMonitor_top);
-	monitor.setBounds (DPIUtil.autoScaleDown (boundsInPixels));
+	monitor.setBounds (boundsInPixels);
+	//monitor.setBounds (DPIUtil.autoScaleDown (boundsInPixels));
 	Rectangle clientAreaInPixels = new Rectangle (lpmi.rcWork_left, lpmi.rcWork_top, lpmi.rcWork_right - lpmi.rcWork_left, lpmi.rcWork_bottom - lpmi.rcWork_top);
-	monitor.setClientArea (DPIUtil.autoScaleDown (clientAreaInPixels));
+	//monitor.setClientArea (DPIUtil.autoScaleDown (clientAreaInPixels));
+	monitor.setClientArea (clientAreaInPixels);
 	int [] dpiX = new int[1];
 	int [] dpiY = new int[1];
 	int result = OS.GetDpiForMonitor (monitor.handle, OS.MDT_EFFECTIVE_DPI, dpiX, dpiY);

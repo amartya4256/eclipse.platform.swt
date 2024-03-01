@@ -49,6 +49,7 @@ public final class GCData {
 	public float lineMiterLimit = 10;
 	public int alpha = 0xFF;
 	public Shell shell;
+	public int deviceZoom;
 
 	public Image image;
 	public PAINTSTRUCT ps;

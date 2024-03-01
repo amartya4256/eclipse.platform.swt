@@ -757,7 +757,7 @@ LRESULT CDDS_ITEMPOSTPAINT (NMTVCUSTOMDRAW nmcd, long wParam, long lParam) {
 						}
 					}
 				}
-				rect.left += DPIUtil.autoScaleUp(INSET - 1);
+				rect.left += DPIUtil.autoScaleUp(INSET - 1, getCurrentDeviceZoom());
 				if (drawImage) {
 					Image image = null;
 					if (index == 0) {
@@ -766,8 +766,8 @@ LRESULT CDDS_ITEMPOSTPAINT (NMTVCUSTOMDRAW nmcd, long wParam, long lParam) {
 						Image [] images  = item.images;
 						if (images != null) image = images [index];
 					}
-					int inset = i != 0 ? DPIUtil.autoScaleUp(INSET) : 0;
-					int offset = i != 0 ? DPIUtil.autoScaleUp(INSET) : DPIUtil.autoScaleUp(INSET + 2);
+					int inset = i != 0 ? DPIUtil.autoScaleUp(INSET, getCurrentDeviceZoom()) : 0;
+					int offset = i != 0 ? DPIUtil.autoScaleUp(INSET, getCurrentDeviceZoom()) : DPIUtil.autoScaleUp(INSET + 2, getCurrentDeviceZoom());
 					if (image != null) {
 						Rectangle bounds = image.getBounds (); // Points
 						if (size == null) size = DPIUtil.autoScaleDown (getImageSize (), getShell()); // To Points
@@ -840,6 +840,7 @@ LRESULT CDDS_ITEMPOSTPAINT (NMTVCUSTOMDRAW nmcd, long wParam, long lParam) {
 				int nSavedDC = OS.SaveDC (hDC);
 				GCData data = new GCData ();
 				data.device = display;
+				data.deviceZoom = getCurrentDeviceZoom();
 				data.font = item.getFont (index);
 				data.foreground = OS.GetTextColor (hDC);
 				data.background = OS.GetBkColor (hDC);
@@ -1059,6 +1060,7 @@ LRESULT CDDS_ITEMPREPAINT (NMTVCUSTOMDRAW nmcd, long wParam, long lParam) {
 			}
 			int nSavedDC = OS.SaveDC (hDC);
 			GCData data = new GCData ();
+			data.deviceZoom = getCurrentDeviceZoom();
 			data.device = display;
 			if (selected && explorerTheme) {
 				data.foreground = OS.GetSysColor (OS.COLOR_WINDOWTEXT);

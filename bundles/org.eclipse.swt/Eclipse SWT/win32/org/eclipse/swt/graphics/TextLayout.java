@@ -68,7 +68,7 @@ public final class TextLayout extends Resource {
 	private MetricsAdapter metricsAdapter = new MetricsAdapter();
 
 	private HashMap<Integer, TextLayoutRuns> runMap = new HashMap<>();
-	int currentZoomLevel = DPIUtil.getDeviceZoom();
+	int currentZoomLevel;
 
 	static final char LTR_MARK = '\u200E', RTL_MARK = '\u200F';
 	static final int SCRIPT_VISATTR_SIZEOF = 2;
@@ -378,7 +378,7 @@ public void draw (GC gc, int x, int y) {
 	checkLayout();
 	currentZoomLevel = gc.data.shell.getCurrentDeviceZoom();
 	getRunForCurrentZoomLevel(gc)
-		.drawInPixels(gc, DPIUtil.autoScaleUp(getDevice(), x, getShell(gc)), DPIUtil.autoScaleUp(getDevice(), y, getShell(gc)));
+		.drawInPixels(gc, DPIUtil.autoScaleUp(getDevice(), x, getDeviceZoom(gc)), DPIUtil.autoScaleUp(getDevice(), y, getDeviceZoom(gc)));
 }
 
 /**
@@ -404,7 +404,7 @@ public void draw (GC gc, int x, int y, int selectionStart, int selectionEnd, Col
 	checkLayout();
 	currentZoomLevel = gc.data.shell.getCurrentDeviceZoom();
 	getRunForCurrentZoomLevel(gc)
-		.drawInPixels(gc, DPIUtil.autoScaleUp(getDevice(), x, getShell(gc)), DPIUtil.autoScaleUp(getDevice(), y, getShell(gc)), selectionStart, selectionEnd, selectionForeground, selectionBackground);
+		.drawInPixels(gc, DPIUtil.autoScaleUp(getDevice(), x, getDeviceZoom(gc)), DPIUtil.autoScaleUp(getDevice(), y, getDeviceZoom(gc)), selectionStart, selectionEnd, selectionForeground, selectionBackground);
 }
 
 /**
@@ -438,7 +438,16 @@ public void draw (GC gc, int x, int y, int selectionStart, int selectionEnd, Col
 	checkLayout();
 	currentZoomLevel = gc.data.shell.getCurrentDeviceZoom();
 	getRunForCurrentZoomLevel(gc)
-		.drawInPixels(gc, DPIUtil.autoScaleUp(getDevice(), x, getShell(gc)), DPIUtil.autoScaleUp(getDevice(), y, getShell(gc)), selectionStart, selectionEnd, selectionForeground, selectionBackground, flags);
+		.drawInPixels(gc, DPIUtil.autoScaleUp(getDevice(), x, getDeviceZoom(gc)), DPIUtil.autoScaleUp(getDevice(), y, getDeviceZoom(gc)), selectionStart, selectionEnd, selectionForeground, selectionBackground, flags);
+}
+
+private int getDeviceZoom(GC gc){
+	if (gc != null) {
+		return gc.data.deviceZoom;
+	} else if(font != null) {
+		return font.zoomLevel;
+	}
+	return DPIUtil.getDeviceZoom();
 }
 
 class TextLayoutRuns {
@@ -451,10 +460,8 @@ class TextLayoutRuns {
 * 	Break paragraphs into lines, wraps the text, and initialize caches.
 */
 void computeRuns (GC gc) {
-	if (gc != null) {
-		currentZoomLevel = gc.data.shell.getCurrentDeviceZoom();
-	}
 	if (runs != null) return;
+	currentZoomLevel = getDeviceZoom(gc);
 	long hDC = gc != null ? gc.handle : device.internal_new_GC(null);
 	long srcHdc = OS.CreateCompatibleDC(hDC);
 	allRuns = itemize();
@@ -465,21 +472,21 @@ void computeRuns (GC gc) {
 	}
 	SCRIPT_LOGATTR logAttr = new SCRIPT_LOGATTR();
 	SCRIPT_PROPERTIES properties = new SCRIPT_PROPERTIES();
-	int lineWidthInPixels = DPIUtil.autoScaleUp(getDevice(), indent, getShell(gc)), lineStart = 0, lineCount = 1;
+	int lineWidthInPixels = DPIUtil.autoScaleUp(getDevice(), indent, getDeviceZoom(gc)), lineStart = 0, lineCount = 1;
 	for (int i=0; i<allRuns.length - 1; i++) {
 		StyleItem run = allRuns[i];
 		if (tabs != null && run.tab) {
 			int tabsLength = tabs.length, j;
 			for (j = 0; j < tabsLength; j++) {
-				int tab = DPIUtil.autoScaleUp(getDevice(), tabs[j], getShell(gc));
+				int tab = DPIUtil.autoScaleUp(getDevice(), tabs[j], getDeviceZoom(gc));
 				if (tab > lineWidthInPixels) {
 					run.width = tab - lineWidthInPixels;
 					break;
 				}
 			}
 			if (j == tabsLength) {
-				int tabX = DPIUtil.autoScaleUp(getDevice(), tabs[tabsLength-1], getShell(gc));
-				int lastTabWidth = tabsLength > 1 ? DPIUtil.autoScaleUp(getDevice(), tabs[tabsLength-1], getShell(gc)) - DPIUtil.autoScaleUp(getDevice(), tabs[tabsLength-2], getShell(gc)) : DPIUtil.autoScaleUp(getDevice(), tabs[0], getShell(gc));
+				int tabX = DPIUtil.autoScaleUp(getDevice(), tabs[tabsLength-1], getDeviceZoom(gc));
+				int lastTabWidth = tabsLength > 1 ? DPIUtil.autoScaleUp(getDevice(), tabs[tabsLength-1], getDeviceZoom(gc)) - DPIUtil.autoScaleUp(getDevice(), tabs[tabsLength-2], getDeviceZoom(gc)) : DPIUtil.autoScaleUp(getDevice(), tabs[0], getDeviceZoom(gc));
 				if (lastTabWidth > 0) {
 					while (tabX <= lineWidthInPixels) tabX += lastTabWidth;
 					run.width = tabX - lineWidthInPixels;
@@ -494,18 +501,18 @@ void computeRuns (GC gc) {
 			if (length > 1) {
 				int stop = j + length - 1;
 				if (stop < tabsLength) {
-					run.width += DPIUtil.autoScaleUp(getDevice(), tabs[stop] - tabs[j], getShell(gc));
+					run.width += DPIUtil.autoScaleUp(getDevice(), tabs[stop] - tabs[j], getDeviceZoom(gc));
 				} else {
 					if (j < tabsLength) {
-						run.width += DPIUtil.autoScaleUp(getDevice(), tabs[tabsLength-1] - tabs[j], getShell(gc));
+						run.width += DPIUtil.autoScaleUp(getDevice(), tabs[tabsLength-1] - tabs[j], getDeviceZoom(gc));
 						length -= (tabsLength - 1) - j;
 					}
-					int lastTabWidth = tabsLength > 1 ? DPIUtil.autoScaleUp(getDevice(), tabs[tabsLength-1] - tabs[tabsLength-2], getShell(gc)) : DPIUtil.autoScaleUp(getDevice(), tabs[0], getShell(gc));
+					int lastTabWidth = tabsLength > 1 ? DPIUtil.autoScaleUp(getDevice(), tabs[tabsLength-1] - tabs[tabsLength-2], getDeviceZoom(gc)) : DPIUtil.autoScaleUp(getDevice(), tabs[0], getDeviceZoom(gc));
 					run.width += lastTabWidth * (length - 1);
 				}
 			}
 		}
-		if (wrapWidth != -1 && lineWidthInPixels + run.width > DPIUtil.autoScaleUp(getDevice(), wrapWidth, getShell(gc)) && !run.tab && !run.lineBreak) {
+		if (wrapWidth != -1 && lineWidthInPixels + run.width > DPIUtil.autoScaleUp(getDevice(), wrapWidth, getDeviceZoom(gc)) && !run.tab && !run.lineBreak) {
 			int start = 0;
 			int[] piDx = new int[run.length];
 			if (run.style != null && run.style.metrics != null) {
@@ -513,7 +520,7 @@ void computeRuns (GC gc) {
 			} else {
 				OS.ScriptGetLogicalWidths(run.analysis, run.length, run.glyphCount, run.advances, run.clusters, run.visAttrs, piDx);
 			}
-			int width = 0, maxWidth = DPIUtil.autoScaleUp(getDevice(), wrapWidth, getShell(gc)) - lineWidthInPixels;
+			int width = 0, maxWidth = DPIUtil.autoScaleUp(getDevice(), wrapWidth, getDeviceZoom(gc)) - lineWidthInPixels;
 			while (width + piDx[start] < maxWidth) {
 				width += piDx[start++];
 			}
@@ -607,7 +614,7 @@ void computeRuns (GC gc) {
 		lineWidthInPixels += run.width;
 		if (run.lineBreak) {
 			lineStart = i + 1;
-			lineWidthInPixels = DPIUtil.autoScaleUp(getDevice(), run.softBreak ?  wrapIndent : indent, getShell(gc));
+			lineWidthInPixels = DPIUtil.autoScaleUp(getDevice(), run.softBreak ?  wrapIndent : indent, getDeviceZoom(gc));
 			lineCount++;
 		}
 	}
@@ -632,8 +639,8 @@ void computeRuns (GC gc) {
 				TEXTMETRIC lptm = new TEXTMETRIC();
 				OS.SelectObject(srcHdc, getItemFont(run));
 				metricsAdapter.GetTextMetrics(srcHdc, lptm);
-				run.ascentInPoints = DPIUtil.autoScaleDown(getDevice(), lptm.tmAscent, getShell(gc));
-				run.descentInPoints = DPIUtil.autoScaleDown(getDevice(), lptm.tmDescent, getShell(gc));
+				run.ascentInPoints = DPIUtil.autoScaleDown(getDevice(), lptm.tmAscent, getDeviceZoom(gc));
+				run.descentInPoints = DPIUtil.autoScaleDown(getDevice(), lptm.tmDescent, getDeviceZoom(gc));
 				ascentInPoints = Math.max(ascentInPoints, run.ascentInPoints);
 				descentInPoints = Math.max(descentInPoints, run.descentInPoints);
 			}
@@ -641,21 +648,21 @@ void computeRuns (GC gc) {
 			System.arraycopy(lineRuns, 0, runs[line], 0, lineRunCount);
 
 			if (justify && wrapWidth != -1 && run.softBreak && lineWidthInPixels > 0) {
-				int lineIndent = DPIUtil.autoScaleUp(getDevice(), wrapIndent, getShell(gc));
+				int lineIndent = DPIUtil.autoScaleUp(getDevice(), wrapIndent, getDeviceZoom(gc));
 				if (line == 0) {
-					lineIndent = DPIUtil.autoScaleUp(getDevice(), indent, getShell(gc));
+					lineIndent = DPIUtil.autoScaleUp(getDevice(), indent, getDeviceZoom(gc));
 				} else {
 					StyleItem[] previousLine = runs[line - 1];
 					StyleItem previousRun = previousLine[previousLine.length - 1];
 					if (previousRun.lineBreak && !previousRun.softBreak) {
-						lineIndent = DPIUtil.autoScaleUp(getDevice(), indent, getShell(gc));
+						lineIndent = DPIUtil.autoScaleUp(getDevice(), indent, getDeviceZoom(gc));
 					}
 				}
 				lineWidthInPixels += lineIndent;
 				long hHeap = OS.GetProcessHeap();
 				int newLineWidth = 0;
 				for (StyleItem item : runs[line]) {
-					int iDx = item.width * DPIUtil.autoScaleUp(getDevice(), wrapWidth, getShell(gc)) / lineWidthInPixels;
+					int iDx = item.width * DPIUtil.autoScaleUp(getDevice(), wrapWidth, getDeviceZoom(gc)) / lineWidthInPixels;
 					if (iDx != item.width) {
 						item.justify = OS.HeapAlloc(hHeap, OS.HEAP_ZERO_MEMORY, item.glyphCount * 4);
 						if (item.justify == 0) SWT.error(SWT.ERROR_NO_HANDLES);
@@ -677,7 +684,7 @@ void computeRuns (GC gc) {
 				lastRun.softBreak = lastRun.lineBreak = true;
 			}
 
-			lineWidthInPixels = DPIUtil.autoScaleUp(getDevice(), getLineIndent(line), getShell(gc));
+			lineWidthInPixels = DPIUtil.autoScaleUp(getDevice(), getLineIndent(line), getDeviceZoom(gc));
 			for (StyleItem run1 : runs[line]) {
 				run1.x = lineWidthInPixels;
 				lineWidthInPixels += run1.width;
@@ -829,10 +836,10 @@ void drawInPixels (GC gc, int x, int y, int selectionStart, int selectionEnd, Co
 	RECT rect = new RECT();
 	OS.SetBkMode(hdc, OS.TRANSPARENT);
 	for (int line=0; line<runs.length; line++) {
-		int drawX = x + DPIUtil.autoScaleUp(getDevice(), getLineIndent(line), getShell(gc));
-		int drawY = y + DPIUtil.autoScaleUp(getDevice(), lineY[line], getShell(gc));
+		int drawX = x + DPIUtil.autoScaleUp(getDevice(), getLineIndent(line), getDeviceZoom(gc));
+		int drawY = y + DPIUtil.autoScaleUp(getDevice(), lineY[line], getDeviceZoom(gc));
 		StyleItem[] lineRuns = runs[line];
-		int lineHeight = DPIUtil.autoScaleUp(getDevice(), lineY[line+1] - lineY[line] - lineSpacingInPoints, getShell(gc));
+		int lineHeight = DPIUtil.autoScaleUp(getDevice(), lineY[line+1] - lineY[line] - lineSpacingInPoints, getDeviceZoom(gc));
 
 		//Draw last line selection
 		if ((flags & (SWT.FULL_SELECTION | SWT.DELIMITER_SELECTION)) != 0 && (hasSelection || (flags & SWT.LAST_LINE_SELECTION) != 0)) {
@@ -887,10 +894,10 @@ void drawInPixels (GC gc, int x, int y, int selectionStart, int selectionEnd, Co
 		}
 
 		//Draw the text, underline, strikeout, and border of the runs in the line
-		int baselineInPixels = Math.max(0, DPIUtil.autoScaleUp(getDevice(), ascent, getShell(gc)));
+		int baselineInPixels = Math.max(0, DPIUtil.autoScaleUp(getDevice(), ascent, getDeviceZoom(gc)));
 		int lineUnderlinePos = 0;
 		for (StyleItem run : lineRuns) {
-			baselineInPixels = Math.max(baselineInPixels, DPIUtil.autoScaleUp(getDevice(), run.ascentInPoints, getShell(gc)));
+			baselineInPixels = Math.max(baselineInPixels, DPIUtil.autoScaleUp(getDevice(), run.ascentInPoints, getDeviceZoom(gc)));
 			lineUnderlinePos = Math.min(lineUnderlinePos, run.underlinePos);
 		}
 		RECT borderClip = null, underlineClip = null, strikeoutClip = null, pRect = null;
@@ -1170,7 +1177,7 @@ RECT drawRunText(GC gc, long hdc, StyleItem run, RECT rect, int baselineInPixels
 	boolean partialSelection = hasSelection && !fullSelection && !(selectionStart > end || run.start > selectionEnd);
 	int offset = (orientation & SWT.RIGHT_TO_LEFT) != 0 ? -1 : 0;
 	int x = rect.left + offset;
-	int y = rect.top + (baselineInPixels - DPIUtil.autoScaleUp(getDevice(), run.ascentInPoints, getShell(gc)));
+	int y = rect.top + (baselineInPixels - DPIUtil.autoScaleUp(getDevice(), run.ascentInPoints, getDeviceZoom(gc)));
 	long hFont = getItemFont(run);
 	OS.SelectObject(hdc, hFont);
 	if (fullSelection) {
@@ -1201,7 +1208,7 @@ RECT drawRunTextGDIP(GC gc, long graphics, StyleItem run, RECT rect, long gdipFo
 	// rendering (such as ScriptTextOut()) which put top of the character
 	// at requested position.
 	int drawY = rect.top + baselineInPixels;
-	if (run.style != null && run.style.rise != 0) drawY -= DPIUtil.autoScaleUp(getDevice(), run.style.rise, getShell(gc));
+	if (run.style != null && run.style.rise != 0) drawY -= DPIUtil.autoScaleUp(getDevice(), run.style.rise, getDeviceZoom(gc));
 
 	int drawX = rect.left;
 	long brush = color;
@@ -1353,7 +1360,7 @@ RECT drawStrikeout(GC gc, long hdc, int x, int baselineInPixels, StyleItem[] lin
 			}
 		}
 		RECT rect = new RECT();
-		int riseInPixels = DPIUtil.autoScaleUp(getDevice(), style.rise, getShell(gc));
+		int riseInPixels = DPIUtil.autoScaleUp(getDevice(), style.rise, getDeviceZoom(gc));
 		OS.SetRect(rect, x + left, baselineInPixels - run.strikeoutPos - riseInPixels, x + run.x + run.width, baselineInPixels - run.strikeoutPos + run.strikeoutThickness - riseInPixels);
 		long brush = OS.CreateSolidBrush(color);
 		OS.FillRect(hdc, rect, brush);
@@ -1403,7 +1410,7 @@ RECT drawStrikeoutGDIP(GC gc, long graphics, int x, int baselineInPixels, StyleI
 				}
 			}
 		}
-		int riseInPixels = DPIUtil.autoScaleUp(getDevice(), style.rise, getShell(gc));
+		int riseInPixels = DPIUtil.autoScaleUp(getDevice(), style.rise, getDeviceZoom(gc));
 		if (clipRect != null) {
 			int gstate = Gdip.Graphics_Save(graphics);
 			if (clipRect.left == -1) clipRect.left = 0;
@@ -1461,7 +1468,7 @@ RECT drawUnderline(GC gc, long hdc, int x, int baselineInPixels, int lineUnderli
 			}
 		}
 		RECT rect = new RECT();
-		int riseInPixels = DPIUtil.autoScaleUp(getDevice(), style.rise, getShell(gc));
+		int riseInPixels = DPIUtil.autoScaleUp(getDevice(), style.rise, getDeviceZoom(gc));
 		OS.SetRect(rect, x + left, baselineInPixels - lineUnderlinePos - riseInPixels, x + run.x + run.width, baselineInPixels - lineUnderlinePos + run.underlineThickness - riseInPixels);
 		if (clipRect != null) {
 			if (clipRect.left == -1) clipRect.left = 0;
@@ -1537,7 +1544,7 @@ RECT drawUnderline(GC gc, long hdc, int x, int baselineInPixels, int lineUnderli
 				int penStyle = style.underlineStyle == UNDERLINE_IME_DASH ? OS.PS_DASH : OS.PS_DOT;
 				long pen = OS.CreatePen(penStyle, 1, color);
 				long oldPen = OS.SelectObject(hdc, pen);
-				int descentInPixels = DPIUtil.autoScaleUp(getDevice(), run.descentInPoints, getShell(gc));
+				int descentInPixels = DPIUtil.autoScaleUp(getDevice(), run.descentInPoints, getDeviceZoom(gc));
 				OS.SetRect(rect, rect.left, baselineInPixels + descentInPixels, rect.right, baselineInPixels + descentInPixels + run.underlineThickness);
 				OS.MoveToEx(hdc, rect.left, rect.top, 0);
 				OS.LineTo(hdc, rect.right, rect.top);
@@ -1593,7 +1600,7 @@ RECT drawUnderlineGDIP (GC gc, long graphics, int x, int baselineInPixels, int l
 			}
 		}
 		RECT rect = new RECT();
-		int riseInPixels = DPIUtil.autoScaleUp(getDevice(), style.rise, getShell(gc));
+		int riseInPixels = DPIUtil.autoScaleUp(getDevice(), style.rise, getDeviceZoom(gc));
 		OS.SetRect(rect, x + left, baselineInPixels - lineUnderlinePos - riseInPixels, x + run.x + run.width, baselineInPixels - lineUnderlinePos + run.underlineThickness - riseInPixels);
 		Rect gdipRect = null;
 		if (clipRect != null) {
@@ -1689,7 +1696,7 @@ RECT drawUnderlineGDIP (GC gc, long graphics, int x, int baselineInPixels, int l
 					gstate = Gdip.Graphics_Save(graphics);
 					Gdip.Graphics_SetClip(graphics, gdipRect, Gdip.CombineModeExclude);
 				}
-				int descentInPixels = DPIUtil.autoScaleUp(getDevice(), run.descentInPoints, getShell(gc));
+				int descentInPixels = DPIUtil.autoScaleUp(getDevice(), run.descentInPoints, getDeviceZoom(gc));
 				Gdip.Graphics_DrawLine(graphics, pen, rect.left, baselineInPixels + descentInPixels, run.width - run.length, baselineInPixels + descentInPixels);
 				if (gdipRect != null) {
 					Gdip.Graphics_Restore(graphics, gstate);
@@ -1825,7 +1832,7 @@ public Rectangle getBounds () {
  */
 public Rectangle getBounds (int start, int end) {
 	checkLayout();
-	return getBoundsInPixels(start, end);
+	return DPIUtil.autoScaleDown(getDevice(), getBoundsInPixels(start, end), getDeviceZoom(null));
 }
 
 Rectangle getBoundsInPixels (int start, int end) {
@@ -1903,8 +1910,8 @@ Rectangle getBoundsInPixels (int start, int end) {
 		}
 		left = Math.min(left, runLead);
 		right = Math.max(right, runTrail);
-		top = Math.min(top, lineY[lineIndex]);
-		bottom = Math.max(bottom, lineY[lineIndex + 1] - lineSpacingInPoints);
+		top = Math.min(top, DPIUtil.autoScaleUp(lineY[lineIndex], getDeviceZoom(null)));
+		bottom = Math.max(bottom, DPIUtil.autoScaleUp(lineY[lineIndex + 1] - lineSpacingInPoints, getDeviceZoom(null)));
 	}
 	return new Rectangle(left, top, right - left, bottom - top + getScaledVerticalIndent());
 }
@@ -2162,7 +2169,7 @@ public FontMetrics getLineMetrics (int lineIndex) {
 	lptm.tmHeight = DPIUtil.autoScaleUp(getDevice(), ascentInPoints + descentInPoints, currentZoomLevel);
 	lptm.tmInternalLeading = DPIUtil.autoScaleUp(getDevice(), leadingInPoints, currentZoomLevel);
 	lptm.tmAveCharWidth = 0;
-	return FontMetrics.win32_new(lptm);
+	return FontMetrics.win32_new(lptm, currentZoomLevel);
 }
 
 /**
@@ -3961,9 +3968,9 @@ void shape (GC  gc, final long hdc, final StyleItem run) {
 				lptm = new TEXTMETRIC();
 				metricsAdapter.GetTextMetrics(hdc, lptm);
 			}
-			run.ascentInPoints = DPIUtil.autoScaleDown(getDevice(), lptm.tmAscent, getShell(gc));
-			run.descentInPoints = DPIUtil.autoScaleDown(getDevice(), lptm.tmDescent, getShell(gc));
-			run.leadingInPoints = DPIUtil.autoScaleDown(getDevice(), lptm.tmInternalLeading, getShell(gc));
+			run.ascentInPoints = DPIUtil.autoScaleDown(getDevice(), lptm.tmAscent, getDeviceZoom(gc));
+			run.descentInPoints = DPIUtil.autoScaleDown(getDevice(), lptm.tmDescent, getDeviceZoom(gc));
+			run.leadingInPoints = DPIUtil.autoScaleDown(getDevice(), lptm.tmInternalLeading, getDeviceZoom(gc));
 		}
 		if (lotm != null) {
 			run.underlinePos = lotm.otmsUnderscorePosition;
@@ -3973,7 +3980,7 @@ void shape (GC  gc, final long hdc, final StyleItem run) {
 		} else {
 			run.underlinePos = 1;
 			run.underlineThickness = 1;
-			run.strikeoutPos = DPIUtil.autoScaleUp(getDevice(), run.ascentInPoints, getShell(gc)) / 2;
+			run.strikeoutPos = DPIUtil.autoScaleUp(getDevice(), run.ascentInPoints, getDeviceZoom(gc)) / 2;
 			run.strikeoutThickness = 1;
 		}
 		run.ascentInPoints += style.rise;
@@ -3981,9 +3988,9 @@ void shape (GC  gc, final long hdc, final StyleItem run) {
 	} else {
 		TEXTMETRIC lptm = new TEXTMETRIC();
 		metricsAdapter.GetTextMetrics(hdc, lptm);
-		run.ascentInPoints = DPIUtil.autoScaleDown(getDevice(), lptm.tmAscent, getShell(gc));
-		run.descentInPoints = DPIUtil.autoScaleDown(getDevice(), lptm.tmDescent, getShell(gc));
-		run.leadingInPoints = DPIUtil.autoScaleDown(getDevice(), lptm.tmInternalLeading, getShell(gc));
+		run.ascentInPoints = DPIUtil.autoScaleDown(getDevice(), lptm.tmAscent, getDeviceZoom(gc));
+		run.descentInPoints = DPIUtil.autoScaleDown(getDevice(), lptm.tmDescent, getDeviceZoom(gc));
+		run.leadingInPoints = DPIUtil.autoScaleDown(getDevice(), lptm.tmInternalLeading, getDeviceZoom(gc));
 	}
 }
 
@@ -4062,6 +4069,7 @@ public void setDefaultTabWidth(int tabLength) {
 }
 
 private TextLayoutRuns getRunForCurrentZoomLevel(GC gc) {
+
 	final AtomicInteger key = new AtomicInteger(-1);
 //	if (gc != null && gc.data != null && gc.data.shell != null) {
 //		key.set(gc.data.shell.getCurrentDeviceZoom());
