@@ -58,6 +58,8 @@ public class Pattern extends Resource {
 
 	private Runnable bitmapDestructor;
 
+	private Image image;
+
 	private float x1, y1, x2, y2;
 	private Color color1, color2;
 	private int alpha1, alpha2;
@@ -99,7 +101,13 @@ public Pattern(Device device, Image image) {
 	if (image == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
 	if (image.isDisposed()) SWT.error(SWT.ERROR_INVALID_ARGUMENT);
 	this.device.checkGDIP();
-	long[] gdipImage = image.createGdipImage();
+	this.image = image;
+	setImageHandle(image, null);
+	init();
+}
+
+void setImageHandle(Image image, Integer zoomLevel) {
+	long[] gdipImage = image.createGdipImage(zoomLevel);
 	long img = gdipImage[0];
 	int width = Gdip.Image_GetWidth(img);
 	int height = Gdip.Image_GetHeight(img);
@@ -115,7 +123,6 @@ public Pattern(Device device, Image image) {
 		bitmapDestructor.run();
 		SWT.error(SWT.ERROR_NO_HANDLES);
 	}
-	init();
 }
 
 /**
@@ -225,7 +232,11 @@ private Pattern(Shell shell, float x1, float y1, float x2, float y2, Color color
 }
 
 Pattern getScaledPattern(Shell shell) {
-	if(shell.getCurrentDeviceZoom() == this.device.getDeviceZoom() || this.isImagePattern) {
+	if(shell.getCurrentDeviceZoom() == this.device.getDeviceZoom()) {
+		return this;
+	}
+	if (this.isImagePattern) {
+		setImageHandle(image, shell.getCurrentDeviceZoom());
 		return this;
 	}
 	if(this.scaledpattern.get(shell.getCurrentDeviceZoom()) == null) {

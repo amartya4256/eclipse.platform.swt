@@ -19,7 +19,7 @@ import java.util.function.*;
 
 import org.eclipse.swt.*;
 import org.eclipse.swt.graphics.*;
-import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.*;
 
 /**
  * This class hold common constants and utility functions w.r.t. to SWT high DPI
@@ -157,12 +157,27 @@ public static float[] autoScaleDown (float size[]) {
 	return scaledSize;
 }
 
+public static float[] autoScaleDown (float size[], Shell shell) {
+	int zoom = Optional.ofNullable(shell).map(Shell::getCurrentDeviceZoom).orElse(deviceZoom);
+	if (zoom == 100 || size == null) return size;
+	float scaleFactor = getScalingFactor (shell);
+	float scaledSize[] = new float[size.length];
+	for (int i = 0; i < scaledSize.length; i++) {
+		scaledSize[i] = size[i] / scaleFactor;
+	}
+	return scaledSize;
+}
+
 /**
  * Auto-scale down float array dimensions if enabled for Drawable class.
  */
 public static float[] autoScaleDown (Drawable drawable, float size[]) {
+	return autoScaleDown(drawable, size, null);
+}
+
+public static float[] autoScaleDown (Drawable drawable, float size[], Shell shell) {
 	if (drawable != null && !drawable.isAutoScalable ()) return size;
-	return autoScaleDown (size);
+	return autoScaleDown(size, shell);
 }
 
 /**
@@ -295,8 +310,12 @@ public static Rectangle autoScaleDown (Rectangle rect, Shell shell) {
  * Returns a new scaled down Rectangle if enabled for Drawable class.
  */
 public static Rectangle autoScaleDown (Drawable drawable, Rectangle rect) {
+	return autoScaleDown(drawable, rect, null);
+}
+
+public static Rectangle autoScaleDown (Drawable drawable, Rectangle rect, Shell shell) {
 	if (drawable != null && !drawable.isAutoScalable ()) return rect;
-	return autoScaleDown (rect);
+	return autoScaleDown (rect, shell);
 }
 
 /**
@@ -369,8 +388,13 @@ public static ImageData autoScaleUp (Device device, final ImageData imageData) {
 }
 
 public static int[] autoScaleUp(int[] pointArray) {
-	if (deviceZoom == 100 || pointArray == null) return pointArray;
-	float scaleFactor = getScalingFactor ();
+	return autoScaleUp(pointArray, null);
+}
+
+public static int[] autoScaleUp(int[] pointArray, Shell shell) {
+	int zoom = Optional.ofNullable(shell).map(Shell::getCurrentDeviceZoom).orElse(deviceZoom);
+	if (zoom == 100 || pointArray == null) return pointArray;
+	float scaleFactor = getScalingFactor (shell);
 	int [] returnArray = new int[pointArray.length];
 	for (int i = 0; i < pointArray.length; i++) {
 		returnArray [i] =  Math.round (pointArray [i] * scaleFactor);
@@ -379,8 +403,12 @@ public static int[] autoScaleUp(int[] pointArray) {
 }
 
 public static int[] autoScaleUp(Drawable drawable, int[] pointArray) {
+	return autoScaleUp(drawable, pointArray, null);
+}
+
+public static int[] autoScaleUp(Drawable drawable, int[] pointArray, Shell shell) {
 	if (drawable != null && !drawable.isAutoScalable ()) return pointArray;
-	return autoScaleUp (pointArray);
+	return autoScaleUp (pointArray, shell);
 }
 
 /**
@@ -400,14 +428,6 @@ public static int autoScaleUp (int size, Shell shell) {
 public static int autoScaleUp (int size, int zoom) {
 	if (zoom == 100 || size == SWT.DEFAULT) return size;
 	float scaleFactor = getScalingFactor (zoom);
-	return Math.round (size * scaleFactor);
-}
-
-/**
- * Auto-scale up int dimensions to match the zoom level of the given shell
- */
-public static int autoScaleUp (int size, Shell shell) {
-	float scaleFactor = getScalingFactor (shell);
 	return Math.round (size * scaleFactor);
 }
 
@@ -526,8 +546,12 @@ public static Rectangle autoScaleUp (Rectangle rect, Shell shell) {
  * Returns a new scaled up Rectangle if enabled for Drawable class.
  */
 public static Rectangle autoScaleUp (Drawable drawable, Rectangle rect) {
+	return autoScaleUp(drawable, rect, null);
+}
+
+public static Rectangle autoScaleUp (Drawable drawable, Rectangle rect, Shell shell) {
 	if (drawable != null && !drawable.isAutoScalable ()) return rect;
-	return autoScaleUp (rect);
+	return autoScaleUp (rect, shell);
 }
 
 /**
@@ -551,20 +575,6 @@ private static float getScalingFactor (int zoom) {
 		return 1;
 	}
 	return zoom / 100f;
-}
-
-/**
- * Returns Scaling factor from the display
- * @return float scaling factor
- */
-private static float getScalingFactor (Shell shell) {
-	if (useCairoAutoScale) {
-		return 1;
-	}
-	if (shell == null) {
-		return getScalingFactor();
-	}
-	return shell.getCurrentDeviceZoom() / 100f;
 }
 
 /**
@@ -665,6 +675,10 @@ private static <T> ElementAtZoom<T> getElementAtZoom(Function<Integer, T> elemen
 
 public static int getDeviceZoom() {
 	return deviceZoom;
+}
+
+public static int getDeviceZoom(Shell shell) {
+	return Optional.ofNullable(shell).map(Shell::getCurrentDeviceZoom).orElseGet(() -> getDeviceZoom());
 }
 
 public static void setDeviceZoom (int nativeDeviceZoom) {

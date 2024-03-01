@@ -991,7 +991,7 @@ void fillImageBackground (long hDC, Control control, RECT rect, int tx, int ty) 
 	if (control != null) {
 		Image image = control.backgroundImage;
 		if (image != null) {
-			control.drawImageBackground (hDC, handle, image.handle, rect, tx, ty);
+			control.drawImageBackground (hDC, handle, image.handleDPIChange(getShell().getCurrentDeviceZoom()), rect, tx, ty);
 		}
 	}
 }
@@ -3086,7 +3086,7 @@ void setBackground () {
 	if (control.backgroundImage != null) {
 		Shell shell = getShell ();
 		shell.releaseBrushes ();
-		setBackgroundImage (control.backgroundImage.handle);
+		setBackgroundImage (control.backgroundImage.handleDPIChange(getShell().getCurrentDeviceZoom()));
 	} else {
 		setBackgroundPixel (control.background == -1 ? control.defaultBackground() : control.background);
 	}
@@ -3170,17 +3170,11 @@ public void setBackgroundImage (Image image) {
 
 void setBackgroundImage (long hBitmap) {
 	int flags = OS.RDW_ERASE | OS.RDW_FRAME | OS.RDW_INVALIDATE;
-	if (this.backgroundImage != null) {
-		this.backgroundImage.handleDPIChange(getCurrentDeviceZoom());
-	}
 	OS.RedrawWindow (handle, null, 0, flags);
 }
 
 void setBackgroundPixel (int pixel) {
 	int flags = OS.RDW_ERASE | OS.RDW_FRAME | OS.RDW_INVALIDATE;
-	if (this.backgroundImage != null) {
-		this.backgroundImage.handleDPIChange(getCurrentDeviceZoom());
-	}
 	OS.RedrawWindow (handle, null, 0, flags);
 }
 
@@ -4629,7 +4623,7 @@ void updateBackgroundColor () {
 void updateBackgroundImage () {
 	Control control = findBackgroundControl ();
 	Image image = control != null ? control.backgroundImage : backgroundImage;
-	setBackgroundImage (image != null ? image.handle : 0);
+	setBackgroundImage (image != null ? image.handleDPIChange(getShell().getCurrentDeviceZoom()) : 0);
 }
 
 void updateBackgroundMode () {
@@ -4969,7 +4963,7 @@ LRESULT WM_DPICHANGED (long wParam, long lParam) {
 		}
 
 		notifyListeners(SWT.ZoomChanged, event);
-		
+
 		if (DPIUtil.autoScaleOnRuntime) {
 			RECT rect = new RECT ();
 			COM.MoveMemory(rect, lParam, RECT.sizeof);
@@ -5800,7 +5794,7 @@ LRESULT wmColorChild (long wParam, long lParam) {
 		RECT rect = new RECT ();
 		OS.GetClientRect (handle, rect);
 		long hwnd = control.handle;
-		long hBitmap = control.backgroundImage.handle;
+		long hBitmap = control.backgroundImage.handleDPIChange(getShell().getCurrentDeviceZoom());
 		OS.MapWindowPoints (handle, hwnd, rect, 2);
 		POINT lpPoint = new POINT ();
 		OS.GetWindowOrgEx (wParam, lpPoint);

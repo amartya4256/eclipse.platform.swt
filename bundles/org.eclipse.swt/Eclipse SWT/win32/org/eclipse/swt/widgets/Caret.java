@@ -52,7 +52,7 @@ public class Caret extends Widget {
 static {
 	DPIZoomChangeRegistry.registerHandler(Caret::handleDPIChange, Caret.class);
 }
-	
+
 /**
  * Constructs a new instance of this class given its parent
  * and a style value describing its behavior and appearance.
@@ -354,7 +354,7 @@ void resize () {
 	resized = false;
 	long hwnd = parent.handle;
 	OS.DestroyCaret ();
-	long hBitmap = image != null ? image.handle : 0;
+	long hBitmap = image != null ? image.handleDPIChange(getCurrentDeviceZoom()) : 0;
 	int width = this.width;
 	if (image == null && width == 0) {
 		int [] buffer = new int [1];
@@ -441,7 +441,7 @@ void setBoundsInPixels (Rectangle rect) {
 void setFocus () {
 	long hwnd = parent.handle;
 	long hBitmap = 0;
-	if (image != null) hBitmap = image.handle;
+	if (image != null) hBitmap = image.handleDPIChange(getCurrentDeviceZoom());
 	int width = this.width;
 	if (image == null && width == 0) {
 		int [] buffer = new int [1];

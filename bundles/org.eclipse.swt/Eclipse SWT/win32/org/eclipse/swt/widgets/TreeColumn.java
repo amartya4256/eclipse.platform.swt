@@ -49,7 +49,7 @@ public class TreeColumn extends Item {
 	static {
 		DPIZoomChangeRegistry.registerHandler(TreeColumn::handleDPIChange, TreeColumn.class);
 	}
-	
+
 /**
  * Constructs a new instance of this class given its parent
  * (which must be a <code>Tree</code>) and a style value
@@ -544,7 +544,7 @@ void setImage (Image image, boolean sort, boolean right) {
 			hdItem.mask &= ~OS.HDI_IMAGE;
 			hdItem.fmt &= ~OS.HDF_IMAGE;
 			hdItem.fmt |= OS.HDF_BITMAP;
-			hdItem.hbm = image.handle;
+			hdItem.hbm = image.handleDPIChange(parent.getCurrentDeviceZoom());
 		} else {
 			hdItem.mask &= ~OS.HDI_BITMAP;
 			hdItem.fmt &= ~OS.HDF_BITMAP;

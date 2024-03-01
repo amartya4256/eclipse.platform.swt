@@ -1326,7 +1326,7 @@ void updateBackground () {
 	hBrush = 0;
 
 	if (backgroundImage != null)
-		hBrush = OS.CreatePatternBrush (backgroundImage.handle);
+		hBrush = OS.CreatePatternBrush (backgroundImage.handleDPIChange(getCurrentDeviceZoom()));
 	else if (background != -1)
 		hBrush = OS.CreateSolidBrush (background);
 
