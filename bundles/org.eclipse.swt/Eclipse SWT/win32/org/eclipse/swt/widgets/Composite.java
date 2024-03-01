@@ -1519,11 +1519,13 @@ LRESULT WM_PAINT (long wParam, long lParam) {
 				long hBufferedPaint = OS.BeginBufferedPaint (hDC, prcTarget, flags, null, phdc);
 				GCData data = new GCData ();
 				data.device = display;
+				data.shell = getShell();
+				data.deviceZoom = getCurrentDeviceZoom();
 				data.foreground = getForegroundPixel ();
 				Control control = findBackgroundControl ();
 				if (control == null) control = this;
 				data.background = control.getBackgroundPixel ();
-				data.font = Font.win32_new(display, OS.SendMessage (handle, OS.WM_GETFONT, 0, 0));
+				data.font = Font.win32_new(display, OS.SendMessage (handle, OS.WM_GETFONT, 0, 0), getCurrentDeviceZoom());
 				data.uiState = (int)OS.SendMessage (handle, OS.WM_QUERYUISTATE, 0, 0);
 				if ((style & SWT.NO_BACKGROUND) != 0) {
 					/* This code is intentionally commented because it may be slow to copy bits from the screen */
@@ -1536,6 +1538,7 @@ LRESULT WM_PAINT (long wParam, long lParam) {
 				GC gc = GC.win32_new (phdc [0], data);
 				Event event = new Event ();
 				event.gc = gc;
+				event.widget = this;
 				event.setBoundsInPixels(new Rectangle(ps.left, ps.top, width, height));
 				sendEvent (SWT.Paint, event);
 				if (data.focusDrawn && !isDisposed ()) updateUIState ();
@@ -1547,6 +1550,7 @@ LRESULT WM_PAINT (long wParam, long lParam) {
 
 			/* Create the paint GC */
 			GCData data = new GCData ();
+			data.deviceZoom = getCurrentDeviceZoom();
 			data.ps = ps;
 			data.hwnd = handle;
 			GC gc = GC.win32_new (this, data);
@@ -1581,6 +1585,7 @@ LRESULT WM_PAINT (long wParam, long lParam) {
 					paintGC = gc;
 					gc = new GC (image, paintGC.getStyle() & SWT.RIGHT_TO_LEFT);
 					GCData gcData = gc.getGCData ();
+					gcData.deviceZoom = getCurrentDeviceZoom();
 					gcData.uiState = data.uiState;
 					gc.setForeground (getForeground ());
 					gc.setBackground (getBackground ());

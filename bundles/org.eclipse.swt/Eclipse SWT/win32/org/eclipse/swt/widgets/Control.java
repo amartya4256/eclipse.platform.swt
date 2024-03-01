@@ -3662,8 +3662,10 @@ public void setRedraw (boolean redraw) {
  */
 @Override
 public void sendEvent(int eventType, Event event, boolean send) {
-	if(event != null && event.gc != null && event.gc.getGCData() != null)
+	if(event != null && event.gc != null && event.gc.getGCData() != null) {
 		event.gc.getGCData().shell = getShell();
+		event.gc.getGCData().deviceZoom = getCurrentDeviceZoom();
+	}
 	super.sendEvent(eventType, event, send);
 }
 
@@ -4912,7 +4914,7 @@ LRESULT WM_DPICHANGED (long wParam, long lParam) {
 		}
 
 		notifyListeners(SWT.ZoomChanged, event);
-		
+
 		if (DPIUtil.autoScaleOnRuntime) {
 			RECT rect = new RECT ();
 			COM.MoveMemory(rect, lParam, RECT.sizeof);
