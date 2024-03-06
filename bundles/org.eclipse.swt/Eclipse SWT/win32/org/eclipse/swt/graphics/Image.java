@@ -467,7 +467,7 @@ public Image(Device device, Rectangle bounds) {
 	super(device);
 	if (bounds == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
 	this.currentDeviceZoom = DPIUtil.getDeviceZoom ();
-	bounds = DPIUtil.autoScaleUp (bounds);
+	bounds = DPIUtil.autoScaleUp (bounds, currentDeviceZoom);
 	init(bounds.width, bounds.height);
 	init();
 }

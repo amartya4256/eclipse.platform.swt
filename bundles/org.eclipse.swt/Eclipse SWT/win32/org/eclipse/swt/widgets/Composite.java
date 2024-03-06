@@ -14,6 +14,8 @@
 package org.eclipse.swt.widgets;
 
 
+import java.util.*;
+
 import org.eclipse.swt.*;
 import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.internal.*;
@@ -218,7 +220,7 @@ Point computeSizeInPixels (int wHint, int hHint, boolean changed) {
 		if (wHint == SWT.DEFAULT || hHint == SWT.DEFAULT) {
 			changed |= (state & LAYOUT_CHANGED) != 0;
 			state &= ~LAYOUT_CHANGED;
-			size = DPIUtil.autoScaleUp(layout.computeSize (this, DPIUtil.autoScaleDown(wHint, getShell()), DPIUtil.autoScaleDown(hHint, getShell()), changed), getShell());
+			size = DPIUtil.autoScaleUp(layout.computeSize (this, DPIUtil.autoScaleDown(wHint, getZoomLevel()), DPIUtil.autoScaleDown(hHint, getZoomLevel()), changed), getZoomLevel());
 		} else {
 			size = new Point (wHint, hHint);
 		}
@@ -233,7 +235,7 @@ Point computeSizeInPixels (int wHint, int hHint, boolean changed) {
 	 * Since computeTrim can be overridden by subclasses, we cannot
 	 * call computeTrimInPixels directly.
 	 */
-	Rectangle trim = DPIUtil.autoScaleUp(computeTrim (0, 0, DPIUtil.autoScaleDown(size.x, getShell()), DPIUtil.autoScaleDown(size.y, getShell())), getShell());
+	Rectangle trim = DPIUtil.autoScaleUp(computeTrim (0, 0, DPIUtil.autoScaleDown(size.x, getZoomLevel()), DPIUtil.autoScaleDown(size.y, getZoomLevel())), getZoomLevel());
 	return new Point (trim.width, trim.height);
 }
 
@@ -353,12 +355,12 @@ int applyThemeBackground () {
  */
 public void drawBackground (GC gc, int x, int y, int width, int height, int offsetX, int offsetY) {
 	checkWidget ();
-	x = DPIUtil.autoScaleUp(x, getShell());
-	y = DPIUtil.autoScaleUp(y, getShell());
-	width = DPIUtil.autoScaleUp(width, getShell());
-	height = DPIUtil.autoScaleUp(height, getShell());
-	offsetX = DPIUtil.autoScaleUp(offsetX, getShell());
-	offsetY = DPIUtil.autoScaleUp(offsetY, getShell());
+	x = DPIUtil.autoScaleUp(x, getZoomLevel());
+	y = DPIUtil.autoScaleUp(y, getZoomLevel());
+	width = DPIUtil.autoScaleUp(width, getZoomLevel());
+	height = DPIUtil.autoScaleUp(height, getZoomLevel());
+	offsetX = DPIUtil.autoScaleUp(offsetX, getZoomLevel());
+	offsetY = DPIUtil.autoScaleUp(offsetY, getZoomLevel());
 	drawBackgroundInPixels(gc, x, y, width, height, offsetX, offsetY);
 }
 
@@ -878,10 +880,10 @@ Point minimumSize (int wHint, int hHint, boolean changed) {
 	 * Since getClientArea can be overridden by subclasses, we cannot
 	 * call getClientAreaInPixels directly.
 	 */
-	Rectangle clientArea = DPIUtil.autoScaleUp(getClientArea (), getShell());
+	Rectangle clientArea = DPIUtil.autoScaleUp(getClientArea (), getZoomLevel());
 	int width = 0, height = 0;
 	for (Control element : _getChildren ()) {
-		Rectangle rect = DPIUtil.autoScaleUp(element.getBounds (), getShell());
+		Rectangle rect = DPIUtil.autoScaleUp(element.getBounds (), getZoomLevel());
 		width = Math.max (width, rect.x - clientArea.x + rect.width);
 		height = Math.max (height, rect.y - clientArea.y + rect.height);
 	}
@@ -1643,7 +1645,7 @@ LRESULT WM_PAINT (long wParam, long lParam) {
 						if (gcData.focusDrawn && !isDisposed ()) updateUIState ();
 					}
 					gc.dispose();
-					if (!isDisposed ()) paintGC.drawImage (image, DPIUtil.autoScaleDown(ps.left, getShell()), DPIUtil.autoScaleDown(ps.top, getShell()));
+					if (!isDisposed ()) paintGC.drawImage (image, DPIUtil.autoScaleDown(ps.left, getZoomLevel()), DPIUtil.autoScaleDown(ps.top, getZoomLevel()));
 					image.dispose ();
 					gc = paintGC;
 				}
@@ -1984,5 +1986,9 @@ private static void handleDPIChange(DPIChangeEvent event, Widget widget) {
 		DPIZoomChangeRegistry.applyChange(event, child);
 	}
 	composite.redrawInPixels (null, true);
+}
+
+private int getZoomLevel() {
+	return Optional.ofNullable(getShell()).map(Shell::getCurrentDeviceZoom).orElse(0);
 }
 }

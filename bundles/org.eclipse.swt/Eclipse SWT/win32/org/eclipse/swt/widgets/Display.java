@@ -1962,7 +1962,7 @@ public Point [] getIconSizes () {
 	};
 }
 
-ImageList getImageList (int style, int width, int height) {
+ImageList getImageList (int style, int width, int height, int currentZoomLevel) {
 	if (imageList == null) imageList = new ImageList [4];
 
 	int i = 0;
@@ -1986,13 +1986,13 @@ ImageList getImageList (int style, int width, int height) {
 		imageList = newList;
 	}
 
-	ImageList list = new ImageList (style, width, height);
+	ImageList list = new ImageList (style, width, height, currentZoomLevel);
 	imageList [i] = list;
 	list.addRef();
 	return list;
 }
 
-ImageList getImageListToolBar (int style, int width, int height) {
+ImageList getImageListToolBar (int style, int width, int height, int currentZoomLevel) {
 	if (toolImageList == null) toolImageList = new ImageList [4];
 
 	int i = 0;
@@ -2016,13 +2016,13 @@ ImageList getImageListToolBar (int style, int width, int height) {
 		toolImageList = newList;
 	}
 
-	ImageList list = new ImageList (style, width, height);
+	ImageList list = new ImageList (style, width, height, currentZoomLevel);
 	toolImageList [i] = list;
 	list.addRef();
 	return list;
 }
 
-ImageList getImageListToolBarDisabled (int style, int width, int height) {
+ImageList getImageListToolBarDisabled (int style, int width, int height, int currentZoomLevel) {
 	if (toolDisabledImageList == null) toolDisabledImageList = new ImageList [4];
 
 	int i = 0;
@@ -2046,13 +2046,13 @@ ImageList getImageListToolBarDisabled (int style, int width, int height) {
 		toolDisabledImageList = newList;
 	}
 
-	ImageList list = new ImageList (style, width, height);
+	ImageList list = new ImageList (style, width, height, currentZoomLevel);
 	toolDisabledImageList [i] = list;
 	list.addRef();
 	return list;
 }
 
-ImageList getImageListToolBarHot (int style, int width, int height) {
+ImageList getImageListToolBarHot (int style, int width, int height, int currentZoomLevel) {
 	if (toolHotImageList == null) toolHotImageList = new ImageList [4];
 
 	int i = 0;
@@ -2076,7 +2076,7 @@ ImageList getImageListToolBarHot (int style, int width, int height) {
 		toolHotImageList = newList;
 	}
 
-	ImageList list = new ImageList (style, width, height);
+	ImageList list = new ImageList (style, width, height, currentZoomLevel);
 	toolHotImageList [i] = list;
 	list.addRef();
 	return list;

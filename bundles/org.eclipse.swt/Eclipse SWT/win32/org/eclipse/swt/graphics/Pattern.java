@@ -249,10 +249,10 @@ Pattern getScaledPattern(Shell shell) {
 private void initializeSize(Shell shell) {
 	float x1, y1, x2, y2;
 	if(shell != null) {
-		x1 = DPIUtil.autoScaleUp(this.x1, shell);
-		y1 = DPIUtil.autoScaleUp(this.y1, shell);
-		x2 = DPIUtil.autoScaleUp(this.x2, shell);
-		y2 = DPIUtil.autoScaleUp(this.y2, shell);
+		x1 = DPIUtil.autoScaleUp(this.x1, getZoomLevel(shell));
+		y1 = DPIUtil.autoScaleUp(this.y1, getZoomLevel(shell));
+		x2 = DPIUtil.autoScaleUp(this.x2, getZoomLevel(shell));
+		y2 = DPIUtil.autoScaleUp(this.y2, getZoomLevel(shell));
 	} else {
 		x1 = DPIUtil.autoScaleUp(this.x1);
 		y1 = DPIUtil.autoScaleUp(this.y1);
@@ -344,6 +344,10 @@ public boolean isDisposed() {
 public String toString() {
 	if (isDisposed()) return "Pattern {*DISPOSED*}";
 	return "Pattern {" + handle + "}";
+}
+
+private int getZoomLevel(Shell shell) {
+	return Optional.ofNullable(shell).map(Shell::getCurrentDeviceZoom).orElse(0);
 }
 
 }

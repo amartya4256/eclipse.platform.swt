@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.swt.widgets;
 
+import java.util.*;
+
 import org.eclipse.swt.*;
 import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.internal.*;
@@ -46,7 +48,7 @@ public class ExpandItem extends Item {
 	static final int TEXT_INSET = 6;
 	static final int BORDER = 1;
 	static final int CHEVRON_SIZE = 24;
-	
+
 	static {
 		DPIZoomChangeRegistry.registerHandler(ExpandItem::handleDPIChange, ExpandItem.class);
 	}
@@ -196,9 +198,9 @@ void drawItem (GC gc, long hTheme, RECT clipRect, boolean drawFocus) {
 	if (image != null) {
 		rect.left += ExpandItem.TEXT_INSET;
 		if (imageHeight > headerHeight) {
-			gc.drawImage (image, DPIUtil.autoScaleDown(rect.left, parent.getShell()), DPIUtil.autoScaleDown(rect.top + headerHeight - imageHeight, parent.getShell()));
+			gc.drawImage (image, DPIUtil.autoScaleDown(rect.left, getZoomLevel()), DPIUtil.autoScaleDown(rect.top + headerHeight - imageHeight, getZoomLevel()));
 		} else {
-			gc.drawImage (image, DPIUtil.autoScaleDown(rect.left, parent.getShell()), DPIUtil.autoScaleDown(rect.top + (headerHeight - imageHeight) / 2, parent.getShell()));
+			gc.drawImage (image, DPIUtil.autoScaleDown(rect.left, getZoomLevel()), DPIUtil.autoScaleDown(rect.top + (headerHeight - imageHeight) / 2, getZoomLevel()));
 		}
 		rect.left += imageWidth;
 	}
@@ -305,7 +307,7 @@ public boolean getExpanded () {
  */
 public int getHeaderHeight () {
 	checkWidget ();
-	return DPIUtil.autoScaleDown(getHeaderHeightInPixels(), parent.getShell());
+	return DPIUtil.autoScaleDown(getHeaderHeightInPixels(), getZoomLevel());
 }
 
 int getHeaderHeightInPixels () {
@@ -324,7 +326,7 @@ int getHeaderHeightInPixels () {
  */
 public int getHeight () {
 	checkWidget ();
-	return DPIUtil.autoScaleDown(getHeightInPixels(), parent.getShell());
+	return DPIUtil.autoScaleDown(getHeightInPixels(), getZoomLevel());
 }
 
 int getHeightInPixels () {
@@ -489,7 +491,7 @@ public void setExpanded (boolean expanded) {
  */
 public void setHeight (int height) {
 	checkWidget ();
-	setHeightInPixels(DPIUtil.autoScaleUp(height, parent.getShell()));
+	setHeightInPixels(DPIUtil.autoScaleUp(height, getZoomLevel()));
 }
 
 void setHeightInPixels (int height) {
@@ -535,5 +537,10 @@ private static void handleDPIChange (DPIChangeEvent event, Widget widget) {
 		int newHeight = Math.round(item.height * event.getScalingFactor());
 		item.setBoundsInPixels(item.x, item.y, newWidth, newHeight, false, true);
 	}
+}
+
+
+private int getZoomLevel() {
+	return Optional.ofNullable(parent.getShell()).map(Shell::getCurrentDeviceZoom).orElse(0);
 }
 }

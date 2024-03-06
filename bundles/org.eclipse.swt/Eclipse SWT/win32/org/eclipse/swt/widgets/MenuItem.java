@@ -51,7 +51,7 @@ public class MenuItem extends Item {
 	static {
 		DPIZoomChangeRegistry.registerHandler(MenuItem::handleDPIChange, MenuItem.class);
 	}
-	
+
 /**
  * Constructs a new instance of this class given its parent
  * (which must be a <code>Menu</code>) and a style value
@@ -1146,7 +1146,7 @@ LRESULT wmDrawChild (long wParam, long lParam) {
 		int x = (parent.style & SWT.BAR) != 0 ? MARGIN_WIDTH * 2 : struct.left;
 		int y = (parent.style & SWT.BAR) != 0 ? MARGIN_HEIGHT * 2 : struct.top + MARGIN_HEIGHT;
 		Image image = getEnabled () ? this.image : new Image (display, this.image, SWT.IMAGE_DISABLE);
-		gc.drawImage (image, DPIUtil.autoScaleDown(x, parent.getShell()), DPIUtil.autoScaleDown(y, parent.getShell()));
+		gc.drawImage (image, DPIUtil.autoScaleDown(x, parent.getShell().getCurrentDeviceZoom()), DPIUtil.autoScaleDown(y, parent.getShell().getCurrentDeviceZoom()));
 		if (this.image != image) image.dispose ();
 		gc.dispose ();
 	}

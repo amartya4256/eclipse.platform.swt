@@ -57,7 +57,7 @@ public class CoolBar extends Composite {
 	static {
 		WNDCLASS lpWndClass = new WNDCLASS ();
 		OS.GetClassInfo (0, ReBarClass, lpWndClass);
-		ReBarProc = lpWndClass.lpfnWndProc;		
+		ReBarProc = lpWndClass.lpfnWndProc;
 		DPIZoomChangeRegistry.registerHandler(CoolBar::handleDPIChange, CoolBar.class);
 	}
 	static final int SEPARATOR_WIDTH = 2;
@@ -412,7 +412,7 @@ int getMargin (int index) {
 	}
 	if ((style & SWT.FLAT) == 0) {
 		if (!isLastItemOfRow (index)) {
-			margin += DPIUtil.autoScaleUp(SEPARATOR_WIDTH, getShell());
+			margin += DPIUtil.autoScaleUp(SEPARATOR_WIDTH, getShell().getCurrentDeviceZoom());
 		}
 	}
 	return margin;
@@ -549,7 +549,7 @@ public Point [] getItemSizes () {
 	Point [] sizes = getItemSizesInPixels();
 	if (sizes != null) {
 		for (int i = 0; i < sizes.length; i++) {
-			sizes[i] = DPIUtil.autoScaleDown(sizes[i], getShell());
+			sizes[i] = DPIUtil.autoScaleDown(sizes[i], getShell().getCurrentDeviceZoom());
 		}
 	}
 	return sizes;
@@ -565,7 +565,7 @@ Point [] getItemSizesInPixels (int zoomLevel) {
 	REBARBANDINFO rbBand = new REBARBANDINFO ();
 	rbBand.cbSize = REBARBANDINFO.sizeof;
 	rbBand.fMask = OS.RBBIM_CHILDSIZE;
-	int separator = (style & SWT.FLAT) == 0 ? DPIUtil.autoScaleUp(SEPARATOR_WIDTH, getShell()) : 0;
+	int separator = (style & SWT.FLAT) == 0 ? DPIUtil.autoScaleUp(SEPARATOR_WIDTH, getShell().getCurrentDeviceZoom()) : 0;
 	MARGINS margins = new MARGINS ();
 	for (int i=0; i<count; i++) {
 		RECT rect = new RECT ();
@@ -813,7 +813,7 @@ public void setItemLayout (int [] itemOrder, int [] wrapIndices, Point [] sizes)
 	if (sizes == null) error (SWT.ERROR_NULL_ARGUMENT);
 	Point [] sizesInPoints = new Point [sizes.length];
 	for (int i = 0; i < sizes.length; i++) {
-		sizesInPoints[i] = DPIUtil.autoScaleUp(sizes[i], getShell());
+		sizesInPoints[i] = DPIUtil.autoScaleUp(sizes[i], getShell().getCurrentDeviceZoom());
 	}
 	setItemLayoutInPixels (itemOrder, wrapIndices, sizesInPoints);
 }

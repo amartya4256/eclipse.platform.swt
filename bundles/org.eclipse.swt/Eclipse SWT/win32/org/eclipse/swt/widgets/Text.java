@@ -391,7 +391,7 @@ private void setSearchIcon() {
 }
 
 private void createSearchIcons() {
-	int scaledIconSize = DPIUtil.autoScaleUp(ICON_SIZE_AT_100, getShell());
+	int scaledIconSize = DPIUtil.autoScaleUp(ICON_SIZE_AT_100, getShell().getCurrentDeviceZoom());
 	int searchIconResource = display.textUseDarkthemeIcons ? IDI_SEARCH_DARKTHEME : IDI_SEARCH;
 	long hIcon = OS.LoadImage (OS.GetLibraryHandle (), searchIconResource, OS.IMAGE_ICON, scaledIconSize, scaledIconSize, 0);
 	getShell().textSearchIcons.put(getCurrentDeviceZoom(), hIcon);
@@ -1047,7 +1047,7 @@ public int getCaretLineNumber () {
  */
 public Point getCaretLocation () {
 	checkWidget ();
-	return DPIUtil.autoScaleDown(getCaretLocationInPixels(), getShell());
+	return DPIUtil.autoScaleDown(getCaretLocationInPixels(), getShell().getCurrentDeviceZoom());
 }
 
 Point getCaretLocationInPixels () {
@@ -1272,7 +1272,7 @@ public String getLineDelimiter () {
  */
 public int getLineHeight () {
 	checkWidget ();
-	return DPIUtil.autoScaleDown(getLineHeightInPixels (), getShell());
+	return DPIUtil.autoScaleDown(getLineHeightInPixels (), getShell().getCurrentDeviceZoom());
 }
 
 int getLineHeightInPixels () {
@@ -1615,7 +1615,7 @@ public int getTopIndex () {
  */
 public int getTopPixel () {
 	checkWidget ();
-	return DPIUtil.autoScaleDown(getTopPixelInPixels(), getShell());
+	return DPIUtil.autoScaleDown(getTopPixelInPixels(), getShell().getCurrentDeviceZoom());
 }
 
 int getTopPixelInPixels () {
