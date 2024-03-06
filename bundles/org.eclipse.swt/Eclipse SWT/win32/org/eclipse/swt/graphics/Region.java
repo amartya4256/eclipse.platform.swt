@@ -626,7 +626,7 @@ public long getHandle(Shell shell) {
 		return this.handle;
 	}
 	if(this.handleMap.get(shell.getCurrentDeviceZoom()) == null) {
-		Rectangle rect = DPIUtil.autoScaleUp(this.getBoundsInPixels(), shell);
+		Rectangle rect = DPIUtil.autoScaleUp(this.getBoundsInPixels(), Optional.ofNullable(shell).map(Shell::getCurrentDeviceZoom).orElse(0));
 		handleMap.put(shell.getCurrentDeviceZoom(), OS.CreateRectRgn(rect.x, rect.y, rect.x + rect.width, rect.y + rect.height));
 	}
 	return this.handleMap.get(shell.getCurrentDeviceZoom());

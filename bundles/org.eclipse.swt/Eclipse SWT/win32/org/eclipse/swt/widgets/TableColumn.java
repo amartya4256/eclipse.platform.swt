@@ -309,7 +309,7 @@ public String getToolTipText () {
  */
 public int getWidth () {
 	checkWidget ();
-	return DPIUtil.autoScaleDown(getWidthInPixels(), parent.getShell());
+	return DPIUtil.autoScaleDown(getWidthInPixels(), parent.getShell().getCurrentDeviceZoom());
 }
 
 int getWidthInPixels () {
@@ -854,7 +854,7 @@ public void setToolTipText (String string) {
  */
 public void setWidth (int width) {
 	checkWidget ();
-	setWidthInPixels(DPIUtil.autoScaleUp(width, parent.getShell()));
+	setWidthInPixels(DPIUtil.autoScaleUp(width, parent.getShell().getCurrentDeviceZoom()));
 }
 
 void setWidthInPixels (int width) {

@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.swt.widgets;
 
+import java.util.*;
+
 import org.eclipse.swt.*;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.*;
@@ -391,7 +393,7 @@ public ExpandItem [] getItems () {
  */
 public int getSpacing () {
 	checkWidget ();
-	return DPIUtil.autoScaleDown(getSpacingInPixels (), getShell());
+	return DPIUtil.autoScaleDown(getSpacingInPixels (), getZoomLevel());
 }
 
 int getSpacingInPixels () {
@@ -561,7 +563,7 @@ void setScrollbar () {
  */
 public void setSpacing (int spacing) {
 	checkWidget ();
-	setSpacingInPixels(DPIUtil.autoScaleUp(spacing, getShell()));
+	setSpacingInPixels(DPIUtil.autoScaleUp(spacing, getZoomLevel()));
 }
 
 void setSpacingInPixels (int spacing) {
@@ -879,5 +881,9 @@ private static void handleDPIChange(Widget widget, int newZoom, float scalingFac
 		DPIZoomChangeRegistry.applyChange(item, newZoom, scalingFactor);
 	}
 	expandBar.redraw();
+}
+
+private int getZoomLevel() {
+	return Optional.ofNullable(getShell()).map(Shell::getCurrentDeviceZoom).orElse(0);
 }
 }

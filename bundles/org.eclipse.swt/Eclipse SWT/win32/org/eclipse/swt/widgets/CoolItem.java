@@ -185,9 +185,9 @@ protected void checkSubclass () {
  */
 public Point computeSize (int wHint, int hHint) {
 	checkWidget ();
-	wHint = (wHint != SWT.DEFAULT ? DPIUtil.autoScaleUp(wHint, parent.getShell()) : wHint);
-	hHint = (hHint != SWT.DEFAULT ? DPIUtil.autoScaleUp(hHint, parent.getShell()) : hHint);
-	return DPIUtil.autoScaleDown(computeSizeInPixels(wHint, hHint), parent.getShell());
+	wHint = (wHint != SWT.DEFAULT ? DPIUtil.autoScaleUp(wHint, parent.getShell().getCurrentDeviceZoom()) : wHint);
+	hHint = (hHint != SWT.DEFAULT ? DPIUtil.autoScaleUp(hHint, parent.getShell().getCurrentDeviceZoom()) : hHint);
+	return DPIUtil.autoScaleDown(computeSizeInPixels(wHint, hHint), parent.getShell().getCurrentDeviceZoom());
 }
 Point computeSizeInPixels (int wHint, int hHint) {
 	int index = parent.indexOf (this);
@@ -222,7 +222,7 @@ void destroyWidget () {
  */
 public Rectangle getBounds () {
 	checkWidget ();
-	return DPIUtil.autoScaleDown(getBoundsInPixels(), parent.getShell());
+	return DPIUtil.autoScaleDown(getBoundsInPixels(), parent.getShell().getCurrentDeviceZoom());
 }
 
 Rectangle getBoundsInPixels () {
@@ -236,7 +236,7 @@ Rectangle getBoundsInPixels () {
 	rect.left -= margins.cxLeftWidth;
 	rect.right += margins.cxRightWidth;
 	if (!parent.isLastItemOfRow (index)) {
-		rect.right += (parent.style & SWT.FLAT) == 0 ? CoolBar.SEPARATOR_WIDTH : 0;
+		rect.right += (parent.style & SWT.FLAT) == 0 ? DPIUtil.autoScaleUp(CoolBar.SEPARATOR_WIDTH, getCurrentDeviceZoom()) : 0;
 	}
 	int width = rect.right - rect.left;
 	int height = rect.bottom - rect.top;
@@ -382,7 +382,7 @@ public void setControl (Control control) {
  */
 public Point getPreferredSize () {
 	checkWidget ();
-	return DPIUtil.autoScaleDown(getPreferredSizeInPixels(), parent.getShell());
+	return DPIUtil.autoScaleDown(getPreferredSizeInPixels(), parent.getShell().getCurrentDeviceZoom());
 }
 
 Point getPreferredSizeInPixels () {
@@ -413,7 +413,7 @@ Point getPreferredSizeInPixels () {
  */
 public void setPreferredSize (int width, int height) {
 	checkWidget ();
-	setPreferredSizeInPixels(DPIUtil.autoScaleUp(width, parent.getShell()), DPIUtil.autoScaleUp(height, parent.getShell()));
+	setPreferredSizeInPixels(DPIUtil.autoScaleUp(width, parent.getShell().getCurrentDeviceZoom()), DPIUtil.autoScaleUp(height, parent.getShell().getCurrentDeviceZoom()));
 }
 
 void setPreferredSizeInPixels (int width, int height) {
@@ -462,7 +462,7 @@ void setPreferredSizeInPixels (int width, int height) {
 public void setPreferredSize (Point size) {
 	checkWidget ();
 	if (size == null) error(SWT.ERROR_NULL_ARGUMENT);
-	size = DPIUtil.autoScaleUp(size, parent.getShell());
+	size = DPIUtil.autoScaleUp(size, parent.getShell().getCurrentDeviceZoom());
 	setPreferredSizeInPixels(size.x, size.y);
 }
 
@@ -481,7 +481,7 @@ public void setPreferredSize (Point size) {
  */
 public Point getSize () {
 	checkWidget ();
-	return DPIUtil.autoScaleDown(getSizeInPixels(), parent.getShell());
+	return DPIUtil.autoScaleDown(getSizeInPixels(), parent.getShell().getCurrentDeviceZoom());
 }
 
 Point getSizeInPixels() {
@@ -495,7 +495,7 @@ Point getSizeInPixels() {
 	rect.left -= margins.cxLeftWidth;
 	rect.right += margins.cxRightWidth;
 	if (!parent.isLastItemOfRow (index)) {
-		rect.right += (parent.style & SWT.FLAT) == 0 ? CoolBar.SEPARATOR_WIDTH : 0;
+		rect.right += (parent.style & SWT.FLAT) == 0 ? DPIUtil.autoScaleUp(CoolBar.SEPARATOR_WIDTH, getCurrentDeviceZoom())  : 0;
 	}
 	int width = rect.right - rect.left;
 	int height = rect.bottom - rect.top;
@@ -523,7 +523,7 @@ Point getSizeInPixels() {
  */
 public void setSize (int width, int height) {
 	checkWidget ();
-	setSizeInPixels(DPIUtil.autoScaleUp(width, parent.getShell()), DPIUtil.autoScaleUp(height, parent.getShell()));
+	setSizeInPixels(DPIUtil.autoScaleUp(width, parent.getShell().getCurrentDeviceZoom()), DPIUtil.autoScaleUp(height, parent.getShell().getCurrentDeviceZoom()));
 }
 
 void setSizeInPixels (int width, int height) {
@@ -561,7 +561,7 @@ void setSizeInPixels (int width, int height) {
 		MARGINS margins = new MARGINS ();
 		OS.SendMessage (hwnd, OS.RB_GETBANDMARGINS, 0, margins);
 		cx -= margins.cxLeftWidth + margins.cxRightWidth;
-		int separator = (parent.style & SWT.FLAT) == 0 ? CoolBar.SEPARATOR_WIDTH : 0;
+		int separator = (parent.style & SWT.FLAT) == 0 ? DPIUtil.autoScaleUp(CoolBar.SEPARATOR_WIDTH , getCurrentDeviceZoom()) : 0;
 		rbBand.cx = cx - separator;
 		rbBand.fMask |= OS.RBBIM_SIZE;
 	}
@@ -589,7 +589,7 @@ void setSizeInPixels (int width, int height) {
 public void setSize (Point size) {
 	checkWidget ();
 	if (size == null) error(SWT.ERROR_NULL_ARGUMENT);
-	size = DPIUtil.autoScaleUp(size, parent.getShell());
+	size = DPIUtil.autoScaleUp(size, parent.getShell().getCurrentDeviceZoom());
 	setSizeInPixels(size.x, size.y);
 }
 
@@ -608,7 +608,7 @@ public void setSize (Point size) {
  */
 public Point getMinimumSize () {
 	checkWidget ();
-	return DPIUtil.autoScaleDown(getMinimumSizeInPixels(), parent.getShell());
+	return DPIUtil.autoScaleDown(getMinimumSizeInPixels(), parent.getShell().getCurrentDeviceZoom());
 }
 
 Point getMinimumSizeInPixels () {
@@ -641,7 +641,7 @@ Point getMinimumSizeInPixels () {
  */
 public void setMinimumSize (int width, int height) {
 	checkWidget ();
-	setMinimumSizeInPixels(DPIUtil.autoScaleUp(width, parent.getShell()), DPIUtil.autoScaleUp(height, parent.getShell()));
+	setMinimumSizeInPixels(DPIUtil.autoScaleUp(width, parent.getShell().getCurrentDeviceZoom()), DPIUtil.autoScaleUp(height, parent.getShell().getCurrentDeviceZoom()));
 }
 
 void setMinimumSizeInPixels (int width, int height) {
@@ -691,7 +691,7 @@ void setMinimumSizeInPixels (int width, int height) {
 public void setMinimumSize (Point size) {
 	checkWidget ();
 	if (size == null) error (SWT.ERROR_NULL_ARGUMENT);
-	size = DPIUtil.autoScaleUp(size, parent.getShell());
+	size = DPIUtil.autoScaleUp(size, parent.getShell().getCurrentDeviceZoom());
 	setMinimumSizeInPixels(size.x, size.y);
 }
 

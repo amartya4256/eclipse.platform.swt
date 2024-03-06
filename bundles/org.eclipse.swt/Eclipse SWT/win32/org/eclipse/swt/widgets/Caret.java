@@ -14,6 +14,8 @@
 package org.eclipse.swt.widgets;
 
 
+import java.util.*;
+
 import org.eclipse.swt.*;
 import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.internal.*;
@@ -121,7 +123,7 @@ long defaultFont () {
  */
 public Rectangle getBounds () {
 	checkWidget();
-	return DPIUtil.autoScaleDown(getBoundsInPixels(), parent.getShell());
+	return DPIUtil.autoScaleDown(getBoundsInPixels(), getZoomLevel());
 }
 
 Rectangle getBoundsInPixels () {
@@ -186,7 +188,7 @@ public Image getImage () {
  */
 public Point getLocation () {
 	checkWidget();
-	return DPIUtil.autoScaleDown(getLocationInPixels(), parent.getShell());
+	return DPIUtil.autoScaleDown(getLocationInPixels(), getZoomLevel());
 }
 
 Point getLocationInPixels () {
@@ -220,7 +222,7 @@ public Canvas getParent () {
  */
 public Point getSize () {
 	checkWidget();
-	return DPIUtil.autoScaleDown(getSizeInPixels(), parent.getShell());
+	return DPIUtil.autoScaleDown(getSizeInPixels(), getZoomLevel());
 }
 
 Point getSizeInPixels () {
@@ -396,7 +398,7 @@ void restoreIMEFont () {
  */
 public void setBounds (int x, int y, int width, int height) {
 	checkWidget();
-	setBoundsInPixels(DPIUtil.autoScaleUp(x, parent.getShell()), DPIUtil.autoScaleUp(y, parent.getShell()), DPIUtil.autoScaleUp(width, parent.getShell()), DPIUtil.autoScaleUp(height, parent.getShell()));
+	setBoundsInPixels(DPIUtil.autoScaleUp(x, getZoomLevel()), DPIUtil.autoScaleUp(y, getZoomLevel()), DPIUtil.autoScaleUp(width, getZoomLevel()), DPIUtil.autoScaleUp(height, getZoomLevel()));
 }
 
 void setBoundsInPixels (int x, int y, int width, int height) {
@@ -431,7 +433,7 @@ void setBoundsInPixels (int x, int y, int width, int height) {
  */
 public void setBounds (Rectangle rect) {
 	if (rect == null) error (SWT.ERROR_NULL_ARGUMENT);
-	setBoundsInPixels(DPIUtil.autoScaleUp(rect, parent.getShell()));
+	setBoundsInPixels(DPIUtil.autoScaleUp(rect, getZoomLevel()));
 }
 
 void setBoundsInPixels (Rectangle rect) {
@@ -539,7 +541,7 @@ void setIMEFont () {
  */
 public void setLocation (int x, int y) {
 	checkWidget();
-	setLocationInPixels(DPIUtil.autoScaleUp(x, parent.getShell()), DPIUtil.autoScaleUp(y, parent.getShell()));
+	setLocationInPixels(DPIUtil.autoScaleUp(x, getZoomLevel()), DPIUtil.autoScaleUp(y, getZoomLevel()));
 }
 
 void setLocationInPixels (int x, int y) {
@@ -572,7 +574,7 @@ private void setCurrentCaret(Caret caret) {
 public void setLocation (Point location) {
 	checkWidget();
 	if (location == null) error (SWT.ERROR_NULL_ARGUMENT);
-	location = DPIUtil.autoScaleUp(location, parent.getShell());
+	location = DPIUtil.autoScaleUp(location, getZoomLevel());
 	setLocationInPixels(location.x, location.y);
 }
 
@@ -589,7 +591,7 @@ public void setLocation (Point location) {
  */
 public void setSize (int width, int height) {
 	checkWidget();
-	setSizeInPixels(DPIUtil.autoScaleUp(width, parent.getShell()), DPIUtil.autoScaleUp(height, parent.getShell()));
+	setSizeInPixels(DPIUtil.autoScaleUp(width, getZoomLevel()), DPIUtil.autoScaleUp(height, getZoomLevel()));
 }
 
 void setSizeInPixels (int width, int height) {
@@ -615,7 +617,7 @@ void setSizeInPixels (int width, int height) {
 public void setSize (Point size) {
 	checkWidget();
 	if (size == null) error (SWT.ERROR_NULL_ARGUMENT);
-	size = DPIUtil.autoScaleUp(size, parent.getShell());
+	size = DPIUtil.autoScaleUp(size, getZoomLevel());
 	setSizeInPixels(size.x, size.y);
 }
 
@@ -666,5 +668,9 @@ private static void handleDPIChange(Widget widget, int newZoom, float scalingFac
 	if (caret.font != null) {
 		caret.setFont(caret.font);
 	}
+}
+
+private int getZoomLevel() {
+	return Optional.ofNullable(parent.getShell()).map(Shell::getCurrentDeviceZoom).orElse(0);
 }
 }

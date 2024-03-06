@@ -456,7 +456,7 @@ int imageIndex (Image image) {
 	if (image == null) return -1;
 	if (imageList == null) {
 		Rectangle bounds = DPIUtil.autoScaleBounds(image.getBounds(), this.getZoom(), 100);
-		imageList = display.getImageList (style & SWT.RIGHT_TO_LEFT, bounds.width, bounds.height);
+		imageList = display.getImageList (style & SWT.RIGHT_TO_LEFT, bounds.width, bounds.height, this.getZoom());
 		int index = imageList.add (image);
 		long hImageList = imageList.getHandle ();
 		OS.SendMessage (handle, OS.TCM_SETIMAGELIST, 0, hImageList);
@@ -509,7 +509,7 @@ Point minimumSize (int wHint, int hHint, boolean flushCache) {
 			index++;
 		}
 		if (index == count) {
-			Rectangle rect = DPIUtil.autoScaleUp(child.getBounds (), getShell());
+			Rectangle rect = DPIUtil.autoScaleUp(child.getBounds (), getShell().getCurrentDeviceZoom());
 			width = Math.max (width, rect.x + rect.width);
 			height = Math.max (height, rect.y + rect.height);
 		} else {
@@ -517,7 +517,7 @@ Point minimumSize (int wHint, int hHint, boolean flushCache) {
 			 * Since computeSize can be overridden by subclasses, we cannot
 			 * call computeSizeInPixels directly.
 			 */
-			Point size = DPIUtil.autoScaleUp(child.computeSize (DPIUtil.autoScaleDown(wHint, getShell()), DPIUtil.autoScaleDown(hHint, getShell()), flushCache), getShell());
+			Point size = DPIUtil.autoScaleUp(child.computeSize (DPIUtil.autoScaleDown(wHint, getShell().getCurrentDeviceZoom()), DPIUtil.autoScaleDown(hHint, getShell().getCurrentDeviceZoom()), flushCache), getShell().getCurrentDeviceZoom());
 			width = Math.max (width, size.x);
 			height = Math.max (height, size.y);
 		}
@@ -838,7 +838,7 @@ void updateOrientation () {
 	if (imageList != null) {
 		Point size = imageList.getImageSize ();
 		display.releaseImageList (imageList);
-		imageList = display.getImageList (style & SWT.RIGHT_TO_LEFT, size.x, size.y);
+		imageList = display.getImageList (style & SWT.RIGHT_TO_LEFT, size.x, size.y, getCurrentDeviceZoom());
 		long hImageList = imageList.getHandle ();
 		OS.SendMessage (handle, OS.TCM_SETIMAGELIST, 0, hImageList);
 		TCITEM tcItem = new TCITEM ();
