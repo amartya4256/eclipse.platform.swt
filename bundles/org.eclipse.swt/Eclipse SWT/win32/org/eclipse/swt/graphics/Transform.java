@@ -340,8 +340,8 @@ public long getHandle(Shell shell) {
 	if(this.handleMap.get(shell.getCurrentDeviceZoom()) == null) {
 		float[] elements = new float[6];
 		getElements(elements);
-		elements[4] = DPIUtil.autoScaleUp(shell.getDisplay(), elements[4], shell);
-		elements[5] = DPIUtil.autoScaleUp(shell.getDisplay(), elements[5], shell);
+		elements[4] = DPIUtil.autoScaleUp(shell.getDisplay(), elements[4], shell.getCurrentDeviceZoom());
+		elements[5] = DPIUtil.autoScaleUp(shell.getDisplay(), elements[5], shell.getCurrentDeviceZoom());
 
 		handleMap.put(shell.getCurrentDeviceZoom(), Gdip.Matrix_new(elements[0], elements[1], elements[2], elements[3], elements[4], elements[5]));
 	}

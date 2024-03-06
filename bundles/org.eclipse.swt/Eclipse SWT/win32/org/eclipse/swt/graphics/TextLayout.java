@@ -14,7 +14,6 @@
 package org.eclipse.swt.graphics;
 
 import java.util.*;
-import java.util.List;
 import java.util.concurrent.atomic.*;
 
 import org.eclipse.swt.*;
@@ -22,7 +21,6 @@ import org.eclipse.swt.internal.*;
 import org.eclipse.swt.internal.gdip.*;
 import org.eclipse.swt.internal.ole.win32.*;
 import org.eclipse.swt.internal.win32.*;
-import org.eclipse.swt.widgets.*;
 
 /**
  * <code>TextLayout</code> is a graphic object that represents
@@ -4078,9 +4076,5 @@ private TextLayoutRuns getRunForCurrentZoomLevel(GC gc) {
 		runMap.put(key.get(), new TextLayoutRuns());
 		return runMap.get(key.get());
 	});
-}
-
-private Shell getShell(GC gc) {
-	return gc != null && gc.data != null ? gc.data.shell : null;
 }
 }

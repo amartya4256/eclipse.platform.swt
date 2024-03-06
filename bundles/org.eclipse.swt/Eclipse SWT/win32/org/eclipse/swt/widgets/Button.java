@@ -15,6 +15,8 @@
 package org.eclipse.swt.widgets;
 
 
+import java.util.*;
+
 import org.eclipse.swt.*;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.*;
@@ -126,7 +128,7 @@ void _setImage (Image image) {
 	if (imageList != null) imageList.dispose ();
 	imageList = null;
 	if (image != null) {
-		imageList = new ImageList (style & SWT.RIGHT_TO_LEFT);
+		imageList = new ImageList (style & SWT.RIGHT_TO_LEFT, getCurrentDeviceZoom());
 		if (OS.IsWindowEnabled (handle)) {
 			imageList.add (image);
 		} else {
@@ -1025,7 +1027,7 @@ void updateImageList () {
 		BUTTON_IMAGELIST buttonImageList = new BUTTON_IMAGELIST ();
 		OS.SendMessage (handle, OS.BCM_GETIMAGELIST, 0, buttonImageList);
 		if (imageList != null) imageList.dispose ();
-		imageList = new ImageList (style & SWT.RIGHT_TO_LEFT);
+		imageList = new ImageList (style & SWT.RIGHT_TO_LEFT, getCurrentDeviceZoom());
 		if (OS.IsWindowEnabled (handle)) {
 			imageList.add (image);
 		} else {
@@ -1315,6 +1317,10 @@ private int getCheckboxTextOffset(long hdc) {
 	return result;
 }
 
+private int getZoomLevel() {
+	return Optional.ofNullable(getShell()).map(Shell::getCurrentDeviceZoom).orElse(0);
+}
+
 @Override
 LRESULT wmNotifyChild (NMHDR hdr, long wParam, long lParam) {
 	switch (hdr.code) {
@@ -1387,7 +1393,7 @@ LRESULT wmNotifyChild (NMHDR hdr, long wParam, long lParam) {
 
 							int x = margin + (isRadioOrCheck() ? radioOrCheckTextPadding : 3);
 							int y = Math.max (0, (nmcd.bottom - image.getBounds(this.getCurrentDeviceZoom()).height) / 2);
-							gc.drawImage (image, DPIUtil.autoScaleDown(x, getShell()), DPIUtil.autoScaleDown(y, getShell()));
+							gc.drawImage (image, DPIUtil.autoScaleDown(x, getZoomLevel()), DPIUtil.autoScaleDown(y, getZoomLevel()));
 							gc.dispose ();
 						}
 

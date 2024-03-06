@@ -665,7 +665,7 @@ public long getHandle(Shell shell) {
 	if(this.handleMap.get(shell.getCurrentDeviceZoom()) == null) {
 		PathData pathData = this.getPathDataInPixels();
 		for (int index = 0; index < pathData.points.length; index++) {
-			pathData.points[index] = DPIUtil.autoScaleUp(getDevice(), pathData.points[index], shell);
+			pathData.points[index] = DPIUtil.autoScaleUp(getDevice(), pathData.points[index], Optional.ofNullable(shell).map(Shell::getCurrentDeviceZoom).orElse(0));
 		}
 		handleMap.put(shell.getCurrentDeviceZoom(), new Path(getDevice(), pathData).handle);
 	}
