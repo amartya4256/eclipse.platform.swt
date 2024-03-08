@@ -943,19 +943,24 @@ void createDisplay (DeviceData data) {
 }
 
 static long create32bitDIB (Image image) {
+	return create32bitDIB (image, DPIUtil.getDeviceZoom());
+}
+
+static long create32bitDIB (Image image, int zoomLevel) {
+	long handle = image.handleDPIChange(zoomLevel);
 	int transparentPixel = -1, alpha = -1;
 	long hMask = 0, hBitmap = 0;
 	byte[] alphaData = null;
 	switch (image.type) {
 		case SWT.ICON:
 			ICONINFO info = new ICONINFO ();
-			OS.GetIconInfo (image.handle, info);
+			OS.GetIconInfo (handle, info);
 			hBitmap = info.hbmColor;
 			hMask = info.hbmMask;
 			break;
 		case SWT.BITMAP:
-			ImageData data = image.getImageData (DPIUtil.getDeviceZoom ());
-			hBitmap = image.handle;
+			ImageData data = image.getImageData (zoomLevel);
+			hBitmap = handle;
 			alpha = data.alpha;
 			alphaData = data.alphaData;
 			transparentPixel = data.transparentPixel;
@@ -1053,7 +1058,7 @@ static long create32bitDIB (Image image) {
 	OS.DeleteObject (srcHdc);
 	OS.DeleteObject (memHdc);
 	OS.ReleaseDC (0, hDC);
-	if (hBitmap != image.handle && hBitmap != 0) OS.DeleteObject (hBitmap);
+	if (hBitmap != handle && hBitmap != 0) OS.DeleteObject (hBitmap);
 	if (hMask != 0) OS.DeleteObject (hMask);
 	return memDib;
 }

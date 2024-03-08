@@ -742,7 +742,7 @@ public Image(Device device, ImageDataProvider imageDataProvider) {
 	this.imageDataProvider = imageDataProvider;
 	currentDeviceZoom = DPIUtil.getDeviceZoom ();
 	ElementAtZoom<ImageData> data =  DPIUtil.validateAndGetImageDataAtZoom(imageDataProvider, currentDeviceZoom);
-	ImageData resizedData = DPIUtil.autoScaleImageData(device, data.element(), data.zoom());
+	ImageData resizedData = DPIUtil.autoScaleImageData(device, data.element(), currentDeviceZoom, data.zoom());
 	init (resizedData, currentDeviceZoom);
 	init();
 }
@@ -795,13 +795,13 @@ public Long handleDPIChange (Integer newZoom) {
 			if (handle == 0) init(new ImageData (imageCandidate.element()), newZoom);
 			init();
 		} else {
-			ImageData resizedData = DPIUtil.autoScaleImageData (device, new ImageData (imageCandidate.element()), imageCandidate.zoom());
+			ImageData resizedData = DPIUtil.autoScaleImageData (device, new ImageData (imageCandidate.element()), newZoom, imageCandidate.zoom());
 			init(resizedData, newZoom);
 			init ();
 		}
 	} else if (imageDataProvider != null) {
 		ElementAtZoom<ImageData> imageCandidate = DPIUtil.validateAndGetImageDataAtZoom (imageDataProvider, newZoom);
-		ImageData resizedData = DPIUtil.autoScaleImageData (device, imageCandidate.element(), imageCandidate.zoom());
+		ImageData resizedData = DPIUtil.autoScaleImageData (device, imageCandidate.element(), newZoom, imageCandidate.zoom());
 		init(resizedData, newZoom);
 		init();
 	} else {
