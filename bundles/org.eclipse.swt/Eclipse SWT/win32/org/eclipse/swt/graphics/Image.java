@@ -732,7 +732,7 @@ public Image(Device device, ImageDataProvider imageDataProvider) {
 	this.imageDataProvider = imageDataProvider;
 	currentDeviceZoom = DPIUtil.getDeviceZoom ();
 	ElementAtZoom<ImageData> data =  DPIUtil.validateAndGetImageDataAtZoom(imageDataProvider, currentDeviceZoom);
-	ImageData resizedData = DPIUtil.autoScaleImageData(device, data.element(), data.zoom());
+	ImageData resizedData = DPIUtil.autoScaleImageData(device, data.element(), currentDeviceZoom, data.zoom());
 	init (resizedData, currentDeviceZoom);
 	init();
 }
@@ -777,26 +777,20 @@ public Long handleDPIChange (Integer deviceZoomLevel) {
 	}
 
 	if (imageFileNameProvider != null) {
-		if (deviceZoomLevel != currentDeviceZoom) {
-			ElementAtZoom<String> filename = DPIUtil.validateAndGetImagePathAtZoom (imageFileNameProvider, deviceZoomLevel);
-			if (filename.zoom() == deviceZoomLevel) {
-				/* Release current native resources */
-				destroy ();
-				initNative(filename.element(), deviceZoomLevel);
-				if (this.handle == 0) init(new ImageData (filename.element()), deviceZoomLevel);
-				init();
-			} else {
-				/* Release current native resources */
-				destroy ();
-				ImageData resizedData = DPIUtil.autoScaleImageData (device, new ImageData (filename.element()), filename.zoom());
-				init(resizedData, deviceZoomLevel);
-				init ();
-			}
-			setCurrentDeviceZoom(deviceZoomLevel);
+		ElementAtZoom<String> imageCandidate = DPIUtil.validateAndGetImagePathAtZoom (imageFileNameProvider, deviceZoomLevel);
+		if (imageCandidate.zoom() == deviceZoomLevel) {
+			/* Release current native resources */
+			long handle = initNative(imageCandidate.element(), deviceZoomLevel);
+			if (handle == 0) init(new ImageData (imageCandidate.element()), deviceZoomLevel);
+			init();
+		} else {
+			ImageData resizedData = DPIUtil.autoScaleImageData (device, new ImageData (imageCandidate.element()), deviceZoomLevel, imageCandidate.zoom());
+			init(resizedData, deviceZoomLevel);
+			init ();
 		}
 	} else if (imageDataProvider != null) {
 		ElementAtZoom<ImageData> imageCandidate = DPIUtil.validateAndGetImageDataAtZoom (imageDataProvider, deviceZoomLevel);
-		ImageData resizedData = DPIUtil.autoScaleImageData (device, imageCandidate.element(), imageCandidate.zoom());
+		ImageData resizedData = DPIUtil.autoScaleImageData (device, imageCandidate.element(), deviceZoomLevel, imageCandidate.zoom());
 		init(resizedData, deviceZoomLevel);
 		init();
 	} else {
@@ -2317,15 +2311,6 @@ public void setBackground(Color color) {
 
 	/* Release the HDC for the device */
 	device.internal_dispose_GC(hDC, null);
-}
-
-private void setCurrentDeviceZoom(int newZoomFactor) {
-	if (this.currentDeviceZoom != newZoomFactor) {
-		this.currentDeviceZoom = newZoomFactor;
-		// width and height are tied to the current device zoom
-		// they must be reset the the zoom factor changes
-		width = height = -1;
-	}
 }
 
 /**
