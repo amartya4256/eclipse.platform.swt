@@ -37,7 +37,7 @@ public class CommonWidgetsDPIChangeHandlers {
 			// Refresh the image
 		Image image = item.getImage();
 		if (image != null) {
-			image.handleDPIChange(event.newZoom());
+			image.getHandleByZoomLevel(event.newZoom());
 			item.setImage(null);
 			item.setImage(image);
 		}
@@ -78,12 +78,12 @@ public class CommonWidgetsDPIChangeHandlers {
 		}
 		Image itemImage = item.getImage();
 		if (itemImage != null) {
-			itemImage.handleDPIChange(event.newZoom());
+			itemImage.getHandleByZoomLevel(event.newZoom());
 
 		}
 		Image itemDisabledImage = item.getDisabledImage();
 		if (itemDisabledImage != null) {
-			itemDisabledImage.handleDPIChange(event.newZoom());
+			itemDisabledImage.getHandleByZoomLevel(event.newZoom());
 		}
 	}
 

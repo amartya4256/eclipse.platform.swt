@@ -40,7 +40,7 @@ public class DPIUtil {
 
 	private static final int DPI_ZOOM_100 = 96;
 
-	private static int deviceZoom = 100;
+	private static int deviceZoom = 125;
 	private static int nativeDeviceZoom = 100;
 
 	private static enum AutoScaleMethod { AUTO, NEAREST, SMOOTH }
@@ -184,14 +184,7 @@ public static float[] autoScaleDown (Drawable drawable, float size[], int zoom) 
  * Auto-scale down int dimensions.
  */
 public static int autoScaleDown (int size) {
-	return autoScaleDown(size, null);
-}
-
-public static int autoScaleDown (int size, Shell shell) {
-	int zoom = Optional.ofNullable(shell).map(Shell::getCurrentDeviceZoom).orElseGet(() -> deviceZoom);
-	if (zoom == 100 || size == SWT.DEFAULT) return size;
-	float scaleFactor = getScalingFactor (shell);
-	return Math.round (size / scaleFactor);
+	return autoScaleDown(size, 0);
 }
 
 public static int autoScaleDown (int size, int zoom) {
@@ -246,16 +239,6 @@ public static Point autoScaleDown (Point point) {
 	//return autoScaleDown(point, null);
 }
 
-public static Point autoScaleDown (Point point, Shell shell) {
-	int zoom = Optional.ofNullable(shell).map(Shell::getCurrentDeviceZoom).orElseGet(() -> deviceZoom);
-	if (zoom == 100 || point == null) return point;
-	float scaleFactor = getScalingFactor (shell);
-	Point scaledPoint = new Point (0,0);
-	scaledPoint.x = Math.round (point.x / scaleFactor);
-	scaledPoint.y = Math.round (point.y / scaleFactor);
-	return scaledPoint;
-}
-
 public static Point autoScaleDown (Point point, int zoom) {
 	if (zoom == 100 || point == null) return point;
 	float scaleFactor = getScalingFactor (zoom);
@@ -269,12 +252,7 @@ public static Point autoScaleDown (Point point, int zoom) {
  * Returns a new scaled down Point if enabled for Drawable class.
  */
 public static Point autoScaleDown (Drawable drawable, Point point) {
-	return autoScaleDown(drawable, point, null);
-}
-
-public static Point autoScaleDown (Drawable drawable, Point point, Shell shell) {
-	if (drawable != null && !drawable.isAutoScalable ()) return point;
-	return autoScaleDown (point, shell);
+	return autoScaleDown(drawable, point, 0);
 }
 
 public static Point autoScaleDown (Drawable drawable, Point point, int zoom) {
@@ -430,14 +408,7 @@ public static int[] autoScaleUp(Drawable drawable, int[] pointArray, int deviceZ
  * Auto-scale up int dimensions.
  */
 public static int autoScaleUp (int size) {
-	return autoScaleUp(size, null);
-}
-
-public static int autoScaleUp (int size, Shell shell) {
-	int zoom = Optional.ofNullable(shell).map(Shell::getCurrentDeviceZoom).orElseGet(() -> deviceZoom);
-	if (zoom == 100 || size == SWT.DEFAULT) return size;
-	float scaleFactor = getScalingFactor (shell);
-	return Math.round (size * scaleFactor);
+	return autoScaleUp(size, 0);
 }
 
 public static int autoScaleUp (int size, int zoom) {
@@ -460,12 +431,7 @@ public static int autoScaleUpUsingNativeDPI (int size) {
  * Auto-scale up int dimensions if enabled for Drawable class.
  */
 public static int autoScaleUp (Drawable drawable, int size) {
-	return autoScaleUp(drawable, size, null);
-}
-
-public static int autoScaleUp (Drawable drawable, int size, Shell shell) {
-	if (drawable != null && !drawable.isAutoScalable ()) return size;
-	return autoScaleUp (size, shell);
+	return autoScaleUp(drawable, size, 0);
 }
 
 public static int autoScaleUp (Drawable drawable, int size, int zoom) {
@@ -499,16 +465,6 @@ public static float autoScaleUp(Drawable drawable, float size, int zoom) {
 public static Point autoScaleUp (Point point) {
 	if (deviceZoom == 100 || point == null) return point;
 	float scaleFactor = getScalingFactor ();
-	Point scaledPoint = new Point (0,0);
-	scaledPoint.x = Math.round (point.x * scaleFactor);
-	scaledPoint.y = Math.round (point.y * scaleFactor);
-	return scaledPoint;
-}
-
-public static Point autoScaleUp (Point point, Shell shell) {
-	int zoom = Optional.ofNullable(shell).map(Shell::getCurrentDeviceZoom).orElseGet(() -> deviceZoom);
-	if (zoom == 100 || point == null) return point;
-	float scaleFactor = getScalingFactor (shell);
 	Point scaledPoint = new Point (0,0);
 	scaledPoint.x = Math.round (point.x * scaleFactor);
 	scaledPoint.y = Math.round (point.y * scaleFactor);
@@ -584,20 +540,15 @@ public static Rectangle autoScaleUp (Drawable drawable, Rectangle rect, int devi
  * @return float scaling factor
  */
 private static float getScalingFactor () {
-	return getScalingFactor(null);
-}
-
-private static float getScalingFactor (Shell shell) {
-	if (useCairoAutoScale) {
-		return 1;
-	}
-	int zoom = Optional.ofNullable(shell).map(Shell::getCurrentDeviceZoom).orElseGet(() -> deviceZoom);
-	return zoom / 100f;
+	return getScalingFactor(0);
 }
 
 private static float getScalingFactor (int zoom) {
 	if (useCairoAutoScale) {
 		return 1;
+	}
+	if (zoom == 0) {
+		zoom = deviceZoom;
 	}
 	return zoom / 100f;
 }

@@ -1237,7 +1237,7 @@ private static void handleDPIChange (DPIChangeEvent event, Widget widget) {
 	Image menuItemImage = menuItem.getImage();
 	if (menuItemImage != null) {
 		Image currentImage = menuItemImage;
-		currentImage.handleDPIChange(event.newZoom());
+		currentImage.getHandleByZoomLevel(event.newZoom());
 		menuItem.image = null;
 		menuItem.setImage (currentImage);
 	}

@@ -1245,16 +1245,16 @@ private static void handleDPIChange (DPIChangeEvent event, Widget widget) {
 		if (parent.getHotImageList() == null) {
 			parent.setHotImageList (display.getImageListToolBarHot (listStyle, bounds.width, bounds.height, item.getCurrentDeviceZoom()));
 		}
-		image.handleDPIChange(event.newZoom());
+		image.getHandleByZoomLevel(event.newZoom());
 
 		Image disabledImage = item.getDisabledImage();
 		if (disabledImage != null && !disabledImage.isDisposed()) {
-			disabledImage.handleDPIChange(event.newZoom());
+			disabledImage.getHandleByZoomLevel(event.newZoom());
 		}
 
 		Image hotImage = item.getHotImage();
 		if (hotImage != null) {
-			hotImage.handleDPIChange(event.newZoom());
+			hotImage.getHandleByZoomLevel(event.newZoom());
 		}
 	}
 	item.setWidthInPixels(0);

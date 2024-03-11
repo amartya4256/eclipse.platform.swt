@@ -1565,7 +1565,7 @@ private static void handleDPIChange (DPIChangeEvent event, Widget widget) {
 
 	// Refresh the image
 	if (button.image != null) {
-		button.image.handleDPIChange(event.newZoom());
+		button.image.getHandleByZoomLevel(event.newZoom());
 		button._setImage(button.image);
 		button.updateImageList();
 	}

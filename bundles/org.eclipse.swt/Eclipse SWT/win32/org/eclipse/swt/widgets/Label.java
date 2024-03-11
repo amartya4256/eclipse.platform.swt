@@ -631,7 +631,7 @@ private static void handleDPIChange (DPIChangeEvent event, Widget widget) {
 
 	Image image = label.getImage();
 	if (image != null) {
-		image.handleDPIChange(event.newZoom());
+		image.getHandleByZoomLevel(event.newZoom());
 		label.setImage(image);
 	}
 }

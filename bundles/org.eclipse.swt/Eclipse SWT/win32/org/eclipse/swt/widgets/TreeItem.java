@@ -1822,14 +1822,14 @@ private static void handleDPIChange (DPIChangeEvent event, Widget widget) {
 	TreeItem treeItem = (TreeItem) widget;
 	Image image = treeItem.image;
 	if (image != null) {
-		image.handleDPIChange(event.newZoom());
+		image.getHandleByZoomLevel(event.newZoom());
 		treeItem.setImage(image);
 	}
 	Image[] images = treeItem.images;
 	if (images != null) {
 		for (Image innerImage : images) {
 			if (innerImage != null) {
-				innerImage.handleDPIChange(event.newZoom());
+				innerImage.getHandleByZoomLevel(event.newZoom());
 			}
 		}
 	}

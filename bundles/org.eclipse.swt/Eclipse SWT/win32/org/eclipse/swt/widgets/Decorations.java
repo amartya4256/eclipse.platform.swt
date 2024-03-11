@@ -915,10 +915,10 @@ void setImages (Image image, Image [] images) {
 		switch (smallIcon.type) {
 			case SWT.BITMAP:
 				smallImage = Display.createIcon (smallIcon);
-				hSmallIcon = smallImage.handleDPIChange(getCurrentDeviceZoom());
+				hSmallIcon = smallImage.getHandleByZoomLevel(getCurrentDeviceZoom());
 				break;
 			case SWT.ICON:
-				hSmallIcon = smallIcon.handleDPIChange(getCurrentDeviceZoom());
+				hSmallIcon = smallIcon.getHandleByZoomLevel(getCurrentDeviceZoom());
 				break;
 		}
 	}
@@ -927,10 +927,10 @@ void setImages (Image image, Image [] images) {
 		switch (largeIcon.type) {
 			case SWT.BITMAP:
 				largeImage = Display.createIcon (largeIcon);
-				hLargeIcon = largeImage.handleDPIChange(getCurrentDeviceZoom());
+				hLargeIcon = largeImage.getHandleByZoomLevel(getCurrentDeviceZoom());
 				break;
 			case SWT.ICON:
-				hLargeIcon = largeIcon.handleDPIChange(getCurrentDeviceZoom());
+				hLargeIcon = largeIcon.getHandleByZoomLevel(getCurrentDeviceZoom());
 				break;
 		}
 	}
@@ -1696,7 +1696,7 @@ private static void handleDPIChange (DPIChangeEvent event, Widget widget) {
 
 	Image image = decorations.getImage();
 	if (image != null) {
-		image.handleDPIChange(event.newZoom());
+		image.getHandleByZoomLevel(event.newZoom());
 		decorations.setImage(image);
 	}
 
@@ -1704,7 +1704,7 @@ private static void handleDPIChange (DPIChangeEvent event, Widget widget) {
 	if (images != null) {
 		for(Image subImage : images) {
 			if (subImage != null) {
-				subImage.handleDPIChange(event.newZoom());
+				subImage.getHandleByZoomLevel(event.newZoom());
 			}
 		}
 		decorations.setImages(images);

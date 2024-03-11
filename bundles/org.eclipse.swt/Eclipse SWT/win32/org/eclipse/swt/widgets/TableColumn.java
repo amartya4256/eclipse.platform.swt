@@ -904,7 +904,7 @@ private static void handleDPIChange (DPIChangeEvent event, Widget widget) {
 	tableColumn.setWidthInPixels(newColumnWidth);
 	Image image = tableColumn.getImage();
 	if (image != null) {
-		image.handleDPIChange(event.newZoom());
+		image.getHandleByZoomLevel(event.newZoom());
 		tableColumn.setImage(image);
 	}
 }
