@@ -536,7 +536,7 @@ void setImage (Image image, boolean sort, boolean right) {
 			hdItem.mask &= ~OS.HDI_IMAGE;
 			hdItem.fmt &= ~OS.HDF_IMAGE;
 			hdItem.fmt |= OS.HDF_BITMAP;
-			hdItem.hbm = image.handleDPIChange(parent.getCurrentDeviceZoom());
+			hdItem.hbm = image.getHandleByZoomLevel(parent.getCurrentDeviceZoom());
 		} else {
 			hdItem.mask &= ~OS.HDI_BITMAP;
 			hdItem.fmt &= ~OS.HDF_BITMAP;

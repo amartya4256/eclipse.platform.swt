@@ -915,10 +915,10 @@ void setImages (Image image, Image [] images) {
 		switch (smallIcon.type) {
 			case SWT.BITMAP:
 				smallImage = Display.createIcon (smallIcon);
-				hSmallIcon = smallImage.handleDPIChange(getCurrentDeviceZoom());
+				hSmallIcon = smallImage.getHandleByZoomLevel(getCurrentDeviceZoom());
 				break;
 			case SWT.ICON:
-				hSmallIcon = smallIcon.handleDPIChange(getCurrentDeviceZoom());
+				hSmallIcon = smallIcon.getHandleByZoomLevel(getCurrentDeviceZoom());
 				break;
 		}
 	}
@@ -927,10 +927,10 @@ void setImages (Image image, Image [] images) {
 		switch (largeIcon.type) {
 			case SWT.BITMAP:
 				largeImage = Display.createIcon (largeIcon);
-				hLargeIcon = largeImage.handleDPIChange(getCurrentDeviceZoom());
+				hLargeIcon = largeImage.getHandleByZoomLevel(getCurrentDeviceZoom());
 				break;
 			case SWT.ICON:
-				hLargeIcon = largeIcon.handleDPIChange(getCurrentDeviceZoom());
+				hLargeIcon = largeIcon.getHandleByZoomLevel(getCurrentDeviceZoom());
 				break;
 		}
 	}

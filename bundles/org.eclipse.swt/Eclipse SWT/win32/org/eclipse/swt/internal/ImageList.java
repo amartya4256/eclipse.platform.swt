@@ -362,7 +362,7 @@ public int removeRef() {
 }
 
 void set (int index, Image image, int count) {
-	long hImage = image.handleDPIChange(currentZoomLevel);
+	long hImage = image.getHandleByZoomLevel(currentZoomLevel);
 	int [] cx = new int [1], cy = new int [1];
 	OS.ImageList_GetIconSize (handle, cx, cy);
 	switch (image.type) {

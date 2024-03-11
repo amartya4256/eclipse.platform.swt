@@ -14,7 +14,6 @@
 package org.eclipse.swt.graphics;
 
 import java.util.*;
-import java.util.concurrent.atomic.*;
 
 import org.eclipse.swt.*;
 import org.eclipse.swt.internal.*;
@@ -65,7 +64,9 @@ public final class TextLayout extends Resource {
 
 	private MetricsAdapter metricsAdapter = new MetricsAdapter();
 
-	private HashMap<Integer, TextLayoutRuns> runMap = new HashMap<>();
+
+	StyleItem[] allRuns;
+	StyleItem[][] runs;
 	int currentZoomLevel;
 
 	static final char LTR_MARK = '\u200E', RTL_MARK = '\u200F';
@@ -375,8 +376,7 @@ void checkLayout () {
 public void draw (GC gc, int x, int y) {
 	checkLayout();
 	currentZoomLevel = gc.data.shell.getCurrentDeviceZoom();
-	getRunForCurrentZoomLevel(gc)
-		.drawInPixels(gc, DPIUtil.autoScaleUp(getDevice(), x, getDeviceZoom(gc)), DPIUtil.autoScaleUp(getDevice(), y, getDeviceZoom(gc)));
+	drawInPixels(gc, DPIUtil.autoScaleUp(getDevice(), x, getDeviceZoom(gc)), DPIUtil.autoScaleUp(getDevice(), y, getDeviceZoom(gc)));
 }
 
 /**
@@ -401,8 +401,7 @@ public void draw (GC gc, int x, int y) {
 public void draw (GC gc, int x, int y, int selectionStart, int selectionEnd, Color selectionForeground, Color selectionBackground) {
 	checkLayout();
 	currentZoomLevel = gc.data.shell.getCurrentDeviceZoom();
-	getRunForCurrentZoomLevel(gc)
-		.drawInPixels(gc, DPIUtil.autoScaleUp(getDevice(), x, getDeviceZoom(gc)), DPIUtil.autoScaleUp(getDevice(), y, getDeviceZoom(gc)), selectionStart, selectionEnd, selectionForeground, selectionBackground);
+	drawInPixels(gc, DPIUtil.autoScaleUp(getDevice(), x, getDeviceZoom(gc)), DPIUtil.autoScaleUp(getDevice(), y, getDeviceZoom(gc)), selectionStart, selectionEnd, selectionForeground, selectionBackground);
 }
 
 /**
@@ -435,8 +434,7 @@ public void draw (GC gc, int x, int y, int selectionStart, int selectionEnd, Col
 public void draw (GC gc, int x, int y, int selectionStart, int selectionEnd, Color selectionForeground, Color selectionBackground, int flags) {
 	checkLayout();
 	currentZoomLevel = gc.data.shell.getCurrentDeviceZoom();
-	getRunForCurrentZoomLevel(gc)
-		.drawInPixels(gc, DPIUtil.autoScaleUp(getDevice(), x, getDeviceZoom(gc)), DPIUtil.autoScaleUp(getDevice(), y, getDeviceZoom(gc)), selectionStart, selectionEnd, selectionForeground, selectionBackground, flags);
+	drawInPixels(gc, DPIUtil.autoScaleUp(getDevice(), x, getDeviceZoom(gc)), DPIUtil.autoScaleUp(getDevice(), y, getDeviceZoom(gc)), selectionStart, selectionEnd, selectionForeground, selectionBackground, flags);
 }
 
 private int getDeviceZoom(GC gc){
@@ -447,11 +445,6 @@ private int getDeviceZoom(GC gc){
 	}
 	return DPIUtil.getDeviceZoom();
 }
-
-class TextLayoutRuns {
-
-	StyleItem[] allRuns;
-	StyleItem[][] runs;
 
 /*
 *  Compute the runs: itemize, shape, place, and reorder the runs.
@@ -697,26 +690,6 @@ void computeRuns (GC gc) {
 	}
 	if (srcHdc != 0) OS.DeleteDC(srcHdc);
 	if (gc == null) device.internal_dispose_GC(hDC, null);
-}
-
-void destroy () {
-	freeRuns();
-	font = null;
-	text = null;
-	segmentsText = null;
-	tabs = null;
-	styles = null;
-	runs = null;
-	lineOffset = null;
-	lineY = null;
-	lineWidth = null;
-	segments = null;
-	segmentsChars = null;
-	if (mLangFontLink2 != null) {
-		mLangFontLink2.Release();
-		mLangFontLink2 = null;
-	}
-	OS.OleUninitialize();
 }
 
 SCRIPT_ANALYSIS cloneScriptAnalysis (SCRIPT_ANALYSIS src) {
@@ -1728,11 +1701,8 @@ void freeRuns () {
 	segmentsText = null;
 }
 
-}
-
 @Override
 void destroy () {
-	runMap.values().forEach(TextLayoutRuns::destroy);
 	font = null;
 	text = null;
 	segmentsText = null;
@@ -1801,13 +1771,13 @@ public int getAscent () {
  */
 public Rectangle getBounds () {
 	checkLayout();
-	getRunForCurrentZoomLevel(null).computeRuns(null);
+	computeRuns(null);
 	int width = 0;
 	if (wrapWidth != -1) {
 		// TODO
 		width = wrapWidth;
 	} else {
-		for (int line=0; line<getRunForCurrentZoomLevel(null).runs.length; line++) {
+		for (int line=0; line<runs.length; line++) {
 			width = Math.max(width, lineWidth[line] + DPIUtil.autoScaleUp(getDevice(), getLineIndent(line), currentZoomLevel));
 		}
 	}
@@ -1834,7 +1804,7 @@ public Rectangle getBounds (int start, int end) {
 }
 
 Rectangle getBoundsInPixels (int start, int end) {
-	getRunForCurrentZoomLevel(null).computeRuns(null);
+	computeRuns(null);
 	int length = text.length();
 	if (length == 0) return new Rectangle(0, 0, 0, 0);
 	if (start > end) return new Rectangle(0, 0, 0, 0);
@@ -1865,8 +1835,8 @@ Rectangle getBoundsInPixels (int start, int end) {
 	int left = 0x7fffffff, right = 0;
 	int top = 0x7fffffff, bottom = 0;
 	boolean isRTL = (orientation & SWT.RIGHT_TO_LEFT) != 0;
-	for (int i = 0; i < getRunForCurrentZoomLevel(null).allRuns.length - 1; i++) {
-		StyleItem run = getRunForCurrentZoomLevel(null).allRuns[i];
+	for (int i = 0; i < allRuns.length - 1; i++) {
+		StyleItem run = allRuns[i];
 		int runEnd = run.start + run.length;
 		if (runEnd <= start) continue;
 		if (run.start > end) break;
@@ -1903,7 +1873,7 @@ Rectangle getBoundsInPixels (int start, int end) {
 			}
 		}
 		int lineIndex = 0;
-		while (lineIndex < getRunForCurrentZoomLevel(null).runs.length && lineOffset[lineIndex + 1] <= run.start) {
+		while (lineIndex < runs.length && lineOffset[lineIndex + 1] <= run.start) {
 			lineIndex++;
 		}
 		left = Math.min(left, runLead);
@@ -2011,13 +1981,13 @@ long getItemFont (StyleItem item) {
  */
 public int getLevel (int offset) {
 	checkLayout();
-	getRunForCurrentZoomLevel(null).computeRuns(null);
+	computeRuns(null);
 	int length = text.length();
 	if (!(0 <= offset && offset <= length)) SWT.error(SWT.ERROR_INVALID_RANGE);
 	offset = translateOffset(offset);
-	for (int i=1; i<getRunForCurrentZoomLevel(null).allRuns.length; i++) {
-		if (getRunForCurrentZoomLevel(null).allRuns[i].start > offset) {
-			return getRunForCurrentZoomLevel(null).allRuns[i - 1].analysis.s.uBidiLevel;
+	for (int i=1; i<allRuns.length; i++) {
+		if (allRuns[i].start > offset) {
+			return allRuns[i - 1].analysis.s.uBidiLevel;
 		}
 	}
 	return (resolveTextDirection() & SWT.RIGHT_TO_LEFT) != 0 ? 1 : 0;
@@ -2042,8 +2012,8 @@ public Rectangle getLineBounds (int lineIndex) {
 }
 
 Rectangle getLineBoundsInPixels(int lineIndex) {
-	getRunForCurrentZoomLevel(null).computeRuns(null);
-	if (!(0 <= lineIndex && lineIndex < getRunForCurrentZoomLevel(null).runs.length)) SWT.error(SWT.ERROR_INVALID_RANGE);
+	computeRuns(null);
+	if (!(0 <= lineIndex && lineIndex < runs.length)) SWT.error(SWT.ERROR_INVALID_RANGE);
 	int x = getLineIndent(lineIndex);
 	int y = lineY[lineIndex];
 	int width = lineWidth[lineIndex];
@@ -2063,8 +2033,8 @@ Rectangle getLineBoundsInPixels(int lineIndex) {
  */
 public int getLineCount () {
 	checkLayout();
-	getRunForCurrentZoomLevel(null).computeRuns(null);
-	return getRunForCurrentZoomLevel(null).runs.length;
+	computeRuns(null);
+	return runs.length;
 }
 
 int getLineIndent (int lineIndex) {
@@ -2072,7 +2042,7 @@ int getLineIndent (int lineIndex) {
 	if (lineIndex == 0) {
 		lineIndent = indent;
 	} else {
-		StyleItem[] previousLine = getRunForCurrentZoomLevel(null).runs[lineIndex - 1];
+		StyleItem[] previousLine = runs[lineIndex - 1];
 		StyleItem previousRun = previousLine[previousLine.length - 1];
 		if (previousRun.lineBreak && !previousRun.softBreak) {
 			lineIndent = indent;
@@ -2081,7 +2051,7 @@ int getLineIndent (int lineIndex) {
 	if (wrapWidth != -1) {
 		boolean partialLine = true;
 		if (justify) {
-			StyleItem[] lineRun = getRunForCurrentZoomLevel(null).runs[lineIndex];
+			StyleItem[] lineRun = runs[lineIndex];
 			if (lineRun[lineRun.length - 1].softBreak) {
 				partialLine = false;
 			}
@@ -2113,16 +2083,16 @@ int getLineIndent (int lineIndex) {
  */
 public int getLineIndex (int offset) {
 	checkLayout();
-	getRunForCurrentZoomLevel(null).computeRuns(null);
+	computeRuns(null);
 	int length = text.length();
 	if (!(0 <= offset && offset <= length)) SWT.error(SWT.ERROR_INVALID_RANGE);
 	offset = translateOffset(offset);
-	for (int line=0; line<getRunForCurrentZoomLevel(null).runs.length; line++) {
+	for (int line=0; line<runs.length; line++) {
 		if (lineOffset[line + 1] > offset) {
 			return line;
 		}
 	}
-	return getRunForCurrentZoomLevel(null).runs.length - 1;
+	return runs.length - 1;
 }
 
 /**
@@ -2140,8 +2110,8 @@ public int getLineIndex (int offset) {
  */
 public FontMetrics getLineMetrics (int lineIndex) {
 	checkLayout();
-	getRunForCurrentZoomLevel(null).computeRuns(null);
-	if (!(0 <= lineIndex && lineIndex < getRunForCurrentZoomLevel(null).runs.length)) SWT.error(SWT.ERROR_INVALID_RANGE);
+	computeRuns(null);
+	if (!(0 <= lineIndex && lineIndex < runs.length)) SWT.error(SWT.ERROR_INVALID_RANGE);
 	long hDC = device.internal_new_GC(null);
 	long srcHdc = OS.CreateCompatibleDC(hDC);
 	TEXTMETRIC lptm = new TEXTMETRIC();
@@ -2154,7 +2124,7 @@ public FontMetrics getLineMetrics (int lineIndex) {
 	int descentInPoints = this.descent;
 	int leadingInPoints = DPIUtil.autoScaleDown(getDevice(), lptm.tmInternalLeading, currentZoomLevel);
 	if (text.length() != 0) {
-		for (StyleItem run : getRunForCurrentZoomLevel(null).runs[lineIndex]) {
+		for (StyleItem run : runs[lineIndex]) {
 			if (run.ascentInPoints > ascentInPoints) {
 				ascentInPoints = run.ascentInPoints;
 				leadingInPoints = run.leadingInPoints;
@@ -2183,7 +2153,7 @@ public FontMetrics getLineMetrics (int lineIndex) {
  */
 public int[] getLineOffsets () {
 	checkLayout();
-	getRunForCurrentZoomLevel(null).computeRuns(null);
+	computeRuns(null);
 	int[] offsets = new int[lineOffset.length];
 	for (int i = 0; i < offsets.length; i++) {
 		offsets[i] = untranslateOffset(lineOffset[i]);
@@ -2213,16 +2183,16 @@ public Point getLocation (int offset, boolean trailing) {
 }
 
 Point getLocationInPixels (int offset, boolean trailing) {
-	getRunForCurrentZoomLevel(null).computeRuns(null);
+	computeRuns(null);
 	int length = text.length();
 	if (!(0 <= offset && offset <= length)) SWT.error(SWT.ERROR_INVALID_RANGE);
 	length = segmentsText.length();
 	offset = translateOffset(offset);
 	int line;
-	for (line=0; line<getRunForCurrentZoomLevel(null).runs.length; line++) {
+	for (line=0; line<runs.length; line++) {
 		if (lineOffset[line + 1] > offset) break;
 	}
-	line = Math.min(line, getRunForCurrentZoomLevel(null).runs.length - 1);
+	line = Math.min(line, runs.length - 1);
 	if (offset == length) {
 		return new Point(getLineIndent(line) + lineWidth[line], DPIUtil.autoScaleUp(getDevice(), lineY[line], currentZoomLevel));
 	}
@@ -2248,10 +2218,10 @@ Point getLocationInPixels (int offset, boolean trailing) {
 		}
 	}
 	int low = -1;
-	int high = getRunForCurrentZoomLevel(null).allRuns.length;
+	int high = allRuns.length;
 	while (high - low > 1) {
 		int index = ((high + low) / 2);
-		StyleItem run = getRunForCurrentZoomLevel(null).allRuns[index];
+		StyleItem run = allRuns[index];
 		if (run.start > offset) {
 			high = index;
 		} else if (run.start + run.length <= offset) {
@@ -2317,7 +2287,7 @@ public int getNextOffset (int offset, int movement) {
 }
 
 int _getOffset(int offset, int movement, boolean forward) {
-	getRunForCurrentZoomLevel(null).computeRuns(null);
+	computeRuns(null);
 	int length = text.length();
 	if (!(0 <= offset && offset <= length)) SWT.error(SWT.ERROR_INVALID_RANGE, null, " [offset value: " + offset + "]");//$NON-NLS-1$ $NON-NLS-2$
 	if (forward && offset == length) return length;
@@ -2328,10 +2298,10 @@ int _getOffset(int offset, int movement, boolean forward) {
 	offset = translateOffset(offset);
 	SCRIPT_LOGATTR logAttr = new SCRIPT_LOGATTR();
 	SCRIPT_PROPERTIES properties = new  SCRIPT_PROPERTIES();
-	int i = forward ? 0 : getRunForCurrentZoomLevel(null).allRuns.length - 1;
+	int i = forward ? 0 : allRuns.length - 1;
 	offset = validadeOffset(offset, step);
 	do {
-		StyleItem run = getRunForCurrentZoomLevel(null).allRuns[i];
+		StyleItem run = allRuns[i];
 		if (run.start <= offset && offset < run.start + run.length) {
 			if (run.lineBreak && !run.softBreak) return untranslateOffset(run.start);
 			if (run.tab) return untranslateOffset(run.start);
@@ -2390,7 +2360,7 @@ int _getOffset(int offset, int movement, boolean forward) {
 			}
 		}
 		i += step;
-	} while (0 <= i && i < getRunForCurrentZoomLevel(null).allRuns.length - 1 && 0 <= offset && offset < length);
+	} while (0 <= i && i < allRuns.length - 1 && 0 <= offset && offset < length);
 	return forward ? text.length() : 0;
 }
 
@@ -2455,15 +2425,15 @@ public int getOffset (int x, int y, int[] trailing) {
 }
 
 int getOffsetInPixels (int x, int y, int[] trailing) {
-	getRunForCurrentZoomLevel(null).computeRuns(null);
+	computeRuns(null);
 	if (trailing != null && trailing.length < 1) SWT.error(SWT.ERROR_INVALID_ARGUMENT);
 	int line;
-	int lineCount = getRunForCurrentZoomLevel(null).runs.length;
+	int lineCount = runs.length;
 	for (line=0; line<lineCount; line++) {
 		if (DPIUtil.autoScaleUp(getDevice(), lineY[line + 1], currentZoomLevel) > y) break;
 	}
-	line = Math.min(line, getRunForCurrentZoomLevel(null).runs.length - 1);
-	StyleItem[] lineRuns = getRunForCurrentZoomLevel(null).runs[line];
+	line = Math.min(line, runs.length - 1);
+	StyleItem[] lineRuns = runs[line];
 	int lineIndent = getLineIndent(line);
 	if (x >= lineIndent + lineWidth[line]) x = lineIndent + lineWidth[line] - 1;
 	if (x < lineIndent) x = lineIndent;
@@ -3168,7 +3138,7 @@ public void setAlignment (int alignment) {
 	if ((alignment & SWT.LEFT) != 0) alignment = SWT.LEFT;
 	if ((alignment & SWT.RIGHT) != 0) alignment = SWT.RIGHT;
 	if (this.alignment == alignment) return;
-	getRunForCurrentZoomLevel(null).freeRuns();
+	freeRuns();
 	this.alignment = alignment;
 }
 
@@ -3194,7 +3164,7 @@ public void setAscent (int ascent) {
 	checkLayout();
 	if (ascent < -1) SWT.error(SWT.ERROR_INVALID_ARGUMENT);
 	if (this.ascent == ascent) return;
-	getRunForCurrentZoomLevel(null).freeRuns();
+	freeRuns();
 	this.ascent = ascent;
 }
 
@@ -3220,7 +3190,7 @@ public void setDescent (int descent) {
 	checkLayout();
 	if (descent < -1) SWT.error(SWT.ERROR_INVALID_ARGUMENT);
 	if (this.descent == descent) return;
-	getRunForCurrentZoomLevel(null).freeRuns();
+	freeRuns();
 	this.descent = descent;
 }
 
@@ -3280,7 +3250,7 @@ public void setFont (Font font) {
 	if (oldFont == font) return;
 	this.font = font;
 	if (oldFont != null && oldFont.equals(font)) return;
-	getRunForCurrentZoomLevel(null).freeRuns();
+	freeRuns();
 }
 
 /**
@@ -3305,7 +3275,7 @@ public void setIndent (int indent) {
 void setIndentInPixels (int indent) {
 	if (indent < 0) return;
 	if (this.indent == indent) return;
-	getRunForCurrentZoomLevel(null).freeRuns();
+	freeRuns();
 	this.indent = indent;
 }
 
@@ -3324,7 +3294,7 @@ void setIndentInPixels (int indent) {
 public void setJustify (boolean justify) {
 	checkLayout();
 	if (this.justify == justify) return;
-	getRunForCurrentZoomLevel(null).freeRuns();
+	freeRuns();
 	this.justify = justify;
 }
 
@@ -3346,7 +3316,7 @@ public void setOrientation (int orientation) {
 	if ((orientation & SWT.LEFT_TO_RIGHT) != 0) orientation = SWT.LEFT_TO_RIGHT;
 	if (this.orientation == orientation) return;
 	textDirection = this.orientation = orientation;
-	getRunForCurrentZoomLevel(null).freeRuns();
+	freeRuns();
 }
 
 /**
@@ -3385,7 +3355,7 @@ public void setSegments(int[] segments) {
 			if (i == segments.length) return;
 		}
 	}
-	getRunForCurrentZoomLevel(null).freeRuns();
+	freeRuns();
 	this.segments = segments;
 }
 
@@ -3418,7 +3388,7 @@ public void setSegmentsChars(char[] segmentsChars) {
 			if (i == segmentsChars.length) return;
 		}
 	}
-	getRunForCurrentZoomLevel(null).freeRuns();
+	freeRuns();
 	this.segmentsChars = segmentsChars;
 }
 
@@ -3439,7 +3409,7 @@ public void setSpacing (int spacing) {
 	checkLayout();
 	if (spacing < 0) SWT.error(SWT.ERROR_INVALID_ARGUMENT);
 	if (this.lineSpacingInPoints == spacing) return;
-	getRunForCurrentZoomLevel(null).freeRuns();
+	freeRuns();
 	this.lineSpacingInPoints = spacing;
 }
 
@@ -3504,7 +3474,7 @@ public void setStyle (TextStyle style, int start, int end) {
 			}
 		}
 	}
-	getRunForCurrentZoomLevel(null).freeRuns();
+	freeRuns();
 	int modifyStart = high;
 	int modifyEnd = modifyStart;
 	while (modifyEnd < stylesCount) {
@@ -3576,7 +3546,7 @@ public void setTabs (int[] tabs) {
 
 void setTabsInPixels (int[] tabs) {
 	if (Arrays.equals (this.tabs, tabs)) return;
-	getRunForCurrentZoomLevel(null).freeRuns();
+	freeRuns();
 	this.tabs = tabs;
 }
 
@@ -3601,7 +3571,7 @@ public void setText (String text) {
 	checkLayout();
 	if (text == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
 	if (text.equals(this.text)) return;
-	getRunForCurrentZoomLevel(null).freeRuns();
+	freeRuns();
 	this.text = text;
 	styles = new StyleItem[2];
 	styles[0] = new StyleItem();
@@ -3637,7 +3607,7 @@ public void setTextDirection (int textDirection) {
 		if (this.textDirection == textDirection) return;
 	}
 	this.textDirection = textDirection;
-	getRunForCurrentZoomLevel(null).freeRuns();
+	freeRuns();
 }
 
 /**
@@ -3664,7 +3634,7 @@ public void setWidth (int width) {
 void setWidthInPixels (int width) {
 	if (width < -1 || width == 0) SWT.error(SWT.ERROR_INVALID_ARGUMENT);
 	if (this.wrapWidth == width) return;
-	getRunForCurrentZoomLevel(null).freeRuns();
+	freeRuns();
 	this.wrapWidth = width;
 }
 
@@ -3690,7 +3660,7 @@ public void setWrapIndent (int wrapIndent) {
 void setWrapIndentInPixels (int wrapIndent) {
 	if (wrapIndent < 0) return;
 	if (this.wrapIndent == wrapIndent) return;
-	getRunForCurrentZoomLevel(null).freeRuns();
+	freeRuns();
 	this.wrapIndent = wrapIndent;
 }
 
@@ -3853,10 +3823,10 @@ void shape (GC  gc, final long hdc, final StyleItem run) {
 			* or next run of the same script.
 			*/
 			int index = 0;
-			while (index < getRunForCurrentZoomLevel(gc).allRuns.length - 1) {
-				if (getRunForCurrentZoomLevel(gc).allRuns[index] == run) {
+			while (index < allRuns.length - 1) {
+				if (allRuns[index] == run) {
 					if (index > 0) {
-						StyleItem pRun = getRunForCurrentZoomLevel(gc).allRuns[index - 1];
+						StyleItem pRun = allRuns[index - 1];
 						if (pRun.analysis.eScript == run.analysis.eScript) {
 							long pFont = getItemFont(pRun);
 							LOGFONT logFont = new LOGFONT ();
@@ -3865,8 +3835,8 @@ void shape (GC  gc, final long hdc, final StyleItem run) {
 						}
 					}
 					if (newFont == 0) {
-						if (index + 1 < getRunForCurrentZoomLevel(gc).allRuns.length - 1) {
-							StyleItem nRun = getRunForCurrentZoomLevel(gc).allRuns[index + 1];
+						if (index + 1 < allRuns.length - 1) {
+							StyleItem nRun = allRuns[index + 1];
 							if (nRun.analysis.eScript == run.analysis.eScript) {
 								OS.SelectObject(hdc, getItemFont(nRun));
 								shape(gc, hdc, nRun);
@@ -4064,17 +4034,5 @@ int untranslateOffset(int offset) {
  */
 public void setDefaultTabWidth(int tabLength) {
 	// unused in win32
-}
-
-private TextLayoutRuns getRunForCurrentZoomLevel(GC gc) {
-
-	final AtomicInteger key = new AtomicInteger(-1);
-//	if (gc != null && gc.data != null && gc.data.shell != null) {
-//		key.set(gc.data.shell.getCurrentDeviceZoom());
-//	}
-	return Optional.ofNullable(runMap.get(key.get())).orElseGet(() -> {
-		runMap.put(key.get(), new TextLayoutRuns());
-		return runMap.get(key.get());
-	});
 }
 }

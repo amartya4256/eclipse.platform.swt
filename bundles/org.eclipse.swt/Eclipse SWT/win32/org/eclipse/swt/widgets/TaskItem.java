@@ -474,10 +474,10 @@ void updateImage () {
 	switch (overlayImage.type) {
 		case SWT.BITMAP:
 			image2 = Display.createIcon (overlayImage);
-			hIcon = image2.handleDPIChange(getCurrentDeviceZoom());
+			hIcon = image2.getHandleByZoomLevel(getCurrentDeviceZoom());
 			break;
 		case SWT.ICON:
-			hIcon = overlayImage.handleDPIChange(getCurrentDeviceZoom());
+			hIcon = overlayImage.getHandleByZoomLevel(getCurrentDeviceZoom());
 			break;
 	}
 	parent.mTaskbarList3.SetOverlayIcon(shell.handle, hIcon, 0);

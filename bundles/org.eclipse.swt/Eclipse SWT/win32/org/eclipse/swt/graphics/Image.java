@@ -768,7 +768,8 @@ class ImageMetadata {
  *
  * @return true if image is refreshed
  */
-public Long handleDPIChange (Integer deviceZoomLevel) {
+
+public Long getHandleByZoomLevel (Integer deviceZoomLevel) {
 	if(deviceZoomLevel == null || isDisposed()) {
 		return handle;
 	}
@@ -984,7 +985,7 @@ long [] createGdipImage() {
 }
 
 long [] createGdipImage(Integer zoomLevel) {
-	long handle = handleDPIChange(zoomLevel);
+	long handle = getHandleByZoomLevel(zoomLevel);
 	switch (type) {
 		case SWT.BITMAP: {
 			BITMAP bm = new BITMAP();
@@ -2368,7 +2369,7 @@ public static Image win32_new(Device device, int type, long handle) {
  */
 public static Image win32_new(Image image, int targetZoom) {
 	if (targetZoom != image.currentDeviceZoom) {
-		image.handleDPIChange(targetZoom);
+		image.getHandleByZoomLevel(targetZoom);
 	}
 	return image;
 }

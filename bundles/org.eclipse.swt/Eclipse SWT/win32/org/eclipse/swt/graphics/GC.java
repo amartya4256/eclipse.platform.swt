@@ -473,7 +473,7 @@ void copyAreaInPixels(Image image, int x, int y) {
 	/* Copy the bitmap area */
 	Rectangle rect = image.getBoundsInPixels();
 	long memHdc = OS.CreateCompatibleDC(handle);
-	long hOldBitmap = OS.SelectObject(memHdc, image.handleDPIChange(getZoomLevelNullable()));
+	long hOldBitmap = OS.SelectObject(memHdc, image.getHandleByZoomLevel(getZoomLevelNullable()));
 	OS.BitBlt(memHdc, 0, 0, rect.width, rect.height, handle, x, y, OS.SRCCOPY);
 	OS.SelectObject(memHdc, hOldBitmap);
 	OS.DeleteDC(memHdc);
@@ -986,7 +986,7 @@ public void drawImage (Image image, int srcX, int srcY, int srcWidth, int srcHei
 		 * the coordinates may be slightly off. The workaround is to restrict
 		 * coordinates to the allowed bounds.
 		 */
-		image.handleDPIChange(deviceZoom);
+		image.getHandleByZoomLevel(deviceZoom);
 		Rectangle b = image.getBounds(deviceZoom);
 		int errX = src.x + src.width - b.width;
 		int errY = src.y + src.height - b.height;
@@ -1010,7 +1010,7 @@ private int getDeviceZoom() {
 
 void drawImage(Image srcImage, int srcX, int srcY, int srcWidth, int srcHeight, int destX, int destY, int destWidth, int destHeight, boolean simple) {
 	/* Refresh Image as per zoom level, if required. */
-	srcImage.handleDPIChange(getDeviceZoom());
+	srcImage.getHandleByZoomLevel(getDeviceZoom());
 	if (data.gdipGraphics != 0) {
 		//TODO - cache bitmap
 		long [] gdipImage = srcImage.createGdipImage(getZoomLevel());
@@ -1101,14 +1101,14 @@ void drawIcon(Image srcImage, int srcX, int srcY, int srcWidth, int srcHeight, i
 	/* Simple case: no stretching, entire icon */
 	if (simple && technology != OS.DT_RASPRINTER && drawIcon) {
 		if (offsetX != 0 || offsetY != 0) OS.SetWindowOrgEx(handle, 0, 0, null);
-		OS.DrawIconEx(handle, destX - offsetX, destY - offsetY, srcImage.handleDPIChange(getZoomLevelNullable()), 0, 0, 0, 0, flags);
+		OS.DrawIconEx(handle, destX - offsetX, destY - offsetY, srcImage.getHandleByZoomLevel(getZoomLevelNullable()), 0, 0, 0, 0, flags);
 		if (offsetX != 0 || offsetY != 0) OS.SetWindowOrgEx(handle, offsetX, offsetY, null);
 		return;
 	}
 
 	/* Get the icon info */
 	ICONINFO srcIconInfo = new ICONINFO();
-	OS.GetIconInfo(srcImage.handleDPIChange(getZoomLevelNullable()), srcIconInfo);
+	OS.GetIconInfo(srcImage.getHandleByZoomLevel(getZoomLevelNullable()), srcIconInfo);
 
 	/* Get the icon width and height */
 	long hBitmap = srcIconInfo.hbmColor;
@@ -1134,7 +1134,7 @@ void drawIcon(Image srcImage, int srcX, int srcY, int srcWidth, int srcHeight, i
 		} else if (simple && technology != OS.DT_RASPRINTER) {
 			/* Simple case: no stretching, entire icon */
 			if (offsetX != 0 || offsetY != 0) OS.SetWindowOrgEx(handle, 0, 0, null);
-			OS.DrawIconEx(handle, destX - offsetX, destY - offsetY, srcImage.handleDPIChange(getZoomLevelNullable()), 0, 0, 0, 0, flags);
+			OS.DrawIconEx(handle, destX - offsetX, destY - offsetY, srcImage.getHandleByZoomLevel(getZoomLevelNullable()), 0, 0, 0, 0, flags);
 			if (offsetX != 0 || offsetY != 0) OS.SetWindowOrgEx(handle, offsetX, offsetY, null);
 		} else {
 			/* Create the icon info and HDC's */
@@ -1209,7 +1209,7 @@ void drawIcon(Image srcImage, int srcX, int srcY, int srcWidth, int srcHeight, i
 
 void drawBitmap(Image srcImage, int srcX, int srcY, int srcWidth, int srcHeight, int destX, int destY, int destWidth, int destHeight, boolean simple) {
 	BITMAP bm = new BITMAP();
-	OS.GetObject(srcImage.handleDPIChange(getZoomLevelNullable()), BITMAP.sizeof, bm);
+	OS.GetObject(srcImage.getHandleByZoomLevel(getZoomLevelNullable()), BITMAP.sizeof, bm);
 	int imgWidth = bm.bmWidth;
 	int imgHeight = bm.bmHeight;
 	if (simple) {
@@ -1244,7 +1244,7 @@ void drawBitmap(Image srcImage, int srcX, int srcY, int srcWidth, int srcHeight,
 		drawBitmapColor(srcImage, srcX, srcY, srcWidth, srcHeight, destX, destY, destWidth, destHeight, simple);
 	}
 	if (mustRestore) {
-		long hOldBitmap = OS.SelectObject(memGC.handle, srcImage.handleDPIChange(getZoomLevelNullable()));
+		long hOldBitmap = OS.SelectObject(memGC.handle, srcImage.getHandleByZoomLevel(getZoomLevelNullable()));
 		memGC.data.hNullBitmap = hOldBitmap;
 	}
 }
@@ -1257,7 +1257,7 @@ void drawBitmapAlpha(Image srcImage, int srcX, int srcY, int srcWidth, int srcHe
 		int caps = OS.GetDeviceCaps(handle, OS.SHADEBLENDCAPS);
 		if (caps != 0) {
 			long srcHdc = OS.CreateCompatibleDC(handle);
-			long oldSrcBitmap = OS.SelectObject(srcHdc, srcImage.handleDPIChange(getZoomLevelNullable()));
+			long oldSrcBitmap = OS.SelectObject(srcHdc, srcImage.getHandleByZoomLevel(getZoomLevelNullable()));
 			long memDib = Image.createDIB(srcWidth, srcHeight, 32);
 			if (memDib == 0) SWT.error(SWT.ERROR_NO_HANDLES);
 			long memHdc = OS.CreateCompatibleDC(handle);
@@ -1298,7 +1298,7 @@ void drawBitmapAlpha(Image srcImage, int srcX, int srcY, int srcWidth, int srcHe
 		BLENDFUNCTION blend = new BLENDFUNCTION();
 		blend.BlendOp = OS.AC_SRC_OVER;
 		long srcHdc = OS.CreateCompatibleDC(handle);
-		long oldSrcBitmap = OS.SelectObject(srcHdc, srcImage.handleDPIChange(getZoomLevelNullable()));
+		long oldSrcBitmap = OS.SelectObject(srcHdc, srcImage.getHandleByZoomLevel(getZoomLevelNullable()));
 		blend.SourceConstantAlpha = (byte)sourceAlpha;
 		blend.AlphaFormat = OS.AC_SRC_ALPHA;
 		OS.AlphaBlend(handle, destX, destY, destWidth, destHeight, srcHdc, srcX, srcY, srcWidth, srcHeight, blend);
@@ -1331,7 +1331,7 @@ void drawBitmapAlpha(Image srcImage, int srcX, int srcY, int srcWidth, int srcHe
 
 	/* Create resources */
 	long srcHdc = OS.CreateCompatibleDC(handle);
-	long oldSrcBitmap = OS.SelectObject(srcHdc, srcImage.handleDPIChange(getZoomLevelNullable()));
+	long oldSrcBitmap = OS.SelectObject(srcHdc, srcImage.getHandleByZoomLevel(getZoomLevelNullable()));
 	long memHdc = OS.CreateCompatibleDC(handle);
 	long memDib = Image.createDIB(Math.max(srcWidth, destWidth), Math.max(srcHeight, destHeight), 32);
 	if (memDib == 0) SWT.error(SWT.ERROR_NO_HANDLES);
@@ -1503,7 +1503,7 @@ void drawBitmapTransparent(Image srcImage, int srcX, int srcY, int srcWidth, int
 
 	/* Find the RGB values for the transparent pixel. */
 	boolean isDib = bm.bmBits != 0;
-	long hBitmap = srcImage.handleDPIChange(getZoomLevelNullable());
+	long hBitmap = srcImage.getHandleByZoomLevel(getZoomLevelNullable());
 	long srcHdc = OS.CreateCompatibleDC(handle);
 	long oldSrcBitmap = OS.SelectObject(srcHdc, hBitmap);
 	byte[] originalColors = null;
@@ -1548,7 +1548,7 @@ void drawBitmapTransparent(Image srcImage, int srcX, int srcY, int srcWidth, int
 				bmiHeader.biBitCount = bm.bmBitsPixel;
 				byte[] bmi = new byte[BITMAPINFOHEADER.sizeof + numColors * 4];
 				OS.MoveMemory(bmi, bmiHeader, BITMAPINFOHEADER.sizeof);
-				OS.GetDIBits(srcHdc, srcImage.handleDPIChange(getZoomLevelNullable()), 0, 0, null, bmi, OS.DIB_RGB_COLORS);
+				OS.GetDIBits(srcHdc, srcImage.getHandleByZoomLevel(getZoomLevelNullable()), 0, 0, null, bmi, OS.DIB_RGB_COLORS);
 				int offset = BITMAPINFOHEADER.sizeof + 4 * srcImage.transparentPixel;
 				transRed = bmi[offset + 2] & 0xFF;
 				transGreen = bmi[offset + 1] & 0xFF;
@@ -1621,13 +1621,13 @@ void drawBitmapTransparent(Image srcImage, int srcX, int srcY, int srcWidth, int
 		OS.DeleteObject(maskBitmap);
 	}
 	OS.SelectObject(srcHdc, oldSrcBitmap);
-	if (hBitmap != srcImage.handleDPIChange(getZoomLevelNullable())) OS.DeleteObject(hBitmap);
+	if (hBitmap != srcImage.getHandleByZoomLevel(getZoomLevelNullable())) OS.DeleteObject(hBitmap);
 	OS.DeleteDC(srcHdc);
 }
 
 void drawBitmapColor(Image srcImage, int srcX, int srcY, int srcWidth, int srcHeight, int destX, int destY, int destWidth, int destHeight, boolean simple) {
 	long srcHdc = OS.CreateCompatibleDC(handle);
-	long oldSrcBitmap = OS.SelectObject(srcHdc, srcImage.handleDPIChange(getZoomLevelNullable()));
+	long oldSrcBitmap = OS.SelectObject(srcHdc, srcImage.getHandleByZoomLevel(getZoomLevelNullable()));
 	int dwRop = OS.GetROP2(handle) == OS.R2_XORPEN ? OS.SRCINVERT : OS.SRCCOPY;
 	if (!simple && (srcWidth != destWidth || srcHeight != destHeight)) {
 		int mode = OS.SetStretchBltMode(handle, OS.COLORONCOLOR);
@@ -3877,7 +3877,7 @@ long identity() {
 			Image image = data.image;
 			if (image != null) {
 				BITMAP bm = new BITMAP();
-				OS.GetObject(image.handleDPIChange(getZoomLevelNullable()), BITMAP.sizeof, bm);
+				OS.GetObject(image.getHandleByZoomLevel(getZoomLevelNullable()), BITMAP.sizeof, bm);
 				width = bm.bmWidth;
 			} else {
 				long hwnd = OS.WindowFromDC(handle);
@@ -3923,7 +3923,7 @@ void init(Drawable drawable, GCData data, long hDC) {
 	}
 	Image image = data.image;
 	if (image != null) {
-		data.hNullBitmap = OS.SelectObject(hDC, image.handleDPIChange(getZoomLevelNullable()));
+		data.hNullBitmap = OS.SelectObject(hDC, image.getHandleByZoomLevel(getZoomLevelNullable()));
 		image.memGC = this;
 	}
 	int layout = data.layout;
