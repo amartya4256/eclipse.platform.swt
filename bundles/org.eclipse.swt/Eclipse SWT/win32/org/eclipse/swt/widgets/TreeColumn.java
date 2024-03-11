@@ -544,7 +544,7 @@ void setImage (Image image, boolean sort, boolean right) {
 			hdItem.mask &= ~OS.HDI_IMAGE;
 			hdItem.fmt &= ~OS.HDF_IMAGE;
 			hdItem.fmt |= OS.HDF_BITMAP;
-			hdItem.hbm = image.handleDPIChange(parent.getCurrentDeviceZoom());
+			hdItem.hbm = image.getHandleByZoomLevel(parent.getCurrentDeviceZoom());
 		} else {
 			hdItem.mask &= ~OS.HDI_BITMAP;
 			hdItem.fmt &= ~OS.HDF_BITMAP;
@@ -775,7 +775,11 @@ private static void handleDPIChange(Widget widget, int newZoom, float scalingFac
 	treeColumn.setWidth(Math.round(treeColumn.getWidth() * scalingFactor));
 	Image image = treeColumn.image;
 	if (image != null) {
+<<<<<<< HEAD
 		image.handleDPIChange(newZoom);
+=======
+		image.getHandleByZoomLevel(event.newZoom());
+>>>>>>> 6347d56e0b (refactored handleDPIChange for Image to getHandleByZoomLevel + Image scaling in MenuItem + Fixed tab dragging problem in display > map)
 		treeColumn.setImage (image);
 	}
 }

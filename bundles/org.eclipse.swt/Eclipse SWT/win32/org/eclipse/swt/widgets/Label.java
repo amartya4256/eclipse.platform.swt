@@ -629,7 +629,7 @@ private static void handleDPIChange(Widget widget, int newZoom, float scalingFac
 	}
 	Image image = label.getImage();
 	if (image != null) {
-		image.handleDPIChange(newZoom);
+		image.getHandleByZoomLevel(newZoom);
 		label.setImage(image);
 	}
 }

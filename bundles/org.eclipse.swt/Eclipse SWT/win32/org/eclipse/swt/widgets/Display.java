@@ -947,7 +947,7 @@ static long create32bitDIB (Image image) {
 }
 
 static long create32bitDIB (Image image, int zoomLevel) {
-	long handle = image.handleDPIChange(zoomLevel);
+	long handle = image.getHandleByZoomLevel(zoomLevel);
 	int transparentPixel = -1, alpha = -1;
 	long hMask = 0, hBitmap = 0;
 	byte[] alphaData = null;
@@ -2909,8 +2909,8 @@ boolean isValidThread () {
 public Point map (Control from, Control to, Point point) {
 	checkDevice ();
 	if (point == null) error (SWT.ERROR_NULL_ARGUMENT);
-	point = DPIUtil.autoScaleUp(point);
-	return DPIUtil.autoScaleDown(mapInPixels(from, to, point));
+	point = DPIUtil.autoScaleUp(point, getZoomLevelForMapping(from, to));
+	return DPIUtil.autoScaleDown(mapInPixels(from, to, point), getZoomLevelForMapping(from, to));
 }
 
 Point mapInPixels (Control from, Control to, Point point) {
@@ -2955,9 +2955,9 @@ Point mapInPixels (Control from, Control to, Point point) {
  */
 public Point map (Control from, Control to, int x, int y) {
 	checkDevice ();
-	x = DPIUtil.autoScaleUp(x);
-	y = DPIUtil.autoScaleUp(y);
-	return DPIUtil.autoScaleDown(mapInPixels(from, to, x, y));
+	x = DPIUtil.autoScaleUp(x, getZoomLevelForMapping(from, to));
+	y = DPIUtil.autoScaleUp(y, getZoomLevelForMapping(from, to));
+	return DPIUtil.autoScaleDown(mapInPixels(from, to, x, y), getZoomLevelForMapping(from, to));
 }
 
 Point mapInPixels (Control from, Control to, int x, int y) {
@@ -2971,6 +2971,14 @@ Point mapInPixels (Control from, Control to, int x, int y) {
 	point.y = y;
 	OS.MapWindowPoints (hwndFrom, hwndTo, point, 1);
 	return new Point (point.x, point.y);
+}
+
+private int getZoomLevelForMapping(Control from, Control to) {
+	return Optional.ofNullable(to)
+            .map(Control::getCurrentDeviceZoom)
+            .orElseGet(() -> Optional.ofNullable(from)
+                    .map(Control::getCurrentDeviceZoom)
+                    .orElse(0));
 }
 
 /**
@@ -3012,8 +3020,8 @@ Point mapInPixels (Control from, Control to, int x, int y) {
 public Rectangle map (Control from, Control to, Rectangle rectangle) {
 	checkDevice ();
 	if (rectangle == null) error (SWT.ERROR_NULL_ARGUMENT);
-	rectangle = DPIUtil.autoScaleUp(rectangle);
-	return DPIUtil.autoScaleDown(mapInPixels(from, to, rectangle));
+	rectangle = DPIUtil.autoScaleUp(rectangle, getZoomLevelForMapping(from, to));
+	return DPIUtil.autoScaleDown(mapInPixels(from, to, rectangle), getZoomLevelForMapping(from, to));
 }
 
 Rectangle mapInPixels (Control from, Control to, Rectangle rectangle) {
@@ -3060,11 +3068,11 @@ Rectangle mapInPixels (Control from, Control to, Rectangle rectangle) {
  */
 public Rectangle map (Control from, Control to, int x, int y, int width, int height) {
 	checkDevice ();
-	x = DPIUtil.autoScaleUp(x);
-	y = DPIUtil.autoScaleUp(y);
-	width = DPIUtil.autoScaleUp(width);
-	height = DPIUtil.autoScaleUp(height);
-	return DPIUtil.autoScaleDown(mapInPixels(from, to, x, y, width, height));
+	x = DPIUtil.autoScaleUp(x, getZoomLevelForMapping(from, to));
+	y = DPIUtil.autoScaleUp(y, getZoomLevelForMapping(from, to));
+	width = DPIUtil.autoScaleUp(width, getZoomLevelForMapping(from, to));
+	height = DPIUtil.autoScaleUp(height, getZoomLevelForMapping(from, to));
+	return DPIUtil.autoScaleDown(mapInPixels(from, to, x, y, width, height), getZoomLevelForMapping(from, to));
 }
 
 Rectangle mapInPixels (Control from, Control to, int x, int y, int width, int height) {

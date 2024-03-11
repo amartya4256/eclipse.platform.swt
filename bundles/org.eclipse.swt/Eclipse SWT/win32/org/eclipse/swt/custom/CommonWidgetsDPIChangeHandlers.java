@@ -42,7 +42,7 @@ public class CommonWidgetsDPIChangeHandlers {
 		// Refresh the image
 		Image image = item.getImage();
 		if (image != null) {
-			image.handleDPIChange(newZoom);
+			image.getHandleByZoomLevel(newZoom);
 			item.setImage(image);
 		}
 	}

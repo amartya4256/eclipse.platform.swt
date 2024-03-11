@@ -387,26 +387,6 @@ private void setSearchIcon() {
 	if (hwndSearch == 0) error (SWT.ERROR_NO_HANDLES);
 }
 
-<<<<<<< HEAD
-=======
-private void createSearchIcons() {
-	int scaledIconSize = DPIUtil.autoScaleUp(ICON_SIZE_AT_100, getShell().getCurrentDeviceZoom());
-	int searchIconResource = display.textUseDarkthemeIcons ? IDI_SEARCH_DARKTHEME : IDI_SEARCH;
-	long hIcon = OS.LoadImage (OS.GetLibraryHandle (), searchIconResource, OS.IMAGE_ICON, scaledIconSize, scaledIconSize, 0);
-	getShell().textSearchIcons.put(getCurrentDeviceZoom(), hIcon);
-	if (getShell().textSearchIcon == 0) {
-		getShell().textSearchIcon = hIcon;
-	}
-
-	int cancelIconResource = display.textUseDarkthemeIcons ? IDI_CANCEL_DARKTHEME : IDI_CANCEL;
-	hIcon = OS.LoadImage (OS.GetLibraryHandle (), cancelIconResource, OS.IMAGE_ICON, scaledIconSize, scaledIconSize, 0);
-	getShell().textCancelIcons.put(getCurrentDeviceZoom(), hIcon);
-	if (getShell().textCancelIcon == 0) {
-		getShell().textCancelIcon = hIcon;
-	}
-}
-
->>>>>>> bcd3cad060 (Finalized Image changes and replaced shell calls with zoom level calls in DPIUtil)
 @Override
 int applyThemeBackground () {
 	return (backgroundAlpha == 0 || (style & (SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL)) == 0) ? 1 : 0;

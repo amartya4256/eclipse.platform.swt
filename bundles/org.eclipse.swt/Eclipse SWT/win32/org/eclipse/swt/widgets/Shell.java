@@ -1069,7 +1069,7 @@ public boolean getMaximized () {
  */
 public Point getMaximumSize () {
 	checkWidget ();
-	return DPIUtil.autoScaleDown(getMaximumSizeInPixels(), getShell());
+	return DPIUtil.autoScaleDown(getMaximumSizeInPixels(), getCurrentDeviceZoom());
 }
 
 Point getMaximumSizeInPixels () {
@@ -1110,7 +1110,7 @@ Point getMaximumSizeInPixels () {
  */
 public Point getMinimumSize () {
 	checkWidget ();
-	return DPIUtil.autoScaleDown(getMinimumSizeInPixels(), getShell());
+	return DPIUtil.autoScaleDown(getMinimumSizeInPixels(), getCurrentDeviceZoom());
 }
 
 Point getMinimumSizeInPixels () {
@@ -1751,7 +1751,7 @@ public void setImeInputMode (int mode) {
  */
 public void setMaximumSize (int width, int height) {
 	checkWidget ();
-	setMaximumSizeInPixels(DPIUtil.autoScaleUp(width, getShell()), DPIUtil.autoScaleUp(height, getShell()));
+	setMaximumSizeInPixels(DPIUtil.autoScaleUp(width, getCurrentDeviceZoom()), DPIUtil.autoScaleUp(height, getCurrentDeviceZoom()));
 }
 
 /**
@@ -1779,7 +1779,7 @@ public void setMaximumSize (int width, int height) {
 public void setMaximumSize (Point size) {
 	checkWidget ();
 	if (size == null) error (SWT.ERROR_NULL_ARGUMENT);
-	size = DPIUtil.autoScaleUp(size, getShell());
+	size = DPIUtil.autoScaleUp(size, getCurrentDeviceZoom());
 	setMaximumSizeInPixels(size.x, size.y);
 }
 
@@ -1825,7 +1825,7 @@ void setMaximumSizeInPixels (int width, int height) {
  */
 public void setMinimumSize (int width, int height) {
 	checkWidget ();
-	setMinimumSizeInPixels(DPIUtil.autoScaleUp(width, getShell()), DPIUtil.autoScaleUp(height, getShell()));
+	setMinimumSizeInPixels(DPIUtil.autoScaleUp(width, getCurrentDeviceZoom()), DPIUtil.autoScaleUp(height, getCurrentDeviceZoom()));
 }
 
 void setMinimumSizeInPixels (int width, int height) {
@@ -1873,7 +1873,7 @@ void setMinimumSizeInPixels (int width, int height) {
 public void setMinimumSize (Point size) {
 	checkWidget ();
 	if (size == null) error (SWT.ERROR_NULL_ARGUMENT);
-	size = DPIUtil.autoScaleUp(size, getShell());
+	size = DPIUtil.autoScaleUp(size, getCurrentDeviceZoom());
 	setMinimumSizeInPixels(size.x, size.y);
 }
 

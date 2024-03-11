@@ -903,7 +903,7 @@ private static void handleDPIChange(Widget widget, int newZoom, float scalingFac
 	tableColumn.setWidthInPixels(newColumnWidth);
 	Image image = tableColumn.getImage();
 	if (image != null) {
-		image.handleDPIChange(newZoom);
+		image.getHandleByZoomLevel(newZoom);
 		tableColumn.setImage(image);
 	}
 }

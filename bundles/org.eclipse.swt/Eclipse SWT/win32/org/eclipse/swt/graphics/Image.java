@@ -779,7 +779,7 @@ class ImageMetadata {
  * @return true if image is refreshed
  * @noreference This method is not intended to be referenced by clients.
  */
-public Long handleDPIChange (Integer newZoom) {
+public Long getHandleByZoomLevel (Integer newZoom) {
 	if(newZoom == null || isDisposed()) {
 		return handle;
 	}
@@ -997,7 +997,7 @@ long [] createGdipImage() {
 }
 
 long [] createGdipImage(Integer zoomLevel) {
-	long handle = handleDPIChange(zoomLevel);
+	long handle = getHandleByZoomLevel(zoomLevel);
 	switch (type) {
 		case SWT.BITMAP: {
 			BITMAP bm = new BITMAP();
