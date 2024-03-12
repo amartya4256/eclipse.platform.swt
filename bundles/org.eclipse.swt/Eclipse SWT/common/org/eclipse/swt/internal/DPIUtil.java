@@ -40,7 +40,7 @@ public class DPIUtil {
 
 	private static final int DPI_ZOOM_100 = 96;
 
-	private static int deviceZoom = 125;
+	private static int deviceZoom = 100;
 	private static int nativeDeviceZoom = 100;
 
 	private static enum AutoScaleMethod { AUTO, NEAREST, SMOOTH }
@@ -380,7 +380,12 @@ public static int[] autoScaleUp(int[] pointArray) {
 
 public static int[] autoScaleUp(int[] pointArray, int deviceZoom) {
 	if (deviceZoom == 100 || pointArray == null) return pointArray;
-	return autoScaleUp(pointArray, 0);
+	float scaleFactor = getScalingFactor (deviceZoom);
+	int [] returnArray = new int[pointArray.length];
+	for (int i = 0; i < pointArray.length; i++) {
+		returnArray [i] =  Math.round (pointArray [i] * scaleFactor);
+	}
+	return returnArray;
 }
 
 public static int[] autoScaleUp(Drawable drawable, int[] pointArray) {
@@ -399,7 +404,6 @@ public static int autoScaleUp (int size) {
 }
 
 /**
-<<<<<<< HEAD
  * Auto-scale up int dimensions to match the given zoom level
  */
 public static int autoScaleUp (int size, int zoom) {
@@ -410,8 +414,6 @@ public static int autoScaleUp (int size, int zoom) {
 }
 
 /**
-=======
->>>>>>> 01e27d6a49 (Fixed the Image scaling for Multiple zoom levels)
  * Auto-scale up int dimensions using Native DPI
  */
 public static int autoScaleUpUsingNativeDPI (int size) {
