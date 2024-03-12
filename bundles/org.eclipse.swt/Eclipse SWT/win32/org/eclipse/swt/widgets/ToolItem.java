@@ -1243,28 +1243,16 @@ private static void handleDPIChange(Widget widget, int newZoom, float scalingFac
 		if (parent.getHotImageList() == null) {
 			parent.setHotImageList (display.getImageListToolBarHot (listStyle, bounds.width, bounds.height, item.getCurrentDeviceZoom()));
 		}
-<<<<<<< HEAD
-		image.handleDPIChange(newZoom);
+		image.getHandleByZoomLevel(newZoom);
 
 		Image disabledImage = item.getDisabledImage();
 		if (disabledImage != null && !disabledImage.isDisposed()) {
-			disabledImage.handleDPIChange(newZoom);
-=======
-		image.getHandleByZoomLevel(event.newZoom());
-
-		Image disabledImage = item.getDisabledImage();
-		if (disabledImage != null && !disabledImage.isDisposed()) {
-			disabledImage.getHandleByZoomLevel(event.newZoom());
->>>>>>> 6347d56e0b (refactored handleDPIChange for Image to getHandleByZoomLevel + Image scaling in MenuItem + Fixed tab dragging problem in display > map)
+			disabledImage.getHandleByZoomLevel(newZoom);
 		}
 
 		Image hotImage = item.getHotImage();
 		if (hotImage != null) {
-<<<<<<< HEAD
-			hotImage.handleDPIChange(newZoom);
-=======
-			hotImage.getHandleByZoomLevel(event.newZoom());
->>>>>>> 6347d56e0b (refactored handleDPIChange for Image to getHandleByZoomLevel + Image scaling in MenuItem + Fixed tab dragging problem in display > map)
+			hotImage.getHandleByZoomLevel(newZoom);
 		}
 	}
 	item.setWidthInPixels(0);
