@@ -1821,24 +1821,17 @@ private static void handleDPIChange(Widget widget, int newZoom, float scalingFac
 	if (!(widget instanceof TreeItem treeItem)) {
 		return;
 	}
-<<<<<<< HEAD
-=======
-	TreeItem treeItem = (TreeItem) widget;
+	treeItem = (TreeItem) widget;
 	Image image = treeItem.image;
 	if (image != null) {
-		image.getHandleByZoomLevel(event.newZoom());
+		image.getHandleByZoomLevel(newZoom);
 		treeItem.setImage(image);
 	}
->>>>>>> 6347d56e0b (refactored handleDPIChange for Image to getHandleByZoomLevel + Image scaling in MenuItem + Fixed tab dragging problem in display > map)
 	Image[] images = treeItem.images;
 	if (images != null) {
 		for (Image innerImage : images) {
 			if (innerImage != null) {
-<<<<<<< HEAD
-				innerImage.handleDPIChange(newZoom);
-=======
-				innerImage.getHandleByZoomLevel(event.newZoom());
->>>>>>> 6347d56e0b (refactored handleDPIChange for Image to getHandleByZoomLevel + Image scaling in MenuItem + Fixed tab dragging problem in display > map)
+				innerImage.getHandleByZoomLevel(newZoom);
 			}
 		}
 	}

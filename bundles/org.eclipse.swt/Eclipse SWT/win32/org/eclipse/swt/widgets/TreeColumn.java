@@ -775,11 +775,7 @@ private static void handleDPIChange(Widget widget, int newZoom, float scalingFac
 	treeColumn.setWidth(Math.round(treeColumn.getWidth() * scalingFactor));
 	Image image = treeColumn.image;
 	if (image != null) {
-<<<<<<< HEAD
-		image.handleDPIChange(newZoom);
-=======
-		image.getHandleByZoomLevel(event.newZoom());
->>>>>>> 6347d56e0b (refactored handleDPIChange for Image to getHandleByZoomLevel + Image scaling in MenuItem + Fixed tab dragging problem in display > map)
+		image.getHandleByZoomLevel(newZoom);
 		treeColumn.setImage (image);
 	}
 }

@@ -7372,7 +7372,7 @@ public void redraw(int x, int y, int width, int height, boolean all) {
 		int firstLine = getLineIndex(y);
 		int lastLine = getLineIndex(y + height);
 		resetCache(firstLine, lastLine - firstLine + 1);
-		//doMouseLinkCursor();
+		doMouseLinkCursor();
 	}
 }
 void redrawLines(int startLine, int lineCount, boolean bottomChanged) {
@@ -7466,7 +7466,7 @@ public void redrawRange(int start, int length, boolean clearBackground) {
 	int lastLine = content.getLineAtOffset(end);
 	resetCache(firstLine, lastLine - firstLine + 1);
 	internalRedrawRange(start, length);
-	//doMouseLinkCursor();
+	doMouseLinkCursor();
 }
 /**
  * Removes the specified bidirectional segment listener.
