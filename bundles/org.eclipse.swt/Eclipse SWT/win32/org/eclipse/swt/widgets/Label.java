@@ -15,8 +15,6 @@
 package org.eclipse.swt.widgets;
 
 
-import java.util.*;
-
 import org.eclipse.swt.*;
 import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.internal.*;
@@ -569,7 +567,7 @@ void wmDrawChildImage(DRAWITEMSTRUCT struct) {
 	data.device = display;
 	GC gc = GC.win32_new (struct.hDC, data);
 	Image image = getEnabled () ? this.image : new Image (display, this.image, SWT.IMAGE_DISABLE);
-	gc.drawImage (image, DPIUtil.autoScaleDown(x, getZoomLevel()), DPIUtil.autoScaleDown(Math.max (0, (height - imageRect.height) / 2), getZoomLevel()));
+	gc.drawImage (image, DPIUtil.autoScaleDown(x, getCurrentDeviceZoom()), DPIUtil.autoScaleDown(Math.max (0, (height - imageRect.height) / 2), getCurrentDeviceZoom()));
 	if (image != this.image) image.dispose ();
 	gc.dispose ();
 }
@@ -631,9 +629,5 @@ private static void handleDPIChange(Widget widget, int newZoom, float scalingFac
 	if (image != null) {
 		label.setImage(Image.win32_new(image, newZoom));
 	}
-}
-
-private int getZoomLevel() {
-	return Optional.ofNullable(getShell()).map(Shell::getCurrentDeviceZoom).orElse(0);
 }
 }

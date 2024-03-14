@@ -1188,7 +1188,7 @@ public void setEnabled (boolean enabled) {
  */
 public void setLocation (int x, int y) {
 	checkWidget ();
-	setLocationInPixels(DPIUtil.autoScaleUp(x, getShell().getCurrentDeviceZoom()), DPIUtil.autoScaleUp(y, getShell().getCurrentDeviceZoom()));
+	setLocationInPixels(DPIUtil.autoScaleUp(x, getCurrentDeviceZoom()), DPIUtil.autoScaleUp(y, getCurrentDeviceZoom()));
 }
 
 void setLocationInPixels (int x, int y) {
@@ -1225,7 +1225,7 @@ void setLocationInPixels (int x, int y) {
 public void setLocation (Point location) {
 	checkWidget ();
 	if (location == null) error (SWT.ERROR_NULL_ARGUMENT);
-	location = DPIUtil.autoScaleUp(location, getShell().getCurrentDeviceZoom());
+	location = DPIUtil.autoScaleUp(location, getCurrentDeviceZoom());
 	setLocationInPixels(location.x, location.y);
 }
 

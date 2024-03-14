@@ -1239,17 +1239,6 @@ private static void handleDPIChange(Widget widget, int newZoom, float scalingFac
 		if (parent.getHotImageList() == null) {
 			parent.setHotImageList (display.getImageListToolBarHot (listStyle, bounds.width, bounds.height, item.getCurrentDeviceZoom()));
 		}
-		Image.win32_new(image, newZoom);
-
-		Image disabledImage = item.getDisabledImage();
-		if (disabledImage != null && !disabledImage.isDisposed()) {
-			Image.win32_new(disabledImage, newZoom);
-		}
-
-		Image hotImage = item.getHotImage();
-		if (hotImage != null) {
-			Image.win32_new(hotImage, newZoom);
-		}
 	}
 	item.setWidthInPixels(0);
 }

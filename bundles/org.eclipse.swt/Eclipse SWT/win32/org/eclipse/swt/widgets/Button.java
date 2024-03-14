@@ -15,8 +15,6 @@
 package org.eclipse.swt.widgets;
 
 
-import java.util.*;
-
 import org.eclipse.swt.*;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.*;
@@ -1311,10 +1309,6 @@ private int getCheckboxTextOffset(long hdc) {
 	result += size.cx / 2;
 
 	return result;
-}
-
-private int getZoomLevel() {
-	return Optional.ofNullable(getShell()).map(Shell::getCurrentDeviceZoom).orElse(0);
 }
 
 @Override

@@ -16,7 +16,6 @@ package org.eclipse.swt.graphics;
 
 import org.eclipse.swt.*;
 import org.eclipse.swt.internal.win32.*;
-import org.eclipse.swt.widgets.*;
 
 /**
  * Instances of this class are descriptions of GCs in terms
@@ -48,8 +47,8 @@ public final class GCData {
 	public float[] lineDashes;
 	public float lineMiterLimit = 10;
 	public int alpha = 0xFF;
-	public Shell shell;
 	public int deviceZoom;
+	public int nativeDeviceZoom;
 
 	public Image image;
 	public PAINTSTRUCT ps;

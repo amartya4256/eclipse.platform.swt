@@ -15,8 +15,6 @@
 package org.eclipse.swt.widgets;
 
 
-import java.util.*;
-
 import org.eclipse.swt.*;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.*;
@@ -913,7 +911,7 @@ boolean dragDetect (long hwnd, int x, int y, boolean filter, boolean [] detect, 
  */
 public Point getCaretLocation () {
 	checkWidget ();
-	return DPIUtil.autoScaleDown(getCaretLocationInPixels(), getZoomLevel());
+	return DPIUtil.autoScaleDown(getCaretLocationInPixels(), getCurrentDeviceZoom());
 }
 
 Point getCaretLocationInPixels () {
@@ -1081,7 +1079,7 @@ public int getItemCount () {
  */
 public int getItemHeight () {
 	checkWidget ();
-	return DPIUtil.autoScaleDown(getItemHeightInPixels(), getZoomLevel());
+	return DPIUtil.autoScaleDown(getItemHeightInPixels(), getCurrentDeviceZoom());
 }
 
 int getItemHeightInPixels () {
@@ -1347,7 +1345,7 @@ public String getText () {
  */
 public int getTextHeight () {
 	checkWidget ();
-	return DPIUtil.autoScaleDown(getTextHeightInPixels(), getZoomLevel());
+	return DPIUtil.autoScaleDown(getTextHeightInPixels(), getCurrentDeviceZoom());
 }
 
 int getTextHeightInPixels () {
@@ -3369,9 +3367,5 @@ private static void handleDPIChange(Widget widget, int newZoom, float scalingFac
 		combo.scrollWidth = 0;
 		combo.setScrollWidth();
 	}
-}
-
-private int getZoomLevel() {
-	return Optional.ofNullable(getShell()).map(Shell::getCurrentDeviceZoom).orElse(0);
 }
 }
