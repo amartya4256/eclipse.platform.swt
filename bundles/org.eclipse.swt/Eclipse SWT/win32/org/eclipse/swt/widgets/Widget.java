@@ -49,11 +49,6 @@ import org.eclipse.swt.internal.win32.*;
  * @see <a href="http://www.eclipse.org/swt/">Sample code and further information</a>
  */
 public abstract class Widget {
-	/**
-	 * Specify current zoom level for the widget.
-	 *
-	 * @since 3.125
-	 */
 	private int currentDeviceZoom;
 	int style, state;
 	Display display;

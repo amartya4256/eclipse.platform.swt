@@ -19,7 +19,6 @@ import java.util.*;
 import org.eclipse.swt.*;
 import org.eclipse.swt.internal.*;
 import org.eclipse.swt.internal.win32.*;
-import org.eclipse.swt.widgets.*;
 
 /**
  * Instances of this class represent areas of an x-y coordinate
@@ -621,15 +620,15 @@ private HashMap<Integer, Long> handleMap = new HashMap<>();
 /**
  * @since 3.125
  */
-public long getHandle(Shell shell) {
-	if(shell.getCurrentDeviceZoom() == this.device.getDeviceZoom()) {
+public long getHandle(int zoomLevel) {
+	if(zoomLevel == this.device.getDeviceZoom()) {
 		return this.handle;
 	}
-	if(this.handleMap.get(shell.getCurrentDeviceZoom()) == null) {
-		Rectangle rect = DPIUtil.autoScaleUp(this.getBoundsInPixels(), Optional.ofNullable(shell).map(Shell::getCurrentDeviceZoom).orElse(0));
-		handleMap.put(shell.getCurrentDeviceZoom(), OS.CreateRectRgn(rect.x, rect.y, rect.x + rect.width, rect.y + rect.height));
+	if(this.handleMap.get(zoomLevel) == null) {
+		Rectangle rect = DPIUtil.autoScaleUp(this.getBoundsInPixels(), zoomLevel);
+		handleMap.put(zoomLevel, OS.CreateRectRgn(rect.x, rect.y, rect.x + rect.width, rect.y + rect.height));
 	}
-	return this.handleMap.get(shell.getCurrentDeviceZoom());
+	return this.handleMap.get(zoomLevel);
 }
 
 /**

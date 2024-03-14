@@ -15,8 +15,6 @@
 package org.eclipse.swt.widgets;
 
 
-import java.util.*;
-
 import org.eclipse.swt.*;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.*;
@@ -1317,10 +1315,6 @@ private int getCheckboxTextOffset(long hdc) {
 	return result;
 }
 
-private int getZoomLevel() {
-	return Optional.ofNullable(getShell()).map(Shell::getCurrentDeviceZoom).orElse(0);
-}
-
 @Override
 LRESULT wmNotifyChild (NMHDR hdr, long wParam, long lParam) {
 	switch (hdr.code) {
@@ -1393,7 +1387,7 @@ LRESULT wmNotifyChild (NMHDR hdr, long wParam, long lParam) {
 
 							int x = margin + (isRadioOrCheck() ? radioOrCheckTextPadding : 3);
 							int y = Math.max (0, (nmcd.bottom - image.getBounds(this.getCurrentDeviceZoom()).height) / 2);
-							gc.drawImage (image, DPIUtil.autoScaleDown(x, getZoomLevel()), DPIUtil.autoScaleDown(y, getZoomLevel()));
+							gc.drawImage (image, DPIUtil.autoScaleDown(x, getCurrentDeviceZoom()), DPIUtil.autoScaleDown(y, getCurrentDeviceZoom()));
 							gc.dispose ();
 						}
 

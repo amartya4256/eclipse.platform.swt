@@ -18,7 +18,6 @@ import java.util.*;
 import org.eclipse.swt.*;
 import org.eclipse.swt.internal.*;
 import org.eclipse.swt.internal.gdip.*;
-import org.eclipse.swt.widgets.*;
 
 /**
  * Instances of this class represent transformation matrices for
@@ -333,19 +332,19 @@ public void setElements(float m11, float m12, float m21, float m22, float dx, fl
  *
  * @noreference This field is not intended to be referenced by clients.
  */
-public long getHandle(Shell shell) {
-	if(shell.getCurrentDeviceZoom() == this.device.getDeviceZoom()) {
+public long getHandle(int zoomLevel) {
+	if(zoomLevel == this.device.getDeviceZoom()) {
 		return this.handle;
 	}
-	if(this.handleMap.get(shell.getCurrentDeviceZoom()) == null) {
+	if(this.handleMap.get(zoomLevel) == null) {
 		float[] elements = new float[6];
 		getElements(elements);
-		elements[4] = DPIUtil.autoScaleUp(shell.getDisplay(), elements[4], shell.getCurrentDeviceZoom());
-		elements[5] = DPIUtil.autoScaleUp(shell.getDisplay(), elements[5], shell.getCurrentDeviceZoom());
+		elements[4] = DPIUtil.autoScaleUp(this.device, elements[4], zoomLevel);
+		elements[5] = DPIUtil.autoScaleUp(this.device, elements[5], zoomLevel);
 
-		handleMap.put(shell.getCurrentDeviceZoom(), Gdip.Matrix_new(elements[0], elements[1], elements[2], elements[3], elements[4], elements[5]));
+		handleMap.put(zoomLevel, Gdip.Matrix_new(elements[0], elements[1], elements[2], elements[3], elements[4], elements[5]));
 	}
-	return this.handleMap.get(shell.getCurrentDeviceZoom());
+	return this.handleMap.get(zoomLevel);
 }
 
 /**

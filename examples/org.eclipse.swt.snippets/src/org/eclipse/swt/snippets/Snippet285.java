@@ -64,7 +64,6 @@ public class Snippet285 {
 	public static void main(String[] args) {
 		int width = 250, height = 250;
 		final Display display = new Display();
-		DPIUtil.setDeviceZoom(250);
 		final Shell shell = new Shell(display, SWT.NO_TRIM);
 		shell.setText("Snippet 285");
 		final Path path = new Path(display);

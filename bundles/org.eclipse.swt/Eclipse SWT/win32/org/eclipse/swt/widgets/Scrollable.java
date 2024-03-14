@@ -120,11 +120,11 @@ long callWindowProc (long hwnd, int msg, long wParam, long lParam) {
  */
 public Rectangle computeTrim (int x, int y, int width, int height) {
 	checkWidget ();
-	x = DPIUtil.autoScaleUp(x, getShell().getCurrentDeviceZoom());
-	y = DPIUtil.autoScaleUp(y, getShell().getCurrentDeviceZoom());
-	width = DPIUtil.autoScaleUp(width, getShell().getCurrentDeviceZoom());
-	height = DPIUtil.autoScaleUp(height, getShell().getCurrentDeviceZoom());
-	return DPIUtil.autoScaleDown(computeTrimInPixels(x, y, width, height), getShell().getCurrentDeviceZoom());
+	x = DPIUtil.autoScaleUp(x, getCurrentDeviceZoom());
+	y = DPIUtil.autoScaleUp(y, getCurrentDeviceZoom());
+	width = DPIUtil.autoScaleUp(width, getCurrentDeviceZoom());
+	height = DPIUtil.autoScaleUp(height, getCurrentDeviceZoom());
+	return DPIUtil.autoScaleDown(computeTrimInPixels(x, y, width, height), getCurrentDeviceZoom());
 }
 
 Rectangle computeTrimInPixels (int x, int y, int width, int height) {
@@ -212,7 +212,7 @@ void destroyScrollBar (int type) {
  */
 public Rectangle getClientArea () {
 	checkWidget ();
-	return DPIUtil.autoScaleDown(getClientAreaInPixels(), getShell().getCurrentDeviceZoom());
+	return DPIUtil.autoScaleDown(getClientAreaInPixels(), getCurrentDeviceZoom());
 }
 
 Rectangle getClientAreaInPixels () {

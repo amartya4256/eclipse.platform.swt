@@ -301,7 +301,7 @@ public String toString () {
  * @noreference This field is not intended to be referenced by clients.
  */
 public Font scaleFor(int deviceZoom) {
-	if (deviceZoom == zoomLevel) {
+	if (deviceZoom == zoomLevel || deviceZoom == 0) {
 		return this;
 	}
 	return getDevice().getFont(getFontData()[0], deviceZoom);

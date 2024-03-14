@@ -375,7 +375,7 @@ void checkLayout () {
  */
 public void draw (GC gc, int x, int y) {
 	checkLayout();
-	currentZoomLevel = gc.data.shell.getCurrentDeviceZoom();
+	currentZoomLevel = gc.data.deviceZoom;
 	drawInPixels(gc, DPIUtil.autoScaleUp(getDevice(), x, getDeviceZoom(gc)), DPIUtil.autoScaleUp(getDevice(), y, getDeviceZoom(gc)));
 }
 
@@ -400,7 +400,7 @@ public void draw (GC gc, int x, int y) {
  */
 public void draw (GC gc, int x, int y, int selectionStart, int selectionEnd, Color selectionForeground, Color selectionBackground) {
 	checkLayout();
-	currentZoomLevel = gc.data.shell.getCurrentDeviceZoom();
+	currentZoomLevel = gc.data.deviceZoom;
 	drawInPixels(gc, DPIUtil.autoScaleUp(getDevice(), x, getDeviceZoom(gc)), DPIUtil.autoScaleUp(getDevice(), y, getDeviceZoom(gc)), selectionStart, selectionEnd, selectionForeground, selectionBackground);
 }
 
@@ -433,7 +433,7 @@ public void draw (GC gc, int x, int y, int selectionStart, int selectionEnd, Col
  */
 public void draw (GC gc, int x, int y, int selectionStart, int selectionEnd, Color selectionForeground, Color selectionBackground, int flags) {
 	checkLayout();
-	currentZoomLevel = gc.data.shell.getCurrentDeviceZoom();
+	currentZoomLevel = gc.data.deviceZoom;
 	drawInPixels(gc, DPIUtil.autoScaleUp(getDevice(), x, getDeviceZoom(gc)), DPIUtil.autoScaleUp(getDevice(), y, getDeviceZoom(gc)), selectionStart, selectionEnd, selectionForeground, selectionBackground, flags);
 }
 
@@ -441,7 +441,7 @@ private int getDeviceZoom(GC gc){
 	if (gc != null) {
 		return gc.data.deviceZoom;
 	} else if(font != null) {
-		return font.zoomLevel;
+		return DPIUtil.getZoomForAutoscaleProperty(font.zoomLevel);
 	}
 	return DPIUtil.getDeviceZoom();
 }

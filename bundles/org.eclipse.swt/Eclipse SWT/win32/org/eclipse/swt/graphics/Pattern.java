@@ -19,7 +19,6 @@ import org.eclipse.swt.*;
 import org.eclipse.swt.internal.*;
 import org.eclipse.swt.internal.gdip.*;
 import org.eclipse.swt.internal.win32.*;
-import org.eclipse.swt.widgets.*;
 
 /**
  * Instances of this class represent patterns to use while drawing. Patterns
@@ -214,11 +213,11 @@ public Pattern(Device device, float x1, float y1, float x2, float y2, Color colo
 	this.alpha1 = alpha1;
 	this.alpha2 = alpha2;
 	this.isImagePattern = false;
-	initializeSize(null);
+	initializeSize(0);
 }
 
-private Pattern(Shell shell, float x1, float y1, float x2, float y2, Color color1, int alpha1, Color color2, int alpha2) {
-	super(shell.getDisplay());
+private Pattern(Device device, int zoomLevel, float x1, float y1, float x2, float y2, Color color1, int alpha1, Color color2, int alpha2) {
+	super(device);
 	this.x1 = x1;
 	this.x2 = x2;
 	this.y1 = y1;
@@ -228,31 +227,31 @@ private Pattern(Shell shell, float x1, float y1, float x2, float y2, Color color
 	this.alpha1 = alpha1;
 	this.alpha2 = alpha2;
 	this.isImagePattern = false;
-	initializeSize(shell);
+	initializeSize(zoomLevel);
 }
 
-Pattern getScaledPattern(Shell shell) {
-	if(shell.getCurrentDeviceZoom() == this.device.getDeviceZoom()) {
+Pattern getScaledPattern(int zoomLevel) {
+	if(zoomLevel == this.device.getDeviceZoom()) {
 		return this;
 	}
 	if (this.isImagePattern) {
-		setImageHandle(image, shell.getCurrentDeviceZoom());
+		setImageHandle(image, zoomLevel);
 		return this;
 	}
-	if(this.scaledpattern.get(shell.getCurrentDeviceZoom()) == null) {
-		Pattern p = new Pattern(shell, x1, y1, x2, y2, color1, alpha1, color2, alpha2);
-		this.scaledpattern.put(shell.getCurrentDeviceZoom(), p);
+	if(this.scaledpattern.get(zoomLevel) == null) {
+		Pattern p = new Pattern(this.device, zoomLevel, x1, y1, x2, y2, color1, alpha1, color2, alpha2);
+		this.scaledpattern.put(zoomLevel, p);
 	}
-	return this.scaledpattern.get(shell.getCurrentDeviceZoom());
+	return this.scaledpattern.get(zoomLevel);
 }
 
-private void initializeSize(Shell shell) {
+private void initializeSize(int zoomLevel) {
 	float x1, y1, x2, y2;
-	if(shell != null) {
-		x1 = DPIUtil.autoScaleUp(this.x1, getZoomLevel(shell));
-		y1 = DPIUtil.autoScaleUp(this.y1, getZoomLevel(shell));
-		x2 = DPIUtil.autoScaleUp(this.x2, getZoomLevel(shell));
-		y2 = DPIUtil.autoScaleUp(this.y2, getZoomLevel(shell));
+	if(zoomLevel != 0) {
+		x1 = DPIUtil.autoScaleUp(this.x1, zoomLevel);
+		y1 = DPIUtil.autoScaleUp(this.y1, zoomLevel);
+		x2 = DPIUtil.autoScaleUp(this.x2, zoomLevel);
+		y2 = DPIUtil.autoScaleUp(this.y2, zoomLevel);
 	} else {
 		x1 = DPIUtil.autoScaleUp(this.x1);
 		y1 = DPIUtil.autoScaleUp(this.y1);
@@ -344,10 +343,6 @@ public boolean isDisposed() {
 public String toString() {
 	if (isDisposed()) return "Pattern {*DISPOSED*}";
 	return "Pattern {" + handle + "}";
-}
-
-private int getZoomLevel(Shell shell) {
-	return Optional.ofNullable(shell).map(Shell::getCurrentDeviceZoom).orElse(0);
 }
 
 }

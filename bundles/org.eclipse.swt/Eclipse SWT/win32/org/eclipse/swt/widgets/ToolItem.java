@@ -1243,17 +1243,6 @@ private static void handleDPIChange(Widget widget, int newZoom, float scalingFac
 		if (parent.getHotImageList() == null) {
 			parent.setHotImageList (display.getImageListToolBarHot (listStyle, bounds.width, bounds.height, item.getCurrentDeviceZoom()));
 		}
-		image.getHandleByZoomLevel(newZoom);
-
-		Image disabledImage = item.getDisabledImage();
-		if (disabledImage != null && !disabledImage.isDisposed()) {
-			disabledImage.getHandleByZoomLevel(newZoom);
-		}
-
-		Image hotImage = item.getHotImage();
-		if (hotImage != null) {
-			hotImage.getHandleByZoomLevel(newZoom);
-		}
 	}
 	item.setWidthInPixels(0);
 }

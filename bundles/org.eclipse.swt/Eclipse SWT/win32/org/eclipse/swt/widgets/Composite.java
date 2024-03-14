@@ -14,8 +14,6 @@
 package org.eclipse.swt.widgets;
 
 
-import java.util.*;
-
 import org.eclipse.swt.*;
 import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.internal.*;
@@ -220,7 +218,7 @@ Point computeSizeInPixels (int wHint, int hHint, boolean changed) {
 		if (wHint == SWT.DEFAULT || hHint == SWT.DEFAULT) {
 			changed |= (state & LAYOUT_CHANGED) != 0;
 			state &= ~LAYOUT_CHANGED;
-			size = DPIUtil.autoScaleUp(layout.computeSize (this, DPIUtil.autoScaleDown(wHint, getZoomLevel()), DPIUtil.autoScaleDown(hHint, getZoomLevel()), changed), getZoomLevel());
+			size = DPIUtil.autoScaleUp(layout.computeSize (this, DPIUtil.autoScaleDown(wHint, getCurrentDeviceZoom()), DPIUtil.autoScaleDown(hHint, getCurrentDeviceZoom()), changed), getCurrentDeviceZoom());
 		} else {
 			size = new Point (wHint, hHint);
 		}
@@ -235,7 +233,7 @@ Point computeSizeInPixels (int wHint, int hHint, boolean changed) {
 	 * Since computeTrim can be overridden by subclasses, we cannot
 	 * call computeTrimInPixels directly.
 	 */
-	Rectangle trim = DPIUtil.autoScaleUp(computeTrim (0, 0, DPIUtil.autoScaleDown(size.x, getZoomLevel()), DPIUtil.autoScaleDown(size.y, getZoomLevel())), getZoomLevel());
+	Rectangle trim = DPIUtil.autoScaleUp(computeTrim (0, 0, DPIUtil.autoScaleDown(size.x, getCurrentDeviceZoom()), DPIUtil.autoScaleDown(size.y, getCurrentDeviceZoom())), getCurrentDeviceZoom());
 	return new Point (trim.width, trim.height);
 }
 
@@ -355,12 +353,12 @@ int applyThemeBackground () {
  */
 public void drawBackground (GC gc, int x, int y, int width, int height, int offsetX, int offsetY) {
 	checkWidget ();
-	x = DPIUtil.autoScaleUp(x, getZoomLevel());
-	y = DPIUtil.autoScaleUp(y, getZoomLevel());
-	width = DPIUtil.autoScaleUp(width, getZoomLevel());
-	height = DPIUtil.autoScaleUp(height, getZoomLevel());
-	offsetX = DPIUtil.autoScaleUp(offsetX, getZoomLevel());
-	offsetY = DPIUtil.autoScaleUp(offsetY, getZoomLevel());
+	x = DPIUtil.autoScaleUp(x, getCurrentDeviceZoom());
+	y = DPIUtil.autoScaleUp(y, getCurrentDeviceZoom());
+	width = DPIUtil.autoScaleUp(width, getCurrentDeviceZoom());
+	height = DPIUtil.autoScaleUp(height, getCurrentDeviceZoom());
+	offsetX = DPIUtil.autoScaleUp(offsetX, getCurrentDeviceZoom());
+	offsetY = DPIUtil.autoScaleUp(offsetY, getCurrentDeviceZoom());
 	drawBackgroundInPixels(gc, x, y, width, height, offsetX, offsetY);
 }
 
@@ -880,10 +878,10 @@ Point minimumSize (int wHint, int hHint, boolean changed) {
 	 * Since getClientArea can be overridden by subclasses, we cannot
 	 * call getClientAreaInPixels directly.
 	 */
-	Rectangle clientArea = DPIUtil.autoScaleUp(getClientArea (), getZoomLevel());
+	Rectangle clientArea = DPIUtil.autoScaleUp(getClientArea (), getCurrentDeviceZoom());
 	int width = 0, height = 0;
 	for (Control element : _getChildren ()) {
-		Rectangle rect = DPIUtil.autoScaleUp(element.getBounds (), getZoomLevel());
+		Rectangle rect = DPIUtil.autoScaleUp(element.getBounds (), getCurrentDeviceZoom());
 		width = Math.max (width, rect.x - clientArea.x + rect.width);
 		height = Math.max (height, rect.y - clientArea.y + rect.height);
 	}
@@ -1521,7 +1519,6 @@ LRESULT WM_PAINT (long wParam, long lParam) {
 				long hBufferedPaint = OS.BeginBufferedPaint (hDC, prcTarget, flags, null, phdc);
 				GCData data = new GCData ();
 				data.device = display;
-				data.shell = getShell();
 				data.deviceZoom = getCurrentDeviceZoom();
 				data.foreground = getForegroundPixel ();
 				Control control = findBackgroundControl ();
@@ -1645,7 +1642,7 @@ LRESULT WM_PAINT (long wParam, long lParam) {
 						if (gcData.focusDrawn && !isDisposed ()) updateUIState ();
 					}
 					gc.dispose();
-					if (!isDisposed ()) paintGC.drawImage (image, DPIUtil.autoScaleDown(ps.left, getZoomLevel()), DPIUtil.autoScaleDown(ps.top, getZoomLevel()));
+					if (!isDisposed ()) paintGC.drawImage (image, DPIUtil.autoScaleDown(ps.left, getCurrentDeviceZoom()), DPIUtil.autoScaleDown(ps.top, getCurrentDeviceZoom()));
 					image.dispose ();
 					gc = paintGC;
 				}
@@ -1985,9 +1982,5 @@ private static void handleDPIChange(Widget widget, int newZoom, float scalingFac
 		DPIZoomChangeRegistry.applyChange(child, newZoom, scalingFactor);
 	}
 	composite.redrawInPixels (null, true);
-}
-
-private int getZoomLevel() {
-	return Optional.ofNullable(getShell()).map(Shell::getCurrentDeviceZoom).orElse(0);
 }
 }

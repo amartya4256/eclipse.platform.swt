@@ -19,7 +19,6 @@ import org.eclipse.swt.*;
 import org.eclipse.swt.internal.*;
 import org.eclipse.swt.internal.gdip.*;
 import org.eclipse.swt.internal.win32.*;
-import org.eclipse.swt.widgets.*;
 
 /**
  * Instances of this class represent paths through the two-dimensional
@@ -658,18 +657,18 @@ private HashMap<Integer, Long> handleMap = new HashMap<>();
 /**
  * @since 3.125
  */
-public long getHandle(Shell shell) {
-	if(shell.getCurrentDeviceZoom() == this.device.getDeviceZoom()) {
+public long getHandle(int zoomLevel) {
+	if(zoomLevel == this.device.getDeviceZoom()) {
 		return this.handle;
 	}
-	if(this.handleMap.get(shell.getCurrentDeviceZoom()) == null) {
+	if(this.handleMap.get(zoomLevel) == null) {
 		PathData pathData = this.getPathDataInPixels();
 		for (int index = 0; index < pathData.points.length; index++) {
-			pathData.points[index] = DPIUtil.autoScaleUp(getDevice(), pathData.points[index], Optional.ofNullable(shell).map(Shell::getCurrentDeviceZoom).orElse(0));
+			pathData.points[index] = DPIUtil.autoScaleUp(getDevice(), pathData.points[index], zoomLevel);
 		}
-		handleMap.put(shell.getCurrentDeviceZoom(), new Path(getDevice(), pathData).handle);
+		handleMap.put(zoomLevel, new Path(getDevice(), pathData).handle);
 	}
-	return this.handleMap.get(shell.getCurrentDeviceZoom());
+	return this.handleMap.get(zoomLevel);
 }
 
 /**

@@ -218,7 +218,7 @@ public Color getBackground (int index) {
  */
 public Rectangle getBounds () {
 	checkWidget();
-	return DPIUtil.autoScaleDown(getBoundsInPixels(), parent.getShell().getCurrentDeviceZoom());
+	return DPIUtil.autoScaleDown(getBoundsInPixels(), parent.getCurrentDeviceZoom());
 }
 
 Rectangle getBoundsInPixels () {
@@ -244,7 +244,7 @@ Rectangle getBoundsInPixels () {
  */
 public Rectangle getBounds (int index) {
 	checkWidget();
-	return DPIUtil.autoScaleDown(getBoundsInPixels(index), parent.getShell().getCurrentDeviceZoom());
+	return DPIUtil.autoScaleDown(getBoundsInPixels(index), parent.getCurrentDeviceZoom());
 }
 
 Rectangle getBoundsInPixels (int index) {
@@ -590,7 +590,7 @@ public Image getImage (int index) {
  */
 public Rectangle getImageBounds (int index) {
 	checkWidget();
-	return DPIUtil.autoScaleDown(getImageBoundsInPixels(index), parent.getShell().getCurrentDeviceZoom());
+	return DPIUtil.autoScaleDown(getImageBoundsInPixels(index), parent.getCurrentDeviceZoom());
 }
 
 Rectangle getImageBoundsInPixels (int index) {
@@ -691,7 +691,7 @@ public String getText (int index) {
  */
 public Rectangle getTextBounds (int index) {
 	checkWidget();
-	return DPIUtil.autoScaleDown(getTextBoundsInPixels(index), parent.getShell().getCurrentDeviceZoom());
+	return DPIUtil.autoScaleDown(getTextBoundsInPixels(index), parent.getCurrentDeviceZoom());
 }
 
 Rectangle getTextBoundsInPixels (int index) {
@@ -1280,7 +1280,7 @@ private static void handleDPIChange(Widget widget, int newZoom, float scalingFac
 	if (images != null) {
 		for (Image innerImage : images) {
 			if (innerImage != null) {
-				innerImage.handleDPIChange(newZoom);
+				innerImage.getHandleByZoomLevel(newZoom);
 			}
 		}
 	}

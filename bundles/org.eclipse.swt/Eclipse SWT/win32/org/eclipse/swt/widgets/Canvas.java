@@ -14,8 +14,6 @@
 package org.eclipse.swt.widgets;
 
 
-import java.util.*;
-
 import org.eclipse.swt.*;
 import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.internal.*;
@@ -105,10 +103,10 @@ public Canvas (Composite parent, int style) {
  * @since 3.2
  */
 public void drawBackground (GC gc, int x, int y, int width, int height) {
-	x = DPIUtil.autoScaleUp(x, getZoomLevel());
-	y = DPIUtil.autoScaleUp(y, getZoomLevel());
-	width = DPIUtil.autoScaleUp(width, getZoomLevel());
-	height = DPIUtil.autoScaleUp(height, getZoomLevel());
+	x = DPIUtil.autoScaleUp(x, getCurrentDeviceZoom());
+	y = DPIUtil.autoScaleUp(y, getCurrentDeviceZoom());
+	width = DPIUtil.autoScaleUp(width, getCurrentDeviceZoom());
+	height = DPIUtil.autoScaleUp(height, getCurrentDeviceZoom());
 	drawBackgroundInPixels(gc, x, y, width, height, 0, 0);
 }
 
@@ -201,12 +199,12 @@ void reskinChildren (int flags) {
  */
 public void scroll (int destX, int destY, int x, int y, int width, int height, boolean all) {
 	checkWidget ();
-	destX = DPIUtil.autoScaleUp(destX, getZoomLevel());
-	destY = DPIUtil.autoScaleUp(destY, getZoomLevel());
-	x = DPIUtil.autoScaleUp(x, getZoomLevel());
-	y = DPIUtil.autoScaleUp(y, getZoomLevel());
-	width = DPIUtil.autoScaleUp(width, getZoomLevel());
-	height = DPIUtil.autoScaleUp(height, getZoomLevel());
+	destX = DPIUtil.autoScaleUp(destX, getCurrentDeviceZoom());
+	destY = DPIUtil.autoScaleUp(destY, getCurrentDeviceZoom());
+	x = DPIUtil.autoScaleUp(x, getCurrentDeviceZoom());
+	y = DPIUtil.autoScaleUp(y, getCurrentDeviceZoom());
+	width = DPIUtil.autoScaleUp(width, getCurrentDeviceZoom());
+	height = DPIUtil.autoScaleUp(height, getCurrentDeviceZoom());
 	scrollInPixels(destX, destY, x, y, width, height, all);
 }
 
@@ -479,9 +477,4 @@ LRESULT WM_WINDOWPOSCHANGING (long wParam, long lParam) {
 	if (isFocus) caret.killFocus ();
 	return result;
 }
-
-private int getZoomLevel() {
-	return Optional.ofNullable(getShell()).map(Shell::getCurrentDeviceZoom).orElse(0);
-}
-
 }
