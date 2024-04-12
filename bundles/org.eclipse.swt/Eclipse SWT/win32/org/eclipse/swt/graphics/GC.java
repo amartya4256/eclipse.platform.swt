@@ -4393,7 +4393,7 @@ public void setFillRule(int rule) {
 public void setFont (Font font) {
 	if (handle == 0) SWT.error(SWT.ERROR_GRAPHIC_DISPOSED);
 	if (font != null && font.isDisposed()) SWT.error(SWT.ERROR_INVALID_ARGUMENT);
-	data.font = font != null ? Font.win32_new(font, DPIUtil.getNativeZoom()) : data.device.systemFont;
+	data.font = font != null ? Font.win32_new(font, DPIUtil.getNativeDeviceZoom()) : data.device.systemFont;
 	data.state &= ~FONT;
 }
 

@@ -768,7 +768,6 @@ class ImageMetadata {
  *
  * @return true if image is refreshed
  */
-
 public Long getHandleByZoomLevel (Integer deviceZoomLevel) {
 	if(deviceZoomLevel == null || isDisposed()) {
 		return handle;
@@ -2163,6 +2162,7 @@ private static ImageData applyMask(ImageData source, ImageData mask) {
 	imageData.maskData = mask.data;
 	return imageData;
 }
+
 
 void init(ImageData i, Integer zoomLevel) {
 	if (i == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
