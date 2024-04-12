@@ -191,7 +191,7 @@ public Control getControl () {
  */
 public Rectangle getBounds () {
 	checkWidget();
-	return DPIUtil.autoScaleDown(getBoundsInPixels(), getCurrentDeviceZoom());
+	return DPIUtil.autoScaleDown(getBoundsInPixels(), getZoom());
 }
 
 Rectangle getBoundsInPixels() {

@@ -441,7 +441,7 @@ private int getDeviceZoom(GC gc){
 	if (gc != null) {
 		return gc.data.deviceZoom;
 	} else if(font != null) {
-		return DPIUtil.getZoomForAutoscaleProperty(font.zoomLevel);
+		return DPIUtil.getZoomForAutoscaleProperty(font.zoom);
 	}
 	return DPIUtil.getDeviceZoom();
 }

@@ -118,7 +118,7 @@ Control () {
 public Control (Composite parent, int style) {
 	super (parent, style);
 	this.parent = parent;
-	this.setCurrentDeviceZoom(getCurrentDeviceZoom());
+	this.setZoom(getZoom());
 	createWidget ();
 }
 
@@ -615,9 +615,9 @@ public Point computeSize (int wHint, int hHint) {
  */
 public Point computeSize (int wHint, int hHint, boolean changed){
 	checkWidget ();
-	wHint = (wHint != SWT.DEFAULT ? DPIUtil.autoScaleUp(wHint, getCurrentDeviceZoom()) : wHint);
-	hHint = (hHint != SWT.DEFAULT ? DPIUtil.autoScaleUp(hHint, getCurrentDeviceZoom()) : hHint);
-	return DPIUtil.autoScaleDown(computeSizeInPixels(wHint, hHint, changed), getCurrentDeviceZoom());
+	wHint = (wHint != SWT.DEFAULT ? DPIUtil.autoScaleUp(wHint, getZoom()) : wHint);
+	hHint = (hHint != SWT.DEFAULT ? DPIUtil.autoScaleUp(hHint, getZoom()) : hHint);
+	return DPIUtil.autoScaleDown(computeSizeInPixels(wHint, hHint, changed), getZoom());
 }
 
 Point computeSizeInPixels (int wHint, int hHint, boolean changed) {
@@ -820,7 +820,7 @@ public boolean dragDetect (Event event) {
 public boolean dragDetect (MouseEvent event) {
 	checkWidget ();
 	if (event == null) error (SWT.ERROR_NULL_ARGUMENT);
-	return dragDetect (event.button, event.count, event.stateMask, DPIUtil.autoScaleUp(event.x, getCurrentDeviceZoom()), DPIUtil.autoScaleUp(event.y, getCurrentDeviceZoom())); // To Pixels
+	return dragDetect (event.button, event.count, event.stateMask, DPIUtil.autoScaleUp(event.x, getZoom()), DPIUtil.autoScaleUp(event.y, getZoom())); // To Pixels
 }
 
 boolean dragDetect (int button, int count, int stateMask, int x, int y) {
@@ -942,7 +942,7 @@ void fillImageBackground (long hDC, Control control, RECT rect, int tx, int ty) 
 	if (control != null) {
 		Image image = control.backgroundImage;
 		if (image != null) {
-			control.drawImageBackground (hDC, handle, image.getHandleByZoomLevel(getCurrentDeviceZoom()), rect, tx, ty);
+			control.drawImageBackground (hDC, handle, image.getHandleByZoomLevel(getZoom()), rect, tx, ty);
 		}
 	}
 }
@@ -1154,7 +1154,7 @@ int getBackgroundPixel () {
  */
 public int getBorderWidth () {
 	checkWidget ();
-	return DPIUtil.autoScaleDown(getBorderWidthInPixels (), getCurrentDeviceZoom());
+	return DPIUtil.autoScaleDown(getBorderWidthInPixels (), getZoom());
 }
 
 int getBorderWidthInPixels () {
@@ -1194,7 +1194,7 @@ int getBorderWidthInPixels () {
  */
 public Rectangle getBounds (){
 	checkWidget ();
-	return DPIUtil.autoScaleDown(getBoundsInPixels (), getCurrentDeviceZoom());
+	return DPIUtil.autoScaleDown(getBoundsInPixels (), getZoom());
 }
 
 Rectangle getBoundsInPixels () {
@@ -1362,7 +1362,7 @@ public Object getLayoutData () {
  */
 public Point getLocation () {
 	checkWidget ();
-	return DPIUtil.autoScaleDown(getLocationInPixels(), getCurrentDeviceZoom());
+	return DPIUtil.autoScaleDown(getLocationInPixels(), getZoom());
 }
 
 Point getLocationInPixels () {
@@ -1518,7 +1518,7 @@ public Shell getShell () {
  */
 public Point getSize (){
 	checkWidget ();
-	return DPIUtil.autoScaleDown(getSizeInPixels (), getCurrentDeviceZoom());
+	return DPIUtil.autoScaleDown(getSizeInPixels (), getZoom());
 }
 
 Point getSizeInPixels () {
@@ -2426,10 +2426,10 @@ public void redraw () {
  */
 public void redraw (int x, int y, int width, int height, boolean all) {
 	checkWidget ();
-	x = DPIUtil.autoScaleUp(x, getCurrentDeviceZoom());
-	y = DPIUtil.autoScaleUp(y, getCurrentDeviceZoom());
-	width = DPIUtil.autoScaleUp(width, getCurrentDeviceZoom());
-	height = DPIUtil.autoScaleUp(height, getCurrentDeviceZoom());
+	x = DPIUtil.autoScaleUp(x, getZoom());
+	y = DPIUtil.autoScaleUp(y, getZoom());
+	width = DPIUtil.autoScaleUp(width, getZoom());
+	height = DPIUtil.autoScaleUp(height, getZoom());
 	if (width <= 0 || height <= 0) return;
 
 	RECT rect = new RECT ();
@@ -3037,7 +3037,7 @@ void setBackground () {
 	if (control.backgroundImage != null) {
 		Shell shell = getShell ();
 		shell.releaseBrushes ();
-		setBackgroundImage (control.backgroundImage.getHandleByZoomLevel(getCurrentDeviceZoom()));
+		setBackgroundImage (control.backgroundImage.getHandleByZoomLevel(getZoom()));
 	} else {
 		setBackgroundPixel (control.background == -1 ? control.defaultBackground() : control.background);
 	}
@@ -3159,10 +3159,10 @@ void setBackgroundPixel (int pixel) {
  */
 public void setBounds(int x, int y, int width, int height) {
 	checkWidget ();
-	x = DPIUtil.autoScaleUp(x, getCurrentDeviceZoom());
-	y = DPIUtil.autoScaleUp(y, getCurrentDeviceZoom());
-	width = DPIUtil.autoScaleUp(width, getCurrentDeviceZoom());
-	height = DPIUtil.autoScaleUp(height, getCurrentDeviceZoom());
+	x = DPIUtil.autoScaleUp(x, getZoom());
+	y = DPIUtil.autoScaleUp(y, getZoom());
+	width = DPIUtil.autoScaleUp(width, getZoom());
+	height = DPIUtil.autoScaleUp(height, getZoom());
 	setBoundsInPixels(x, y, width, height);
 }
 
@@ -3240,7 +3240,7 @@ void setBoundsInPixels (int x, int y, int width, int height, int flags, boolean 
 public void setBounds (Rectangle rect) {
 	checkWidget ();
 	if (rect == null) error (SWT.ERROR_NULL_ARGUMENT);
-	setBoundsInPixels(DPIUtil.autoScaleUp(rect, getCurrentDeviceZoom()));
+	setBoundsInPixels(DPIUtil.autoScaleUp(rect, getZoom()));
 }
 
 void setBoundsInPixels (Rectangle rect) {
@@ -3494,8 +3494,8 @@ public void setLayoutData (Object layoutData) {
  */
 public void setLocation (int x, int y) {
 	checkWidget ();
-	x = DPIUtil.autoScaleUp(x, getCurrentDeviceZoom());
-	y = DPIUtil.autoScaleUp(y, getCurrentDeviceZoom());
+	x = DPIUtil.autoScaleUp(x, getZoom());
+	y = DPIUtil.autoScaleUp(y, getZoom());
 	setLocationInPixels(x, y);
 }
 
@@ -3521,7 +3521,7 @@ void setLocationInPixels (int x, int y) {
 public void setLocation (Point location) {
 	checkWidget ();
 	if (location == null) error (SWT.ERROR_NULL_ARGUMENT);
-	location = DPIUtil.autoScaleUp(location, getCurrentDeviceZoom());
+	location = DPIUtil.autoScaleUp(location, getZoom());
 	setLocationInPixels(location.x, location.y);
 }
 
@@ -3664,9 +3664,9 @@ public void setRedraw (boolean redraw) {
 @Override
 public void sendEvent(int eventType, Event event, boolean send) {
 	if(event != null && event.gc != null && event.gc.getGCData() != null) {
-		event.gc.getGCData().deviceZoom = getCurrentDeviceZoom();
-		event.gc.getGCData().nativeDeviceZoom = getShell().getNativeDeviceZoom();
-		DPIUtil.setDeviceZoom(getShell().getNativeDeviceZoom());
+		event.gc.getGCData().deviceZoom = getZoom();
+		event.gc.getGCData().nativeDeviceZoom = getShell().getNativeZoom();
+		DPIUtil.setDeviceZoom(getShell().getNativeZoom());
 	}
 	super.sendEvent(eventType, event, send);
 }
@@ -3694,7 +3694,7 @@ public void setRegion (Region region) {
 	long hRegion = 0;
 	if (region != null) {
 		hRegion = OS.CreateRectRgn (0, 0, 0, 0);
-		OS.CombineRgn (hRegion, region.getHandle(getCurrentDeviceZoom()), hRegion, OS.RGN_OR);
+		OS.CombineRgn (hRegion, region.getHandle(getZoom()), hRegion, OS.RGN_OR);
 	}
 	OS.SetWindowRgn (handle, hRegion, true);
 	this.region = region;
@@ -3723,8 +3723,8 @@ public void setRegion (Region region) {
  */
 public void setSize (int width, int height) {
 	checkWidget ();
-	width = DPIUtil.autoScaleUp(width, getCurrentDeviceZoom());
-	height = DPIUtil.autoScaleUp(height, getCurrentDeviceZoom());
+	width = DPIUtil.autoScaleUp(width, getZoom());
+	height = DPIUtil.autoScaleUp(height, getZoom());
 	setSizeInPixels(width, height);
 }
 
@@ -3759,7 +3759,7 @@ void setSizeInPixels (int width, int height) {
 public void setSize (Point size) {
 	checkWidget ();
 	if (size == null) error (SWT.ERROR_NULL_ARGUMENT);
-	size = DPIUtil.autoScaleUp(size, getCurrentDeviceZoom());
+	size = DPIUtil.autoScaleUp(size, getZoom());
 	setSizeInPixels(size.x, size.y);
 }
 
@@ -3972,7 +3972,7 @@ void subclass () {
  */
 public Point toControl (int x, int y) {
 	checkWidget ();
-	return DPIUtil.autoScaleDown(toControlInPixels(DPIUtil.autoScaleUp(x, getCurrentDeviceZoom()), DPIUtil.autoScaleUp(y, getCurrentDeviceZoom())), getCurrentDeviceZoom());
+	return DPIUtil.autoScaleDown(toControlInPixels(DPIUtil.autoScaleUp(x, getZoom()), DPIUtil.autoScaleUp(y, getZoom())), getZoom());
 }
 
 Point toControlInPixels (int x, int y) {
@@ -4005,8 +4005,8 @@ Point toControlInPixels (int x, int y) {
 public Point toControl (Point point) {
 	checkWidget ();
 	if (point == null) error (SWT.ERROR_NULL_ARGUMENT);
-	point = DPIUtil.autoScaleUp(point, getCurrentDeviceZoom());
-	return DPIUtil.autoScaleDown(toControlInPixels(point.x, point.y), getCurrentDeviceZoom());
+	point = DPIUtil.autoScaleUp(point, getZoom());
+	return DPIUtil.autoScaleDown(toControlInPixels(point.x, point.y), getZoom());
 }
 
 /**
@@ -4031,7 +4031,7 @@ public Point toControl (Point point) {
  */
 public Point toDisplay (int x, int y) {
 	checkWidget ();
-	return DPIUtil.autoScaleDown(toDisplayInPixels(DPIUtil.autoScaleUp(x, getCurrentDeviceZoom()), DPIUtil.autoScaleUp(y, getCurrentDeviceZoom())), getCurrentDeviceZoom());
+	return DPIUtil.autoScaleDown(toDisplayInPixels(DPIUtil.autoScaleUp(x, getZoom()), DPIUtil.autoScaleUp(y, getZoom())), getZoom());
 }
 
 Point toDisplayInPixels (int x, int y) {
@@ -4064,8 +4064,8 @@ Point toDisplayInPixels (int x, int y) {
 public Point toDisplay (Point point) {
 	checkWidget ();
 	if (point == null) error (SWT.ERROR_NULL_ARGUMENT);
-	point = DPIUtil.autoScaleUp(point, getCurrentDeviceZoom());
-	return DPIUtil.autoScaleDown(toDisplayInPixels(point.x, point.y), getCurrentDeviceZoom());
+	point = DPIUtil.autoScaleUp(point, getZoom());
+	return DPIUtil.autoScaleDown(toDisplayInPixels(point.x, point.y), getZoom());
 }
 
 long topHandle () {
@@ -4572,7 +4572,7 @@ void updateBackgroundColor () {
 void updateBackgroundImage () {
 	Control control = findBackgroundControl ();
 	Image image = control != null ? control.backgroundImage : backgroundImage;
-	setBackgroundImage (image != null ? image.getHandleByZoomLevel(getCurrentDeviceZoom()) : 0);
+	setBackgroundImage (image != null ? image.getHandleByZoomLevel(getZoom()) : 0);
 }
 
 void updateBackgroundMode () {
@@ -5748,7 +5748,7 @@ LRESULT wmColorChild (long wParam, long lParam) {
 		RECT rect = new RECT ();
 		OS.GetClientRect (handle, rect);
 		long hwnd = control.handle;
-		long hBitmap = control.backgroundImage.getHandleByZoomLevel(getCurrentDeviceZoom());
+		long hBitmap = control.backgroundImage.getHandleByZoomLevel(getZoom());
 		OS.MapWindowPoints (handle, hwnd, rect, 2);
 		POINT lpPoint = new POINT ();
 		OS.GetWindowOrgEx (wParam, lpPoint);

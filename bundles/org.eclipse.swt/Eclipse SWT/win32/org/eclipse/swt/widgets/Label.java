@@ -137,9 +137,9 @@ static int checkStyle (int style) {
 	if ((style & SWT.SEPARATOR) != 0) {
 		int lineWidth = OS.GetSystemMetrics (OS.SM_CXBORDER);
 		if ((style & SWT.HORIZONTAL) != 0) {
-			width = DPIUtil.autoScaleUp(DEFAULT_WIDTH, getCurrentDeviceZoom());  height = lineWidth * 2;
+			width = DPIUtil.autoScaleUp(DEFAULT_WIDTH, getZoom());  height = lineWidth * 2;
 		} else {
-			width = lineWidth * 2; height = DPIUtil.autoScaleUp(DEFAULT_HEIGHT, getCurrentDeviceZoom());
+			width = lineWidth * 2; height = DPIUtil.autoScaleUp(DEFAULT_HEIGHT, getZoom());
 		}
 		if (wHint != SWT.DEFAULT) width = wHint;
 		if (hHint != SWT.DEFAULT) height = hHint;
@@ -563,11 +563,11 @@ void wmDrawChildImage(DRAWITEMSTRUCT struct) {
 	}
 
 	GCData data = new GCData();
-	data.deviceZoom = getCurrentDeviceZoom();
+	data.deviceZoom = getZoom();
 	data.device = display;
 	GC gc = GC.win32_new (struct.hDC, data);
 	Image image = getEnabled () ? this.image : new Image (display, this.image, SWT.IMAGE_DISABLE);
-	gc.drawImage (image, DPIUtil.autoScaleDown(x, getCurrentDeviceZoom()), DPIUtil.autoScaleDown(Math.max (0, (height - imageRect.height) / 2), getCurrentDeviceZoom()));
+	gc.drawImage (image, DPIUtil.autoScaleDown(x, getZoom()), DPIUtil.autoScaleDown(Math.max (0, (height - imageRect.height) / 2), getZoom()));
 	if (image != this.image) image.dispose ();
 	gc.dispose ();
 }

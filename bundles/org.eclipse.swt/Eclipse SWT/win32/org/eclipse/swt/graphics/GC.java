@@ -135,11 +135,11 @@ GC() {
 public GC(Drawable drawable) {
 	this(drawable, SWT.NONE);
 	if(drawable instanceof Widget) {
-		data.deviceZoom = ((Widget) drawable).getCurrentDeviceZoom();
+		data.deviceZoom = ((Widget) drawable).zoom;
 		if (drawable instanceof Control)
-			data.nativeDeviceZoom = ((Control) drawable).getShell().getNativeDeviceZoom();
+			data.nativeDeviceZoom = ((Control) drawable).getShell().nativeZoom;
 	} else  if(drawable instanceof Image) {
-		data.deviceZoom = ((Image) drawable).getCurrentDeviceZoom();
+		data.deviceZoom = ((Image) drawable).currentDeviceZoom;
 	}
 }
 
@@ -4393,7 +4393,7 @@ public void setFillRule(int rule) {
 public void setFont (Font font) {
 	if (handle == 0) SWT.error(SWT.ERROR_GRAPHIC_DISPOSED);
 	if (font != null && font.isDisposed()) SWT.error(SWT.ERROR_INVALID_ARGUMENT);
-	data.font = font != null ? Font.win32_new(font, DPIUtil.getNativeDeviceZoom()) : data.device.systemFont;
+	data.font = font != null ? Font.win32_new(font, DPIUtil.getNativeZoom()) : data.device.systemFont;
 	data.state &= ~FONT;
 }
 

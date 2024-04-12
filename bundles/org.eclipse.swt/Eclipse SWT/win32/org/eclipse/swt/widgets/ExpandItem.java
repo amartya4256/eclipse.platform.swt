@@ -196,9 +196,9 @@ void drawItem (GC gc, long hTheme, RECT clipRect, boolean drawFocus) {
 	if (image != null) {
 		rect.left += ExpandItem.TEXT_INSET;
 		if (imageHeight > headerHeight) {
-			gc.drawImage (image, DPIUtil.autoScaleDown(rect.left, getCurrentDeviceZoom()), DPIUtil.autoScaleDown(rect.top + headerHeight - imageHeight, getCurrentDeviceZoom()));
+			gc.drawImage (image, DPIUtil.autoScaleDown(rect.left, getZoom()), DPIUtil.autoScaleDown(rect.top + headerHeight - imageHeight, getZoom()));
 		} else {
-			gc.drawImage (image, DPIUtil.autoScaleDown(rect.left, getCurrentDeviceZoom()), DPIUtil.autoScaleDown(rect.top + (headerHeight - imageHeight) / 2, getCurrentDeviceZoom()));
+			gc.drawImage (image, DPIUtil.autoScaleDown(rect.left, getZoom()), DPIUtil.autoScaleDown(rect.top + (headerHeight - imageHeight) / 2, getZoom()));
 		}
 		rect.left += imageWidth;
 	}
@@ -305,7 +305,7 @@ public boolean getExpanded () {
  */
 public int getHeaderHeight () {
 	checkWidget ();
-	return DPIUtil.autoScaleDown(getHeaderHeightInPixels(), getCurrentDeviceZoom());
+	return DPIUtil.autoScaleDown(getHeaderHeightInPixels(), getZoom());
 }
 
 int getHeaderHeightInPixels () {
@@ -324,7 +324,7 @@ int getHeaderHeightInPixels () {
  */
 public int getHeight () {
 	checkWidget ();
-	return DPIUtil.autoScaleDown(getHeightInPixels(), getCurrentDeviceZoom());
+	return DPIUtil.autoScaleDown(getHeightInPixels(), getZoom());
 }
 
 int getHeightInPixels () {
@@ -489,7 +489,7 @@ public void setExpanded (boolean expanded) {
  */
 public void setHeight (int height) {
 	checkWidget ();
-	setHeightInPixels(DPIUtil.autoScaleUp(height, getCurrentDeviceZoom()));
+	setHeightInPixels(DPIUtil.autoScaleUp(height, getZoom()));
 }
 
 void setHeightInPixels (int height) {

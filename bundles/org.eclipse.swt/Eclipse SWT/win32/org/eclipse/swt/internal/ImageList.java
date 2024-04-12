@@ -48,7 +48,7 @@ public int add (Image image) {
 		index++;
 	}
 	if (count == 0) {
-		Rectangle rect = image.getBounds (currentZoomLevel);
+		Rectangle rect = DPIUtil.autoScaleBounds(image.getBounds(), currentZoomLevel, 100);
 		OS.ImageList_SetIconSize (handle, rect.width, rect.height);
 	}
 	set (index, image, count);

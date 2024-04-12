@@ -458,10 +458,10 @@ public void setImage (Image image) {
 		switch (icon.type) {
 			case SWT.BITMAP:
 				image2 = Display.createIcon (image);
-				hIcon = image2.getHandleByZoomLevel(getCurrentDeviceZoom());
+				hIcon = image2.getHandleByZoomLevel(getZoom());
 				break;
 			case SWT.ICON:
-				hIcon = icon.getHandleByZoomLevel(getCurrentDeviceZoom());
+				hIcon = icon.getHandleByZoomLevel(getZoom());
 				break;
 		}
 	}

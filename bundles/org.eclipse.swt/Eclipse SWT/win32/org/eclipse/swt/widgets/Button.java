@@ -126,7 +126,7 @@ void _setImage (Image image) {
 	if (imageList != null) imageList.dispose ();
 	imageList = null;
 	if (image != null) {
-		imageList = new ImageList (style & SWT.RIGHT_TO_LEFT, getCurrentDeviceZoom());
+		imageList = new ImageList (style & SWT.RIGHT_TO_LEFT, getZoom());
 		if (OS.IsWindowEnabled (handle)) {
 			imageList.add (image);
 		} else {
@@ -1021,7 +1021,7 @@ void updateImageList () {
 		BUTTON_IMAGELIST buttonImageList = new BUTTON_IMAGELIST ();
 		OS.SendMessage (handle, OS.BCM_GETIMAGELIST, 0, buttonImageList);
 		if (imageList != null) imageList.dispose ();
-		imageList = new ImageList (style & SWT.RIGHT_TO_LEFT, getCurrentDeviceZoom());
+		imageList = new ImageList (style & SWT.RIGHT_TO_LEFT, getZoom());
 		if (OS.IsWindowEnabled (handle)) {
 			imageList.add (image);
 		} else {
@@ -1384,7 +1384,7 @@ LRESULT wmNotifyChild (NMHDR hdr, long wParam, long lParam) {
 
 							int x = margin + (isRadioOrCheck() ? radioOrCheckTextPadding : 3);
 							int y = Math.max (0, (nmcd.bottom - imageBounds.height) / 2);
-							gc.drawImage (image, DPIUtil.autoScaleDown(x, getZoomLevel()), DPIUtil.autoScaleDown(y, getZoomLevel()));
+							gc.drawImage (image, DPIUtil.autoScaleDown(x, getZoom()), DPIUtil.autoScaleDown(y, getZoom()));
 							gc.dispose ();
 						}
 

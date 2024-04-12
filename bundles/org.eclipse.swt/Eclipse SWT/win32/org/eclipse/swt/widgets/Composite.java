@@ -218,7 +218,7 @@ Point computeSizeInPixels (int wHint, int hHint, boolean changed) {
 		if (wHint == SWT.DEFAULT || hHint == SWT.DEFAULT) {
 			changed |= (state & LAYOUT_CHANGED) != 0;
 			state &= ~LAYOUT_CHANGED;
-			size = DPIUtil.autoScaleUp(layout.computeSize (this, DPIUtil.autoScaleDown(wHint, getCurrentDeviceZoom()), DPIUtil.autoScaleDown(hHint, getCurrentDeviceZoom()), changed), getCurrentDeviceZoom());
+			size = DPIUtil.autoScaleUp(layout.computeSize (this, DPIUtil.autoScaleDown(wHint, getZoom()), DPIUtil.autoScaleDown(hHint, getZoom()), changed), getZoom());
 		} else {
 			size = new Point (wHint, hHint);
 		}
@@ -233,7 +233,7 @@ Point computeSizeInPixels (int wHint, int hHint, boolean changed) {
 	 * Since computeTrim can be overridden by subclasses, we cannot
 	 * call computeTrimInPixels directly.
 	 */
-	Rectangle trim = DPIUtil.autoScaleUp(computeTrim (0, 0, DPIUtil.autoScaleDown(size.x, getCurrentDeviceZoom()), DPIUtil.autoScaleDown(size.y, getCurrentDeviceZoom())), getCurrentDeviceZoom());
+	Rectangle trim = DPIUtil.autoScaleUp(computeTrim (0, 0, DPIUtil.autoScaleDown(size.x, getZoom()), DPIUtil.autoScaleDown(size.y, getZoom())), getZoom());
 	return new Point (trim.width, trim.height);
 }
 
@@ -353,12 +353,12 @@ int applyThemeBackground () {
  */
 public void drawBackground (GC gc, int x, int y, int width, int height, int offsetX, int offsetY) {
 	checkWidget ();
-	x = DPIUtil.autoScaleUp(x, getCurrentDeviceZoom());
-	y = DPIUtil.autoScaleUp(y, getCurrentDeviceZoom());
-	width = DPIUtil.autoScaleUp(width, getCurrentDeviceZoom());
-	height = DPIUtil.autoScaleUp(height, getCurrentDeviceZoom());
-	offsetX = DPIUtil.autoScaleUp(offsetX, getCurrentDeviceZoom());
-	offsetY = DPIUtil.autoScaleUp(offsetY, getCurrentDeviceZoom());
+	x = DPIUtil.autoScaleUp(x, getZoom());
+	y = DPIUtil.autoScaleUp(y, getZoom());
+	width = DPIUtil.autoScaleUp(width, getZoom());
+	height = DPIUtil.autoScaleUp(height, getZoom());
+	offsetX = DPIUtil.autoScaleUp(offsetX, getZoom());
+	offsetY = DPIUtil.autoScaleUp(offsetY, getZoom());
 	drawBackgroundInPixels(gc, x, y, width, height, offsetX, offsetY);
 }
 
@@ -878,10 +878,10 @@ Point minimumSize (int wHint, int hHint, boolean changed) {
 	 * Since getClientArea can be overridden by subclasses, we cannot
 	 * call getClientAreaInPixels directly.
 	 */
-	Rectangle clientArea = DPIUtil.autoScaleUp(getClientArea (), getCurrentDeviceZoom());
+	Rectangle clientArea = DPIUtil.autoScaleUp(getClientArea (), getZoom());
 	int width = 0, height = 0;
 	for (Control element : _getChildren ()) {
-		Rectangle rect = DPIUtil.autoScaleUp(element.getBounds (), getCurrentDeviceZoom());
+		Rectangle rect = DPIUtil.autoScaleUp(element.getBounds (), getZoom());
 		width = Math.max (width, rect.x - clientArea.x + rect.width);
 		height = Math.max (height, rect.y - clientArea.y + rect.height);
 	}
@@ -1519,12 +1519,12 @@ LRESULT WM_PAINT (long wParam, long lParam) {
 				long hBufferedPaint = OS.BeginBufferedPaint (hDC, prcTarget, flags, null, phdc);
 				GCData data = new GCData ();
 				data.device = display;
-				data.deviceZoom = getCurrentDeviceZoom();
+				data.deviceZoom = getZoom();
 				data.foreground = getForegroundPixel ();
 				Control control = findBackgroundControl ();
 				if (control == null) control = this;
 				data.background = control.getBackgroundPixel ();
-				data.font = Font.win32_new(display, OS.SendMessage (handle, OS.WM_GETFONT, 0, 0), getCurrentDeviceZoom());
+				data.font = Font.win32_new(display, OS.SendMessage (handle, OS.WM_GETFONT, 0, 0), getZoom());
 				data.uiState = (int)OS.SendMessage (handle, OS.WM_QUERYUISTATE, 0, 0);
 				if ((style & SWT.NO_BACKGROUND) != 0) {
 					/* This code is intentionally commented because it may be slow to copy bits from the screen */
@@ -1549,7 +1549,7 @@ LRESULT WM_PAINT (long wParam, long lParam) {
 
 			/* Create the paint GC */
 			GCData data = new GCData ();
-			data.deviceZoom = getCurrentDeviceZoom();
+			data.deviceZoom = getZoom();
 			data.ps = ps;
 			data.hwnd = handle;
 			GC gc = GC.win32_new (this, data);
@@ -1584,7 +1584,7 @@ LRESULT WM_PAINT (long wParam, long lParam) {
 					paintGC = gc;
 					gc = new GC (image, paintGC.getStyle() & SWT.RIGHT_TO_LEFT);
 					GCData gcData = gc.getGCData ();
-					gcData.deviceZoom = getCurrentDeviceZoom();
+					gcData.deviceZoom = getZoom();
 					gcData.uiState = data.uiState;
 					gc.setForeground (getForeground ());
 					gc.setBackground (getBackground ());
@@ -1642,7 +1642,7 @@ LRESULT WM_PAINT (long wParam, long lParam) {
 						if (gcData.focusDrawn && !isDisposed ()) updateUIState ();
 					}
 					gc.dispose();
-					if (!isDisposed ()) paintGC.drawImage (image, DPIUtil.autoScaleDown(ps.left, getCurrentDeviceZoom()), DPIUtil.autoScaleDown(ps.top, getCurrentDeviceZoom()));
+					if (!isDisposed ()) paintGC.drawImage (image, DPIUtil.autoScaleDown(ps.left, getZoom()), DPIUtil.autoScaleDown(ps.top, getZoom()));
 					image.dispose ();
 					gc = paintGC;
 				}

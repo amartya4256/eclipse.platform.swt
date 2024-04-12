@@ -361,9 +361,9 @@ public void setBounds (Rectangle rect) {
 
 private int getDeviceZoom() {
 	if (widget != null) {
-		return widget.getCurrentDeviceZoom();
+		return widget.getZoom();
 	} else if (item != null) {
-		return item.getCurrentDeviceZoom();
+		return item.getZoom();
 	} else if (gc != null && gc.getGCData().deviceZoom != 0) {
 		return gc.getGCData().deviceZoom;
 	} else {

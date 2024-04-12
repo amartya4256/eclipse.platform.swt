@@ -297,7 +297,7 @@ public String toString () {
 
 private static int extractZoom(Device device) {
 	if (device == null) {
-		DPIUtil.getNativeDeviceZoom();
+		DPIUtil.getNativeZoom();
 	}
 	return device.getDeviceZoom();
 }

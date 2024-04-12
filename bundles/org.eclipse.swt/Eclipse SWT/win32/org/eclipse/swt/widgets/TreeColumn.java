@@ -311,7 +311,7 @@ public String getToolTipText () {
  */
 public int getWidth () {
 	checkWidget ();
-	return DPIUtil.autoScaleDown(getWidthInPixels(), parent.getCurrentDeviceZoom());
+	return DPIUtil.autoScaleDown(getWidthInPixels(), parent.getZoom());
 }
 
 int getWidthInPixels () {
@@ -536,7 +536,7 @@ void setImage (Image image, boolean sort, boolean right) {
 			hdItem.mask &= ~OS.HDI_IMAGE;
 			hdItem.fmt &= ~OS.HDF_IMAGE;
 			hdItem.fmt |= OS.HDF_BITMAP;
-			hdItem.hbm = image.getHandleByZoomLevel(parent.getCurrentDeviceZoom());
+			hdItem.hbm = image.getHandleByZoomLevel(parent.getZoom());
 		} else {
 			hdItem.mask &= ~OS.HDI_BITMAP;
 			hdItem.fmt &= ~OS.HDF_BITMAP;
@@ -717,7 +717,7 @@ public void setToolTipText (String string) {
  */
 public void setWidth (int width) {
 	checkWidget ();
-	setWidthInPixels(DPIUtil.autoScaleUp(width, parent.getCurrentDeviceZoom()));
+	setWidthInPixels(DPIUtil.autoScaleUp(width, parent.getZoom()));
 }
 
 void setWidthInPixels (int width) {

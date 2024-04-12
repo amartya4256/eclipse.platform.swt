@@ -103,10 +103,10 @@ public Canvas (Composite parent, int style) {
  * @since 3.2
  */
 public void drawBackground (GC gc, int x, int y, int width, int height) {
-	x = DPIUtil.autoScaleUp(x, getCurrentDeviceZoom());
-	y = DPIUtil.autoScaleUp(y, getCurrentDeviceZoom());
-	width = DPIUtil.autoScaleUp(width, getCurrentDeviceZoom());
-	height = DPIUtil.autoScaleUp(height, getCurrentDeviceZoom());
+	x = DPIUtil.autoScaleUp(x, getZoom());
+	y = DPIUtil.autoScaleUp(y, getZoom());
+	width = DPIUtil.autoScaleUp(width, getZoom());
+	height = DPIUtil.autoScaleUp(height, getZoom());
 	drawBackgroundInPixels(gc, x, y, width, height, 0, 0);
 }
 
@@ -199,12 +199,12 @@ void reskinChildren (int flags) {
  */
 public void scroll (int destX, int destY, int x, int y, int width, int height, boolean all) {
 	checkWidget ();
-	destX = DPIUtil.autoScaleUp(destX, getCurrentDeviceZoom());
-	destY = DPIUtil.autoScaleUp(destY, getCurrentDeviceZoom());
-	x = DPIUtil.autoScaleUp(x, getCurrentDeviceZoom());
-	y = DPIUtil.autoScaleUp(y, getCurrentDeviceZoom());
-	width = DPIUtil.autoScaleUp(width, getCurrentDeviceZoom());
-	height = DPIUtil.autoScaleUp(height, getCurrentDeviceZoom());
+	destX = DPIUtil.autoScaleUp(destX, getZoom());
+	destY = DPIUtil.autoScaleUp(destY, getZoom());
+	x = DPIUtil.autoScaleUp(x, getZoom());
+	y = DPIUtil.autoScaleUp(y, getZoom());
+	width = DPIUtil.autoScaleUp(width, getZoom());
+	height = DPIUtil.autoScaleUp(height, getZoom());
 	scrollInPixels(destX, destY, x, y, width, height, all);
 }
 

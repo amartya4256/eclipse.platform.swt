@@ -261,7 +261,7 @@ public static Rectangle autoScaleDown (Rectangle rect) {
 }
 
 public static Rectangle autoScaleDown (Rectangle rect, Shell shell) {
-	int zoom = Optional.ofNullable(shell).map(Shell::getCurrentDeviceZoom).orElseGet(() -> deviceZoom);
+	int zoom = Optional.ofNullable(shell).map(Shell::getZoom).orElseGet(() -> deviceZoom);
 	return autoScaleDown(rect, zoom);
 }
 
@@ -496,7 +496,7 @@ public static Rectangle autoScaleUp (Rectangle rect) {
 }
 
 public static Rectangle autoScaleUp (Rectangle rect, Shell shell) {
-	int zoom = Optional.ofNullable(shell).map(Shell::getCurrentDeviceZoom).orElseGet(() -> deviceZoom);
+	int zoom = Optional.ofNullable(shell).map(Shell::getZoom).orElseGet(() -> deviceZoom);
 	return autoScaleUp(rect, zoom);
 }
 
@@ -648,7 +648,7 @@ private static <T> ElementAtZoom<T> getElementAtZoom(Function<Integer, T> elemen
 	return null;
 }
 
-public static int getNativeDeviceZoom() {
+public static int getNativeZoom() {
 	return nativeDeviceZoom;
 }
 
@@ -657,7 +657,7 @@ public static int getDeviceZoom() {
 }
 
 public static int getDeviceZoom(Shell shell) {
-	return Optional.ofNullable(shell).map(Shell::getCurrentDeviceZoom).orElseGet(() -> getDeviceZoom());
+	return Optional.ofNullable(shell).map(Shell::getZoom).orElseGet(() -> getDeviceZoom());
 }
 
 public static void setDeviceZoom (int nativeDeviceZoom) {

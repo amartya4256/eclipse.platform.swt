@@ -3011,9 +3011,9 @@ Point mapInPixels (Control from, Control to, int x, int y) {
 
 private int getZoomLevelForMapping(Control from, Control to) {
 	return Optional.ofNullable(to)
-            .map(Control::getCurrentDeviceZoom)
+            .map(Control::getZoom)
             .orElseGet(() -> Optional.ofNullable(from)
-                    .map(Control::getCurrentDeviceZoom)
+                    .map(Control::getZoom)
                     .orElse(0));
 }
 

@@ -509,7 +509,7 @@ Point minimumSize (int wHint, int hHint, boolean flushCache) {
 			index++;
 		}
 		if (index == count) {
-			Rectangle rect = DPIUtil.autoScaleUp(child.getBounds (), getCurrentDeviceZoom());
+			Rectangle rect = DPIUtil.autoScaleUp(child.getBounds (), getZoom());
 			width = Math.max (width, rect.x + rect.width);
 			height = Math.max (height, rect.y + rect.height);
 		} else {
@@ -517,7 +517,7 @@ Point minimumSize (int wHint, int hHint, boolean flushCache) {
 			 * Since computeSize can be overridden by subclasses, we cannot
 			 * call computeSizeInPixels directly.
 			 */
-			Point size = DPIUtil.autoScaleUp(child.computeSize (DPIUtil.autoScaleDown(wHint, getCurrentDeviceZoom()), DPIUtil.autoScaleDown(hHint, getCurrentDeviceZoom()), flushCache), getCurrentDeviceZoom());
+			Point size = DPIUtil.autoScaleUp(child.computeSize (DPIUtil.autoScaleDown(wHint, getZoom()), DPIUtil.autoScaleDown(hHint, getZoom()), flushCache), getZoom());
 			width = Math.max (width, size.x);
 			height = Math.max (height, size.y);
 		}
@@ -838,7 +838,7 @@ void updateOrientation () {
 	if (imageList != null) {
 		Point size = imageList.getImageSize ();
 		display.releaseImageList (imageList);
-		imageList = display.getImageList (style & SWT.RIGHT_TO_LEFT, size.x, size.y, getCurrentDeviceZoom());
+		imageList = display.getImageList (style & SWT.RIGHT_TO_LEFT, size.x, size.y, getZoom());
 		long hImageList = imageList.getHandle ();
 		OS.SendMessage (handle, OS.TCM_SETIMAGELIST, 0, hImageList);
 		TCITEM tcItem = new TCITEM ();
