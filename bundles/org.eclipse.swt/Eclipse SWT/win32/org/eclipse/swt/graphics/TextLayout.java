@@ -2121,7 +2121,7 @@ public FontMetrics getLineMetrics (int lineIndex) {
 	lptm.tmHeight = DPIUtil.autoScaleUp(getDevice(), ascentInPoints + descentInPoints);
 	lptm.tmInternalLeading = DPIUtil.autoScaleUp(getDevice(), leadingInPoints);
 	lptm.tmAveCharWidth = 0;
-	return FontMetrics.win32_new(lptm);
+	return FontMetrics.win32_new(lptm, DPIUtil.getNativeDeviceZoom());
 }
 
 /**
