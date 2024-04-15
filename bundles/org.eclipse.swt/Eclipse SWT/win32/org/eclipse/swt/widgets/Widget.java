@@ -51,6 +51,12 @@ import org.eclipse.swt.internal.win32.*;
  * @see <a href="http://www.eclipse.org/swt/">Sample code and further information</a>
  */
 public abstract class Widget {
+	/**
+	 * Specify current zoom level for the widget.
+	 *
+	 * @since 3.125
+	 */
+	private int currentDeviceZoom;
 	int style, state;
 	Display display;
 	EventTable eventTable;
@@ -131,6 +137,7 @@ public abstract class Widget {
  */
 Widget () {
 	notifyCreationTracker();
+	this.currentDeviceZoom = DPIUtil.getDeviceZoom();
 }
 
 /**
@@ -166,6 +173,7 @@ public Widget (Widget parent, int style) {
 	checkSubclass ();
 	checkParent (parent);
 	this.style = style;
+	this.currentDeviceZoom = DPIUtil.getDeviceZoom();
 	display = parent.display;
 	reskinWidget ();
 	notifyCreationTracker();
@@ -2631,4 +2639,17 @@ void notifyDisposalTracker() {
 	}
 }
 
+/**
+ * @since 3.125
+ */
+public int getCurrentDeviceZoom() {
+	return currentDeviceZoom;
+}
+
+/**
+ * @since 3.125
+ */
+public void setCurrentDeviceZoom(int currentDeviceZoom) {
+	this.currentDeviceZoom = currentDeviceZoom;
+}
 }

@@ -725,8 +725,11 @@ public Image(Device device, ImageDataProvider imageDataProvider) {
  * @return true if image is refreshed
  */
 boolean refreshImageForZoom () {
+	return refreshImageForZoom(DPIUtil.getDeviceZoom());
+}
+
+boolean refreshImageForZoom (int deviceZoomLevel) {
 	boolean refreshed = false;
-	int deviceZoomLevel = DPIUtil.getDeviceZoom();
 	if (imageFileNameProvider != null) {
 		if (deviceZoomLevel != currentDeviceZoom) {
 			ElementAtZoom<String> filename = DPIUtil.validateAndGetImagePathAtZoom (imageFileNameProvider, deviceZoomLevel);
@@ -1227,7 +1230,7 @@ public Rectangle getBounds() {
 	return getBounds (100);
 }
 
-Rectangle getBounds(int zoom) {
+public Rectangle getBounds(int zoom) {
 	Rectangle bounds = getBoundsInPixels();
 	if (bounds != null && zoom != currentDeviceZoom) {
 		bounds = DPIUtil.autoScaleBounds(bounds, zoom, currentDeviceZoom);

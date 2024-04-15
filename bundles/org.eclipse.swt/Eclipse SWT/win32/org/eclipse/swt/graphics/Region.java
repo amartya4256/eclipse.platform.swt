@@ -14,9 +14,12 @@
 package org.eclipse.swt.graphics;
 
 
+import java.util.*;
+
 import org.eclipse.swt.*;
 import org.eclipse.swt.internal.*;
 import org.eclipse.swt.internal.win32.*;
+import org.eclipse.swt.widgets.*;
 
 /**
  * Instances of this class represent areas of an x-y coordinate
@@ -118,7 +121,7 @@ Region(Device device, int handle) {
 public void add (int[] pointArray) {
 	if (isDisposed()) SWT.error(SWT.ERROR_GRAPHIC_DISPOSED);
 	if (pointArray == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
-	addInPixels(DPIUtil.autoScaleUp(pointArray));
+	addInPixels(pointArray);
 }
 
 void addInPixels (int[] pointArray) {
@@ -144,7 +147,6 @@ void addInPixels (int[] pointArray) {
 public void add (Rectangle rect) {
 	if (isDisposed()) SWT.error(SWT.ERROR_GRAPHIC_DISPOSED);
 	if (rect == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
-	rect = DPIUtil.autoScaleUp(rect);
 	addInPixels(rect.x, rect.y, rect.width, rect.height);
 }
 
@@ -168,7 +170,7 @@ public void add (Rectangle rect) {
  */
 public void add (int x, int y, int width, int height) {
 	if (isDisposed()) SWT.error(SWT.ERROR_GRAPHIC_DISPOSED);
-	addInPixels(DPIUtil.autoScaleUp(x), DPIUtil.autoScaleUp(y), DPIUtil.autoScaleUp(width), DPIUtil.autoScaleUp(height));
+	addInPixels(x, y, width, height);
 }
 
 void addInPixels (int x, int y, int width, int height) {
@@ -215,7 +217,7 @@ public void add (Region region) {
  */
 public boolean contains (int x, int y) {
 	if (isDisposed()) SWT.error(SWT.ERROR_GRAPHIC_DISPOSED);
-	return containsInPixels(DPIUtil.autoScaleUp(x), DPIUtil.autoScaleUp(y));
+	return containsInPixels(x, y);
 }
 
 boolean containsInPixels (int x, int y) {
@@ -240,12 +242,12 @@ boolean containsInPixels (int x, int y) {
 public boolean contains (Point pt) {
 	if (isDisposed()) SWT.error(SWT.ERROR_GRAPHIC_DISPOSED);
 	if (pt == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
-	pt = DPIUtil.autoScaleUp(pt);
 	return containsInPixels(pt.x, pt.y);
 }
 
 @Override
 void destroy () {
+	handleMap.values().forEach(handle -> OS.DeleteObject(handle));
 	OS.DeleteObject(handle);
 	handle = 0;
 }
@@ -283,7 +285,7 @@ public boolean equals (Object object) {
  */
 public Rectangle getBounds () {
 	if (isDisposed()) SWT.error(SWT.ERROR_GRAPHIC_DISPOSED);
-	return DPIUtil.autoScaleDown(getBoundsInPixels());
+	return getBoundsInPixels();
 }
 
 Rectangle getBoundsInPixels() {
@@ -326,7 +328,6 @@ public int hashCode () {
 public void intersect (Rectangle rect) {
 	if (isDisposed()) SWT.error(SWT.ERROR_GRAPHIC_DISPOSED);
 	if (rect == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
-	rect = DPIUtil.autoScaleUp(rect);
 	intersectInPixels(rect.x, rect.y, rect.width, rect.height);
 }
 
@@ -350,7 +351,7 @@ public void intersect (Rectangle rect) {
  */
 public void intersect (int x, int y, int width, int height) {
 	if (isDisposed()) SWT.error(SWT.ERROR_GRAPHIC_DISPOSED);
-	intersectInPixels(DPIUtil.autoScaleUp(x), DPIUtil.autoScaleUp(y), DPIUtil.autoScaleUp(width), DPIUtil.autoScaleUp(height));
+	intersectInPixels(x, y, width, height);
 }
 
 void intersectInPixels (int x, int y, int width, int height) {
@@ -403,7 +404,7 @@ public void intersect (Region region) {
  */
 public boolean intersects (int x, int y, int width, int height) {
 	if (isDisposed()) SWT.error(SWT.ERROR_GRAPHIC_DISPOSED);
-	return 	intersectsInPixels(DPIUtil.autoScaleUp(x), DPIUtil.autoScaleUp(y), DPIUtil.autoScaleUp(width), DPIUtil.autoScaleUp(height));
+	return 	intersectsInPixels(x, y, width, height);
 }
 
 boolean intersectsInPixels (int x, int y, int width, int height) {
@@ -432,7 +433,6 @@ boolean intersectsInPixels (int x, int y, int width, int height) {
 public boolean intersects (Rectangle rect) {
 	if (isDisposed()) SWT.error(SWT.ERROR_GRAPHIC_DISPOSED);
 	if (rect == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
-	rect = DPIUtil.autoScaleUp(rect);
 	return intersectsInPixels(rect.x, rect.y, rect.width, rect.height);
 }
 
@@ -488,7 +488,7 @@ public boolean isEmpty () {
 public void subtract (int[] pointArray) {
 	if (isDisposed()) SWT.error(SWT.ERROR_GRAPHIC_DISPOSED);
 	if (pointArray == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
-	subtractInPixels(DPIUtil.autoScaleUp(pointArray));
+	subtractInPixels(pointArray);
 }
 
 void subtractInPixels (int[] pointArray) {
@@ -516,7 +516,6 @@ void subtractInPixels (int[] pointArray) {
 public void subtract (Rectangle rect) {
 	if (isDisposed()) SWT.error(SWT.ERROR_GRAPHIC_DISPOSED);
 	if (rect == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
-	rect = DPIUtil.autoScaleUp(rect);
 	subtractInPixels(rect.x, rect.y, rect.width, rect.height);
 }
 
@@ -540,7 +539,7 @@ public void subtract (Rectangle rect) {
  */
 public void subtract (int x, int y, int width, int height) {
 	if (isDisposed()) SWT.error(SWT.ERROR_GRAPHIC_DISPOSED);
-	subtractInPixels(DPIUtil.autoScaleUp(x), DPIUtil.autoScaleUp(y), DPIUtil.autoScaleUp(width), DPIUtil.autoScaleUp(height));
+	subtractInPixels(x, y, width, height);
 }
 
 void subtractInPixels (int x, int y, int width, int height) {
@@ -589,7 +588,7 @@ public void subtract (Region region) {
  */
 public void translate (int x, int y) {
 	if (isDisposed()) SWT.error(SWT.ERROR_GRAPHIC_DISPOSED);
-	translateInPixels(DPIUtil.autoScaleUp(x), DPIUtil.autoScaleUp(y));
+	translateInPixels(x, y);
 }
 
 void translateInPixels (int x, int y) {
@@ -614,8 +613,23 @@ void translateInPixels (int x, int y) {
 public void translate (Point pt) {
 	if (isDisposed()) SWT.error(SWT.ERROR_GRAPHIC_DISPOSED);
 	if (pt == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
-	pt = DPIUtil.autoScaleUp(pt);
 	translateInPixels(pt.x, pt.y);
+}
+
+private HashMap<Integer, Long> handleMap = new HashMap<>();
+
+/**
+ * @since 3.125
+ */
+public long getHandle(Shell shell) {
+	if(shell.getCurrentDeviceZoom() == this.device.getDeviceZoom()) {
+		return this.handle;
+	}
+	if(this.handleMap.get(shell.getCurrentDeviceZoom()) == null) {
+		Rectangle rect = DPIUtil.autoScaleUp(this.getBoundsInPixels(), shell);
+		handleMap.put(shell.getCurrentDeviceZoom(), OS.CreateRectRgn(rect.x, rect.y, rect.x + rect.width, rect.y + rect.height));
+	}
+	return this.handleMap.get(shell.getCurrentDeviceZoom());
 }
 
 /**
