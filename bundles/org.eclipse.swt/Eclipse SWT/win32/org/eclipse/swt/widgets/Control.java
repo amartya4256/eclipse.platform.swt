@@ -3661,7 +3661,7 @@ public void setRedraw (boolean redraw) {
  * @since 3.125
  */
 @Override
-public void sendEvent(int eventType, Event event, boolean send) {
+void sendEvent(int eventType, Event event, boolean send) {
 	if(event != null && event.gc != null && event.gc.getGCData() != null) {
 		event.gc.getGCData().deviceZoom = getZoom();
 		event.gc.getGCData().nativeDeviceZoom = getShell().getNativeZoom();
