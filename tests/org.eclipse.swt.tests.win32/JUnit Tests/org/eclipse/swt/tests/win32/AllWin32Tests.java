@@ -19,6 +19,7 @@ import org.eclipse.swt.internal.DefaultSWTFontRegistryTests;
 import org.eclipse.swt.internal.ScalingSWTFontRegistryTests;
 import org.eclipse.swt.tests.win32.widgets.TestTreeColumn;
 import org.eclipse.swt.tests.win32.widgets.Test_org_eclipse_swt_widgets_Display;
+import org.eclipse.swt.widgets.ControlWin32Tests;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -26,6 +27,7 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+	ControlWin32Tests.class,
 	DefaultSWTFontRegistryTests.class,
 	ImageWin32Tests.class,
 	ScalingSWTFontRegistryTests.class,
