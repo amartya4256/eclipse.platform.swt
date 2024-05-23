@@ -102,6 +102,7 @@ public class Tree extends Composite {
 	int lastTimerCount;
 	int headerBackground = -1;
 	int headerForeground = -1;
+	private boolean manualItemHeight;
 
 	// Cached variables for fast item lookup
 	int[] cachedItemOrder;
@@ -4347,7 +4348,11 @@ void setItemCount (int count, long hParent) {
 /*public*/ void setItemHeight (int itemHeight) {
 	checkWidget ();
 	if (itemHeight < -1) error (SWT.ERROR_INVALID_ARGUMENT);
-	OS.SendMessage (handle, OS.TVM_SETITEMHEIGHT, itemHeight, 0);
+	long newHeight = OS.SendMessage (handle, OS.TVM_SETITEMHEIGHT, itemHeight, 0);
+	// if the item height was set at least once programmatically, it will never be
+	// done by the OS anymore. To handle resizing after DPI changes, this must be
+	// tracked with the manualItemHeight-flag
+	//manualItemHeight |= (newHeight > 0);
 }
 
 /**
@@ -8280,8 +8285,7 @@ private static void handleDPIChange(Widget widget, int newZoom, float scalingFac
 		tree.imageList = null;
 	}
 
-	if (tree.hooks(SWT.MeasureItem)) {
-		// with the measure item hook, the height must be programmatically recalculated
+	if (tree.manualItemHeight) {
 		var itemHeight = tree.getItemHeightInPixels();
 		tree.setItemHeight(Math.round(itemHeight * scalingFactor));
 	}
