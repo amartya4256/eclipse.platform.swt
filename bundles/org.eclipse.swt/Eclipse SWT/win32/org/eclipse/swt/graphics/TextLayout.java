@@ -60,13 +60,14 @@ public final class TextLayout extends Resource {
 
 	StyleItem[] allRuns;
 	StyleItem[][] runs;
-	int[] lineOffset, lineY, lineWidth;
+	int[] lineOffset, lineY;	// In Points
+	int[] lineWidth;	// In pixels
 	IMLangFontLink2 mLangFontLink2;
 	int verticalIndentInPoints;
 
 	private MetricsAdapter metricsAdapter = new MetricsAdapter();
 
-	int nativeZoom;
+	int nativeZoom = DPIUtil.getNativeDeviceZoom();
 
 	static final char LTR_MARK = '\u200E', RTL_MARK = '\u200F';
 	static final int SCRIPT_VISATTR_SIZEOF = 2;
@@ -362,36 +363,39 @@ void checkLayout () {
 * 	Break paragraphs into lines, wraps the text, and initialize caches.
 */
 void computeRuns (GC gc) {
-	if (runs != null) return;
-	nativeZoom = getNativeZoom(gc);
+	if (runs != null && nativeZoom == getNativeZoom(gc)) return;
+//	nativeZoom = getNativeZoom(gc);
 	long hDC = gc != null ? gc.handle : device.internal_new_GC(null);
 	long srcHdc = OS.CreateCompatibleDC(hDC);
 	allRuns = itemize();
 	for (int i=0; i<allRuns.length - 1; i++) {
 		StyleItem run = allRuns[i];
-		OS.SelectObject(srcHdc, getItemFont(run));
+		OS.SelectObject(srcHdc, getItemFont(run, gc));
 		shape(gc, srcHdc, run);
 	}
 	SCRIPT_LOGATTR logAttr = new SCRIPT_LOGATTR();
 	SCRIPT_PROPERTIES properties = new SCRIPT_PROPERTIES();
-	int lineWidthInPixels = DPIUtil.autoScaleUp(getDevice(), indent, getZoom(gc)), lineStart = 0, lineCount = 1;
+	int wrapIndentInPixels = DPIUtil.autoScaleUp(wrapIndent, getZoom(gc));
+	int indentInPixels = DPIUtil.autoScaleUp(indent, getZoom(gc));
+	int wrapWidthInPixels = DPIUtil.autoScaleUp(wrapWidth, getZoom(gc));
+	int[] tabsInPixels = DPIUtil.autoScaleUp(tabs, getZoom(gc));
+	int lineWidth = indentInPixels, lineStart = 0, lineCount = 1;
 	for (int i=0; i<allRuns.length - 1; i++) {
 		StyleItem run = allRuns[i];
-		if (tabs != null && run.tab) {
-			int tabsLength = tabs.length, j;
+		if (tabsInPixels != null && run.tab) {
+			int tabsLength = tabsInPixels.length, j;
 			for (j = 0; j < tabsLength; j++) {
-				int tab = DPIUtil.autoScaleUp(getDevice(), tabs[j], getZoom(gc));
-				if (tab > lineWidthInPixels) {
-					run.width = tab - lineWidthInPixels;
+				if (tabsInPixels[j] > lineWidth) {
+					run.width = tabsInPixels[j] - lineWidth;
 					break;
 				}
 			}
 			if (j == tabsLength) {
-				int tabX = DPIUtil.autoScaleUp(getDevice(), tabs[tabsLength-1], getZoom(gc));
-				int lastTabWidth = tabsLength > 1 ? DPIUtil.autoScaleUp(getDevice(), tabs[tabsLength-1], getZoom(gc)) - DPIUtil.autoScaleUp(getDevice(), tabs[tabsLength-2], getZoom(gc)) : DPIUtil.autoScaleUp(getDevice(), tabs[0], getZoom(gc));
+				int tabX = tabsInPixels[tabsLength-1];
+				int lastTabWidth = tabsLength > 1 ? tabsInPixels[tabsLength-1] - tabsInPixels[tabsLength-2] : tabsInPixels[0];
 				if (lastTabWidth > 0) {
-					while (tabX <= lineWidthInPixels) tabX += lastTabWidth;
-					run.width = tabX - lineWidthInPixels;
+					while (tabX <= lineWidth) tabX += lastTabWidth;
+					run.width = tabX - lineWidth;
 				}
 			}
 
@@ -403,18 +407,18 @@ void computeRuns (GC gc) {
 			if (length > 1) {
 				int stop = j + length - 1;
 				if (stop < tabsLength) {
-					run.width += DPIUtil.autoScaleUp(getDevice(), tabs[stop] - tabs[j], getZoom(gc));
+					run.width += tabsInPixels[stop] - tabsInPixels[j];
 				} else {
 					if (j < tabsLength) {
-						run.width += DPIUtil.autoScaleUp(getDevice(), tabs[tabsLength-1] - tabs[j], getZoom(gc));
+						run.width += tabsInPixels[tabsLength-1] - tabsInPixels[j];
 						length -= (tabsLength - 1) - j;
 					}
-					int lastTabWidth = tabsLength > 1 ? DPIUtil.autoScaleUp(getDevice(), tabs[tabsLength-1] - tabs[tabsLength-2], getZoom(gc)) : DPIUtil.autoScaleUp(getDevice(), tabs[0], getZoom(gc));
+					int lastTabWidth = tabsLength > 1 ? tabsInPixels[tabsLength-1] - tabsInPixels[tabsLength-2] : tabsInPixels[0];
 					run.width += lastTabWidth * (length - 1);
 				}
 			}
 		}
-		if (wrapWidth != -1 && lineWidthInPixels + run.width > DPIUtil.autoScaleUp(getDevice(), wrapWidth, getZoom(gc)) && !run.tab && !run.lineBreak) {
+		if (wrapWidth != -1 && lineWidth + run.width > wrapWidthInPixels && !run.tab && !run.lineBreak) {
 			int start = 0;
 			int[] piDx = new int[run.length];
 			if (run.style != null && run.style.metrics != null) {
@@ -422,7 +426,7 @@ void computeRuns (GC gc) {
 			} else {
 				OS.ScriptGetLogicalWidths(run.analysis, run.length, run.glyphCount, run.advances, run.clusters, run.visAttrs, piDx);
 			}
-			int width = 0, maxWidth = DPIUtil.autoScaleUp(getDevice(), wrapWidth, getZoom(gc)) - lineWidthInPixels;
+			int width = 0, maxWidth = wrapWidthInPixels - lineWidth;
 			while (width + piDx[start] < maxWidth) {
 				width += piDx[start++];
 			}
@@ -497,10 +501,10 @@ void computeRuns (GC gc) {
 				newRun.analysis = cloneScriptAnalysis(run.analysis);
 				run.free();
 				run.length = start;
-				OS.SelectObject(srcHdc, getItemFont(run));
+				OS.SelectObject(srcHdc, getItemFont(run, gc));
 				run.analysis.fNoGlyphIndex = false;
 				shape (gc, srcHdc, run);
-				OS.SelectObject(srcHdc, getItemFont(newRun));
+				OS.SelectObject(srcHdc, getItemFont(newRun, gc));
 				newRun.analysis.fNoGlyphIndex = false;
 				shape (gc, srcHdc, newRun);
 				StyleItem[] newAllRuns = new StyleItem[allRuns.length + 1];
@@ -513,18 +517,18 @@ void computeRuns (GC gc) {
 				run.softBreak = run.lineBreak = true;
 			}
 		}
-		lineWidthInPixels += run.width;
+		lineWidth += run.width;
 		if (run.lineBreak) {
 			lineStart = i + 1;
-			lineWidthInPixels = DPIUtil.autoScaleUp(getDevice(), run.softBreak ?  wrapIndent : indent, getZoom(gc));
+			lineWidth = run.softBreak ?  wrapIndentInPixels : indentInPixels;
 			lineCount++;
 		}
 	}
-	lineWidthInPixels = 0;
+	lineWidth = 0;
 	runs = new StyleItem[lineCount][];
 	lineOffset = new int[lineCount + 1];
 	lineY = new int[lineCount + 1];
-	lineWidth = new int[lineCount];
+	this.lineWidth = new int[lineCount];
 	int lineRunCount = 0, line = 0;
 	int ascentInPoints = Math.max(0, ascent);
 	int descentInPoints = Math.max(0, descent);
@@ -532,39 +536,39 @@ void computeRuns (GC gc) {
 	for (int i=0; i<allRuns.length; i++) {
 		StyleItem run = allRuns[i];
 		lineRuns[lineRunCount++] = run;
-		lineWidthInPixels += run.width;
+		lineWidth += run.width;
 		ascentInPoints = Math.max(ascentInPoints, run.ascentInPoints);
 		descentInPoints = Math.max(descentInPoints, run.descentInPoints);
 		if (run.lineBreak || i == allRuns.length - 1) {
 			/* Update the run metrics if the last run is a hard break. */
 			if (lineRunCount == 1 && (i == allRuns.length - 1 || !run.softBreak)) {
 				TEXTMETRIC lptm = new TEXTMETRIC();
-				OS.SelectObject(srcHdc, getItemFont(run));
+				OS.SelectObject(srcHdc, getItemFont(run, gc));
 				metricsAdapter.GetTextMetrics(srcHdc, lptm);
-				run.ascentInPoints = DPIUtil.scaleDown(getDevice(), lptm.tmAscent, getZoom(gc));
-				run.descentInPoints = DPIUtil.scaleDown(getDevice(), lptm.tmDescent, getZoom(gc));
+				run.ascentInPoints = DPIUtil.scaleDown(getDevice(), lptm.tmAscent, getNativeZoom(gc));
+				run.descentInPoints = DPIUtil.scaleDown(getDevice(), lptm.tmDescent, getNativeZoom(gc));
 				ascentInPoints = Math.max(ascentInPoints, run.ascentInPoints);
 				descentInPoints = Math.max(descentInPoints, run.descentInPoints);
 			}
 			runs[line] = new StyleItem[lineRunCount];
 			System.arraycopy(lineRuns, 0, runs[line], 0, lineRunCount);
 
-			if (justify && wrapWidth != -1 && run.softBreak && lineWidthInPixels > 0) {
-				int lineIndent = DPIUtil.autoScaleUp(getDevice(), wrapIndent, getZoom(gc));
+			if (justify && wrapWidth != -1 && run.softBreak && lineWidth > 0) {
+				int lineIndent = wrapIndentInPixels;
 				if (line == 0) {
-					lineIndent = DPIUtil.autoScaleUp(getDevice(), indent, getZoom(gc));
+					lineIndent = indentInPixels;
 				} else {
 					StyleItem[] previousLine = runs[line - 1];
 					StyleItem previousRun = previousLine[previousLine.length - 1];
 					if (previousRun.lineBreak && !previousRun.softBreak) {
-						lineIndent = DPIUtil.autoScaleUp(getDevice(), indent, getZoom(gc));
+						lineIndent = indentInPixels;
 					}
 				}
-				lineWidthInPixels += lineIndent;
+				lineWidth += lineIndent;
 				long hHeap = OS.GetProcessHeap();
 				int newLineWidth = 0;
 				for (StyleItem item : runs[line]) {
-					int iDx = item.width * DPIUtil.autoScaleUp(getDevice(), wrapWidth, getZoom(gc)) / lineWidthInPixels;
+					int iDx = item.width * wrapWidthInPixels / lineWidth;
 					if (iDx != item.width) {
 						item.justify = OS.HeapAlloc(hHeap, OS.HEAP_ZERO_MEMORY, item.glyphCount * 4);
 						if (item.justify == 0) SWT.error(SWT.ERROR_NO_HANDLES);
@@ -573,9 +577,9 @@ void computeRuns (GC gc) {
 					}
 					newLineWidth += item.width;
 				}
-				lineWidthInPixels = newLineWidth;
+				lineWidth = newLineWidth;
 			}
-			lineWidth[line] = lineWidthInPixels;
+			this.lineWidth[line] = lineWidth;
 
 			StyleItem lastRun = runs[line][lineRunCount - 1];
 			int lastOffset = lastRun.start + lastRun.length;
@@ -586,15 +590,15 @@ void computeRuns (GC gc) {
 				lastRun.softBreak = lastRun.lineBreak = true;
 			}
 
-			lineWidthInPixels = DPIUtil.autoScaleUp(getDevice(), getLineIndent(line), getZoom(gc));
+			lineWidth = getLineIndentInPixel(line);
 			for (StyleItem run1 : runs[line]) {
-				run1.x = lineWidthInPixels;
-				lineWidthInPixels += run1.width;
+				run1.x = lineWidth;
+				lineWidth += run1.width;
 			}
 			line++;
 			lineY[line] = lineY[line - 1] + ascentInPoints + descentInPoints + lineSpacingInPoints;
 			lineOffset[line] = lastOffset;
-			lineRunCount = lineWidthInPixels = 0;
+			lineRunCount = lineWidth = 0;
 			ascentInPoints = Math.max(0, ascent);
 			descentInPoints = Math.max(0, descent);
 		}
@@ -697,7 +701,6 @@ long createGdipBrush(Color color, int alpha) {
  */
 public void draw (GC gc, int x, int y) {
 	checkLayout();
-	nativeZoom = gc.data.nativeDeviceZoom;
 	drawInPixels(gc, DPIUtil.autoScaleUp(getDevice(), x, getZoom(gc)), DPIUtil.autoScaleUp(getDevice(), y, getZoom(gc)));
 }
 
@@ -722,7 +725,6 @@ public void draw (GC gc, int x, int y) {
  */
 public void draw (GC gc, int x, int y, int selectionStart, int selectionEnd, Color selectionForeground, Color selectionBackground) {
 	checkLayout();
-	nativeZoom = gc.data.nativeDeviceZoom;
 	drawInPixels(gc, DPIUtil.autoScaleUp(getDevice(), x, getZoom(gc)), DPIUtil.autoScaleUp(getDevice(), y, getZoom(gc)), selectionStart, selectionEnd, selectionForeground, selectionBackground);
 }
 
@@ -759,17 +761,14 @@ void drawInPixels (GC gc, int x, int y, int selectionStart, int selectionEnd, Co
  */
 public void draw (GC gc, int x, int y, int selectionStart, int selectionEnd, Color selectionForeground, Color selectionBackground, int flags) {
 	checkLayout();
-	nativeZoom = gc.data.nativeDeviceZoom;
 	drawInPixels(gc, DPIUtil.autoScaleUp(getDevice(), x, getZoom(gc)), DPIUtil.autoScaleUp(getDevice(), y, getZoom(gc)), selectionStart, selectionEnd, selectionForeground, selectionBackground, flags);
 }
 
 private int getNativeZoom(GC gc) {
 	if (gc != null) {
-		return gc.data.nativeDeviceZoom;
-	} else if(font != null) {
-		return font.zoom;
+		return gc.data.nativeZoom;
 	}
-	return DPIUtil.getNativeDeviceZoom();
+	return nativeZoom;
 }
 
 private int getZoom(GC gc){
@@ -835,7 +834,8 @@ void drawInPixels (GC gc, int x, int y, int selectionStart, int selectionEnd, Co
 	RECT rect = new RECT();
 	OS.SetBkMode(hdc, OS.TRANSPARENT);
 	for (int line=0; line<runs.length; line++) {
-		int drawX = x + DPIUtil.autoScaleUp(getDevice(), getLineIndent(line), getZoom(gc));
+//		int drawX = x + DPIUtil.autoScaleUp(getDevice(), getLineIndent(line), getZoom(gc));
+		int drawX = x + getLineIndentInPixel(line);
 		int drawY = y + DPIUtil.autoScaleUp(getDevice(), lineY[line], getZoom(gc));
 		StyleItem[] lineRuns = runs[line];
 		int lineHeight = DPIUtil.autoScaleUp(getDevice(), lineY[line+1] - lineY[line] - lineSpacingInPoints, getZoom(gc));
@@ -912,7 +912,7 @@ void drawInPixels (GC gc, int x, int y, int selectionStart, int selectionEnd, Co
 				if (!skipTab && (!run.lineBreak || run.softBreak) && !(style != null && style.metrics != null)) {
 					OS.SetRect(rect, drawX, drawY, drawX + run.width, drawY + lineHeight);
 					if (gdip) {
-						long hFont = getItemFont(run);
+						long hFont = getItemFont(run, gc);
 						if (hFont != lastHFont) {
 							lastHFont = hFont;
 							if (gdipFont != 0) Gdip.Font_delete(gdipFont);
@@ -1177,7 +1177,7 @@ RECT drawRunText(GC gc, long hdc, StyleItem run, RECT rect, int baselineInPixels
 	int offset = (orientation & SWT.RIGHT_TO_LEFT) != 0 ? -1 : 0;
 	int x = rect.left + offset;
 	int y = rect.top + (baselineInPixels - DPIUtil.autoScaleUp(getDevice(), run.ascentInPoints, getZoom(gc)));
-	long hFont = getItemFont(run);
+	long hFont = getItemFont(run, gc);
 	OS.SelectObject(hdc, hFont);
 	if (fullSelection) {
 		color = selectionColor;
@@ -1787,7 +1787,7 @@ public Rectangle getBounds () {
 		width = wrapWidth;
 	} else {
 		for (int line=0; line<runs.length; line++) {
-			width = Math.max(width, lineWidth[line] + DPIUtil.autoScaleUp(getDevice(), getLineIndent(line), getZoom()));
+			width = Math.max(width, DPIUtil.scaleDown(lineWidth[line], getZoom()) + getLineIndent(line));
 		}
 	}
 	return new Rectangle (0, 0, width, lineY[lineY.length - 1] + getScaledVerticalIndent());
@@ -1959,16 +1959,15 @@ public boolean getJustify () {
 	return justify;
 }
 
-long getItemFont (StyleItem item) {
+long getItemFont (StyleItem item, GC gc) {
 	if (item.fallbackFont != 0) return item.fallbackFont;
 	if (item.style != null && item.style.font != null) {
-		Integer zoom = this.font != null ? font.zoom : DPIUtil.getNativeDeviceZoom();
-		return Font.win32_new(item.style.font, zoom).handle;
+		return Font.win32_new(item.style.font, getNativeZoom(gc)).handle;
 	}
 	if (this.font != null) {
-		return this.font.handle;
+		return Font.win32_new(this.font, getNativeZoom(gc)).handle;
 	}
-	return device.systemFont.handle;
+	return Font.win32_new(device.systemFont, getNativeZoom(gc)).handle;
 }
 
 /**
@@ -2014,16 +2013,16 @@ public int getLevel (int offset) {
  */
 public Rectangle getLineBounds (int lineIndex) {
 	checkLayout();
-	return getLineBoundsInPixels(lineIndex);
+	return DPIUtil.scaleDown(getDevice(), getLineBoundsInPixels(lineIndex), getZoom());
 }
 
 Rectangle getLineBoundsInPixels(int lineIndex) {
 	computeRuns(null);
 	if (!(0 <= lineIndex && lineIndex < runs.length)) SWT.error(SWT.ERROR_INVALID_RANGE);
-	int x = getLineIndent(lineIndex);
-	int y = lineY[lineIndex];
+	int x = getLineIndentInPixel(lineIndex);
+	int y = DPIUtil.autoScaleUp(getDevice(), lineY[lineIndex], getZoom());
 	int width = lineWidth[lineIndex];
-	int height = lineY[lineIndex + 1] - lineY[lineIndex] - lineSpacingInPoints;
+	int height = DPIUtil.autoScaleUp(getDevice(), lineY[lineIndex + 1] - lineY[lineIndex] - lineSpacingInPoints, getZoom());
 	return new Rectangle (x, y, width, height);
 }
 
@@ -2043,15 +2042,19 @@ public int getLineCount () {
 	return runs.length;
 }
 
-int getLineIndent (int lineIndex) {
-	int lineIndent = wrapIndent;
+int getLineIndent(int lineIndex) {
+	return DPIUtil.scaleDown(getLineIndentInPixel(lineIndex), getZoom());
+}
+
+int getLineIndentInPixel (int lineIndex) {
+	int lineIndent = DPIUtil.autoScaleUp(wrapIndent, getZoom());
 	if (lineIndex == 0) {
-		lineIndent = indent;
+		lineIndent = DPIUtil.autoScaleUp(indent, getZoom());
 	} else {
 		StyleItem[] previousLine = runs[lineIndex - 1];
 		StyleItem previousRun = previousLine[previousLine.length - 1];
 		if (previousRun.lineBreak && !previousRun.softBreak) {
-			lineIndent = indent;
+			lineIndent = DPIUtil.autoScaleUp(indent, getZoom());
 		}
 	}
 	if (wrapWidth != -1) {
@@ -2065,8 +2068,8 @@ int getLineIndent (int lineIndex) {
 		if (partialLine) {
 			int lineWidth = this.lineWidth[lineIndex] + lineIndent;
 			switch (alignment) {
-				case SWT.CENTER: lineIndent += (wrapWidth - lineWidth) / 2; break;
-				case SWT.RIGHT: lineIndent += wrapWidth - lineWidth; break;
+				case SWT.CENTER: lineIndent += (DPIUtil.autoScaleUp(wrapWidth, getZoom()) - lineWidth) / 2; break;
+				case SWT.RIGHT: lineIndent += DPIUtil.autoScaleUp(wrapWidth, getZoom()) - lineWidth; break;
 			}
 		}
 	}
@@ -2121,14 +2124,15 @@ public FontMetrics getLineMetrics (int lineIndex) {
 	long hDC = device.internal_new_GC(null);
 	long srcHdc = OS.CreateCompatibleDC(hDC);
 	TEXTMETRIC lptm = new TEXTMETRIC();
-	OS.SelectObject(srcHdc, font != null ? font.handle : device.systemFont.handle);
+	Font availableFont = font != null ? font : device.systemFont;
+	OS.SelectObject(srcHdc, availableFont.handle);
 	metricsAdapter.GetTextMetrics(srcHdc, lptm);
 	OS.DeleteDC(srcHdc);
 	device.internal_dispose_GC(hDC, null);
 
 	int ascentInPoints = this.ascent;
 	int descentInPoints = this.descent;
-	int leadingInPoints = DPIUtil.scaleDown(getDevice(), lptm.tmInternalLeading, getZoom());
+	int leadingInPoints = DPIUtil.scaleDown(getDevice(), lptm.tmInternalLeading, availableFont.zoom);
 	if (text.length() != 0) {
 		for (StyleItem run : runs[lineIndex]) {
 			if (run.ascentInPoints > ascentInPoints) {
@@ -2200,7 +2204,7 @@ Point getLocationInPixels (int offset, boolean trailing) {
 	}
 	line = Math.min(line, runs.length - 1);
 	if (offset == length) {
-		return new Point(getLineIndent(line) + lineWidth[line], DPIUtil.autoScaleUp(getDevice(), lineY[line], getZoom()));
+		return new Point(getLineIndentInPixel(line) + lineWidth[line], DPIUtil.autoScaleUp(getDevice(), lineY[line], getZoom()));
 	}
 	/* For trailing use the low surrogate and for lead use the high surrogate */
 	char ch = segmentsText.charAt(offset);
@@ -2440,7 +2444,7 @@ int getOffsetInPixels (int x, int y, int[] trailing) {
 	}
 	line = Math.min(line, runs.length - 1);
 	StyleItem[] lineRuns = runs[line];
-	int lineIndent = getLineIndent(line);
+	int lineIndent = getLineIndentInPixel(line);
 	if (x >= lineIndent + lineWidth[line]) x = lineIndent + lineWidth[line] - 1;
 	if (x < lineIndent) x = lineIndent;
 	int low = -1;
@@ -3806,7 +3810,7 @@ void shape (GC  gc, final long hdc, final StyleItem run) {
 					if (index > 0) {
 						StyleItem pRun = allRuns[index - 1];
 						if (pRun.analysis.eScript == run.analysis.eScript) {
-							long pFont = getItemFont(pRun);
+							long pFont = getItemFont(pRun, gc);
 							LOGFONT logFont = new LOGFONT ();
 							OS.GetObject(pFont, LOGFONT.sizeof, logFont);
 							newFont = OS.CreateFontIndirect(logFont);
@@ -3816,9 +3820,9 @@ void shape (GC  gc, final long hdc, final StyleItem run) {
 						if (index + 1 < allRuns.length - 1) {
 							StyleItem nRun = allRuns[index + 1];
 							if (nRun.analysis.eScript == run.analysis.eScript) {
-								OS.SelectObject(hdc, getItemFont(nRun));
+								OS.SelectObject(hdc, getItemFont(nRun, gc));
 								shape(gc, hdc, nRun);
-								long nFont = getItemFont(nRun);
+								long nFont = getItemFont(nRun, gc);
 								LOGFONT logFont = new LOGFONT ();
 								OS.GetObject(nFont, LOGFONT.sizeof, logFont);
 								newFont = OS.CreateFontIndirect(logFont);
