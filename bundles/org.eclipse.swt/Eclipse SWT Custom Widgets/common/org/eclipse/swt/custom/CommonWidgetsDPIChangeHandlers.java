@@ -32,6 +32,7 @@ public class CommonWidgetsDPIChangeHandlers {
 
 	public static void registerCommonHandlers() {
 		DPIZoomChangeRegistry.registerHandler(CommonWidgetsDPIChangeHandlers::handleItemDPIChange, Item.class);
+		DPIZoomChangeRegistry.registerHandler(CommonWidgetsDPIChangeHandlers::handleCComboDPIChange, CCombo.class);
 		DPIZoomChangeRegistry.registerHandler(CommonWidgetsDPIChangeHandlers::handleStyledTextDPIChange, StyledText.class);
 	}
 
@@ -44,6 +45,17 @@ public class CommonWidgetsDPIChangeHandlers {
 		if (image != null) {
 			item.setImage(image);
 		}
+	}
+
+	private static void handleCComboDPIChange(Widget widget, int newZoom, float scalingFactor) {
+		if (!(widget instanceof CCombo)) {
+			return;
+		}
+		CCombo combo = (CCombo) widget;
+
+		DPIZoomChangeRegistry.applyChange(combo.text, newZoom, scalingFactor);
+		DPIZoomChangeRegistry.applyChange(combo.list, newZoom, scalingFactor);
+		DPIZoomChangeRegistry.applyChange(combo.arrow, newZoom, scalingFactor);
 	}
 
 	private static void handleStyledTextDPIChange(Widget widget, int newZoom, float scalingFactor) {
