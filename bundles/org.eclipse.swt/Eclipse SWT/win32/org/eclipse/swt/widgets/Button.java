@@ -365,7 +365,7 @@ int computeLeftMargin () {
 				if (length == 0) {
 					height = Math.max (height, lptm.tmHeight);
 				} else {
-					extra = Math.max (MARGIN * 2, lptm.tmAveCharWidth);
+					extra = Math.max (DPIUtil.autoScaleUp(MARGIN * 2, getZoom()), lptm.tmAveCharWidth);
 					char [] buffer = text.toCharArray ();
 					RECT rect = new RECT ();
 					int flags = OS.DT_CALCRECT | OS.DT_SINGLELINE;
@@ -373,7 +373,7 @@ int computeLeftMargin () {
 						flags = OS.DT_CALCRECT | OS.DT_WORDBREAK;
 						rect.right = wHint - width - 2 * border;
 						if (isRadioOrCheck()) {
-							rect.right -= CHECK_WIDTH + 3;
+							rect.right -= DPIUtil.autoScaleUp(CHECK_WIDTH + 3, getZoom());
 						} else {
 							rect.right -= 6;
 						}
@@ -392,8 +392,8 @@ int computeLeftMargin () {
 				OS.ReleaseDC (handle, hDC);
 			}
 			if (isRadioOrCheck()) {
-				width += CHECK_WIDTH + extra;
-				height = Math.max (height, CHECK_HEIGHT + 3);
+				width += DPIUtil.autoScaleUp(CHECK_WIDTH) + extra;
+				height = Math.max (height, DPIUtil.autoScaleUp(CHECK_HEIGHT + 3, getZoom()));
 			}
 			if ((style & (SWT.PUSH | SWT.TOGGLE)) != 0) {
 				width += 12;  height += 10;
