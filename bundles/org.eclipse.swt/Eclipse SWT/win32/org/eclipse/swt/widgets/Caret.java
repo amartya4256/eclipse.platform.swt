@@ -49,6 +49,11 @@ public class Caret extends Widget {
 	Font font;
 	LOGFONT oldFont;
 
+	/**
+	 * @since 3.126
+	 */
+	public int preferedWidth;
+
 static {
 	DPIZoomChangeRegistry.registerHandler(Caret::handleDPIChange, Caret.class);
 }
@@ -588,6 +593,7 @@ public void setLocation (Point location) {
  */
 public void setSize (int width, int height) {
 	checkWidget();
+	this.preferedWidth = width;
 	setSizeInPixels(DPIUtil.autoScaleUp(width, getZoom()), DPIUtil.autoScaleUp(height, getZoom()));
 }
 
@@ -614,6 +620,7 @@ void setSizeInPixels (int width, int height) {
 public void setSize (Point size) {
 	checkWidget();
 	if (size == null) error (SWT.ERROR_NULL_ARGUMENT);
+	this.preferedWidth = size.x;
 	size = DPIUtil.autoScaleUp(size, getZoom());
 	setSizeInPixels(size.x, size.y);
 }

@@ -64,19 +64,19 @@ public class CommonWidgetsDPIChangeHandlers {
 		}
 		StyledText styledText = (StyledText) widget;
 
-		DPIZoomChangeRegistry.applyChange(styledText.getCaret(), newZoom, scalingFactor);
-		DPIZoomChangeRegistry.applyChange(styledText.defaultCaret, newZoom, scalingFactor);
-		DPIZoomChangeRegistry.applyChange(styledText.ime, newZoom, scalingFactor);
 
+		DPIZoomChangeRegistry.applyChange(styledText.getCaret(), newZoom, scalingFactor);
+		styledText.getCaret().setSize(styledText.getCaret().preferedWidth, styledText.getLineHeight());
+
+		DPIZoomChangeRegistry.applyChange(styledText.defaultCaret, newZoom, scalingFactor);
+		styledText.defaultCaret.setSize(styledText.defaultCaret.preferedWidth, styledText.getLineHeight());
 		for (Caret caret : styledText.carets) {
-			DPIZoomChangeRegistry.applyChange(caret, newZoom, scalingFactor);
+			DPIZoomChangeRegistry.applyChange( caret, newZoom, scalingFactor);
+			caret.setSize(caret.preferedWidth, styledText.getLineHeight());
 		}
 
 		styledText.updateCaretVisibility();
-
-		styledText.renderer.setFont(styledText.getFont(), styledText.tabLength);
 		styledText.setCaretLocations();
 	}
-
 
 }
