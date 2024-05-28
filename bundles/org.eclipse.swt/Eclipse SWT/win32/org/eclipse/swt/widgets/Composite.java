@@ -1536,8 +1536,7 @@ LRESULT WM_PAINT (long wParam, long lParam) {
 				GC gc = createNewGC(phdc [0], data);
 				Event event = new Event ();
 				event.gc = gc;
-				event.widget = this;
-				event.setBoundsInPixels(new Rectangle(ps.left, ps.top, width, height));
+				event.setBounds(DPIUtil.scaleDown(new Rectangle(ps.left, ps.top, width, height), getZoom()));
 				sendEvent (SWT.Paint, event);
 				if (data.focusDrawn && !isDisposed ()) updateUIState ();
 				gc.dispose ();
@@ -1607,6 +1606,7 @@ LRESULT WM_PAINT (long wParam, long lParam) {
 				Event event = new Event ();
 				event.gc = gc;
 				RECT rect = null;
+				int zoom = getZoom();
 				if ((style & SWT.NO_MERGE_PAINTS) != 0 && OS.GetRgnBox (sysRgn, rect = new RECT ()) == OS.COMPLEXREGION) {
 					int nBytes = OS.GetRegionData (sysRgn, 0, null);
 					int [] lpRgnData = new int [nBytes / 4];
@@ -1618,7 +1618,7 @@ LRESULT WM_PAINT (long wParam, long lParam) {
 						if ((style & (SWT.DOUBLE_BUFFERED | SWT.NO_BACKGROUND | SWT.TRANSPARENT)) == 0) {
 							drawBackground (gc.handle, rect);
 						}
-						event.setBoundsInPixels(new Rectangle(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top));
+						event.setBounds(DPIUtil.scaleDown(new Rectangle(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top), zoom));
 						event.count = count - 1 - i;
 						sendEvent (SWT.Paint, event);
 					}
@@ -1628,7 +1628,7 @@ LRESULT WM_PAINT (long wParam, long lParam) {
 						OS.SetRect (rect, ps.left, ps.top, ps.right, ps.bottom);
 						drawBackground (gc.handle, rect);
 					}
-					event.setBoundsInPixels(new Rectangle(ps.left, ps.top, width, height));
+					event.setBounds(DPIUtil.scaleDown(new Rectangle(ps.left, ps.top, width, height), zoom));
 					sendEvent (SWT.Paint, event);
 				}
 				// widget could be disposed at this point
@@ -1701,7 +1701,7 @@ LRESULT WM_PRINTCLIENT (long wParam, long lParam) {
 			GC gc = createNewGC(wParam, data);
 			Event event = new Event ();
 			event.gc = gc;
-			event.setBoundsInPixels(new Rectangle(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top));
+			event.setBounds(DPIUtil.scaleDown(new Rectangle(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top), getZoom()));
 			sendEvent (SWT.Paint, event);
 			event.gc = null;
 			gc.dispose ();
