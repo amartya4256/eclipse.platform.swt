@@ -363,8 +363,12 @@ void checkLayout () {
 * 	Break paragraphs into lines, wraps the text, and initialize caches.
 */
 void computeRuns (GC gc) {
-	if (runs != null && nativeZoom == getNativeZoom(gc)) return;
-//	nativeZoom = getNativeZoom(gc);
+	int newNativeZoom = getNativeZoom(gc);
+	if (nativeZoom != newNativeZoom) {
+		nativeZoom = newNativeZoom;
+		freeRuns();
+	}
+	if (runs != null) return;
 	long hDC = gc != null ? gc.handle : device.internal_new_GC(null);
 	long srcHdc = OS.CreateCompatibleDC(hDC);
 	allRuns = itemize();
@@ -545,8 +549,8 @@ void computeRuns (GC gc) {
 				TEXTMETRIC lptm = new TEXTMETRIC();
 				OS.SelectObject(srcHdc, getItemFont(run, gc));
 				metricsAdapter.GetTextMetrics(srcHdc, lptm);
-				run.ascentInPoints = DPIUtil.scaleDown(getDevice(), lptm.tmAscent, getNativeZoom(gc));
-				run.descentInPoints = DPIUtil.scaleDown(getDevice(), lptm.tmDescent, getNativeZoom(gc));
+				run.ascentInPoints = DPIUtil.scaleDown(getDevice(), lptm.tmAscent, newNativeZoom);
+				run.descentInPoints = DPIUtil.scaleDown(getDevice(), lptm.tmDescent, newNativeZoom);
 				ascentInPoints = Math.max(ascentInPoints, run.ascentInPoints);
 				descentInPoints = Math.max(descentInPoints, run.descentInPoints);
 			}
@@ -1961,13 +1965,14 @@ public boolean getJustify () {
 
 long getItemFont (StyleItem item, GC gc) {
 	if (item.fallbackFont != 0) return item.fallbackFont;
+	final int zoom = getNativeZoom(gc);
 	if (item.style != null && item.style.font != null) {
-		return Font.win32_new(item.style.font, getNativeZoom(gc)).handle;
+		return Font.win32_new(item.style.font, zoom).handle;
 	}
 	if (this.font != null) {
-		return Font.win32_new(this.font, getNativeZoom(gc)).handle;
+		return Font.win32_new(this.font, zoom).handle;
 	}
-	return Font.win32_new(device.systemFont, getNativeZoom(gc)).handle;
+	return Font.win32_new(device.systemFont, zoom).handle;
 }
 
 /**
