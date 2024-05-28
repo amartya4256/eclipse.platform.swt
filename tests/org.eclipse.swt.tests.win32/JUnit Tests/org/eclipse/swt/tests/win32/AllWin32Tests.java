@@ -17,12 +17,14 @@ package org.eclipse.swt.tests.win32;
 import org.eclipse.swt.graphics.ImageWin32Tests;
 import org.eclipse.swt.tests.win32.widgets.TestTreeColumn;
 import org.eclipse.swt.tests.win32.widgets.Test_org_eclipse_swt_widgets_Display;
+import org.eclipse.swt.widgets.ControlWin32Tests;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+	ControlWin32Tests.class,
 	ImageWin32Tests.class,
 	Test_org_eclipse_swt_dnd_DND.class,
 	Test_org_eclipse_swt_events_KeyEvent.class,
