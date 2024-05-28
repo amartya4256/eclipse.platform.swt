@@ -290,7 +290,7 @@ public boolean equals (Object object) {
  */
 public Rectangle getBounds () {
 	if (isDisposed()) SWT.error(SWT.ERROR_GRAPHIC_DISPOSED);
-	return DPIUtil.autoScaleDown(getBoundsInPixels(), initalZoom);
+	return DPIUtil.scaleDown(getBoundsInPixels(), initalZoom);
 }
 
 Rectangle getBoundsInPixels() {

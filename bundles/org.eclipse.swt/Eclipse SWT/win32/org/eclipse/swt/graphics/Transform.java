@@ -194,8 +194,8 @@ public void getElements(float[] elements) {
 	if (elements.length < 6) SWT.error(SWT.ERROR_INVALID_ARGUMENT);
 	Gdip.Matrix_GetElements(handle, elements);
 	Drawable drawable = getDevice();
-	elements[4] = DPIUtil.autoScaleDown(drawable, elements[4], initalZoom);
-	elements[4] = DPIUtil.autoScaleDown(drawable, elements[5], initalZoom);
+	elements[4] = DPIUtil.scaleDown(drawable, elements[4], initalZoom);
+	elements[4] = DPIUtil.scaleDown(drawable, elements[5], initalZoom);
 }
 
 /**
@@ -372,7 +372,7 @@ public void transform(float[] pointArray) {
 	}
 	Gdip.Matrix_TransformPoints(handle, pointArray, length / 2);
 	for (int i = 0; i < length; i++) {
-		pointArray[i] = DPIUtil.autoScaleDown(drawable, pointArray[i], initalZoom);
+		pointArray[i] = DPIUtil.scaleDown(drawable, pointArray[i], initalZoom);
 	}
 }
 
@@ -422,8 +422,8 @@ public static long win32_getHandle(Transform transform, int zoomLevel) {
 	if(transform.handleMap.get(zoomLevel) == null) {
 		float[] elements = new float[6];
 		transform.getElements(elements);
-		elements[4] = DPIUtil.autoScaleUp(transform.device, DPIUtil.autoScaleDown(transform.device, elements[4], transform.initalZoom), zoomLevel);
-		elements[5] = DPIUtil.autoScaleUp(transform.device, DPIUtil.autoScaleDown(transform.device, elements[5], transform.initalZoom), zoomLevel);
+		elements[4] = DPIUtil.autoScaleUp(transform.device, DPIUtil.scaleDown(transform.device, elements[4], transform.initalZoom), zoomLevel);
+		elements[5] = DPIUtil.autoScaleUp(transform.device, DPIUtil.scaleDown(transform.device, elements[5], transform.initalZoom), zoomLevel);
 
 		transform.handleMap.put(zoomLevel, Gdip.Matrix_new(elements[0], elements[1], elements[2], elements[3], elements[4], elements[5]));
 	}

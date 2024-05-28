@@ -462,7 +462,7 @@ void destroy() {
 public void getBounds (float[] bounds) {
 	if (bounds == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
 	getBoundsInPixels(bounds);
-	float[] scaledbounds= DPIUtil.autoScaleDown(getDevice(), bounds, initialZoom);
+	float[] scaledbounds= DPIUtil.scaleDown(getDevice(), bounds, initialZoom);
 	System.arraycopy(scaledbounds, 0, bounds, 0, 4);
 }
 
@@ -494,7 +494,7 @@ void getBoundsInPixels(float[] bounds) {
 public void getCurrentPoint (float[] point) {
 	if (point == null) SWT.error(SWT.ERROR_NULL_ARGUMENT);
 	getCurrentPointInPixels(point);
-	float[] scaledpoint= DPIUtil.autoScaleDown(getDevice(), point, initialZoom);
+	float[] scaledpoint= DPIUtil.scaleDown(getDevice(), point, initialZoom);
 	System.arraycopy(scaledpoint, 0, point, 0, 2);
 }
 
@@ -519,7 +519,7 @@ void getCurrentPointInPixels(float[] point) {
 public PathData getPathData() {
 	if (isDisposed()) SWT.error(SWT.ERROR_GRAPHIC_DISPOSED);
 	PathData result = getPathDataInPixels();
-	result.points = DPIUtil.autoScaleDown(getDevice(), result.points, initialZoom);
+	result.points = DPIUtil.scaleDown(getDevice(), result.points, initialZoom);
 	return result;
 }
 
