@@ -16,6 +16,7 @@ package org.eclipse.swt.custom;
 
 import org.eclipse.swt.*;
 import org.eclipse.swt.graphics.*;
+import org.eclipse.swt.internal.*;
 import org.eclipse.swt.widgets.*;
 
 /**
@@ -308,7 +309,7 @@ public class CTabFolderRenderer {
 				gc.setFont(getChevronFont(parent.getDisplay()));
 				int widthOfDoubleArrows = 8; // see drawChevron method
 				width = gc.textExtent(CHEVRON_ELLIPSIS).x + widthOfDoubleArrows;
-				height = BUTTON_SIZE;
+				height = DPIUtil.autoScaleUp(BUTTON_SIZE, parent.getZoom());
 				gc.setFont(prevFont);
 				break;
 			default:
@@ -1695,13 +1696,13 @@ public class CTabFolderRenderer {
 	}
 
 	private Font getChevronFont(Display display) {
-		if (chevronFont == null) {
+//		if (chevronFont == null) {
 			Point dpi = display.getDPI();
-			int fontHeight = 72 * CHEVRON_FONT_HEIGHT / dpi.y;
+			int fontHeight = DPIUtil.scaleDown(72 * CHEVRON_FONT_HEIGHT / dpi.y, parent.getZoom());
 			FontData fd = parent.getFont().getFontData()[0];
 			fd.setHeight(fontHeight);
 			chevronFont = new Font(display, fd);
-		}
+//		}
 		return chevronFont;
 	}
 

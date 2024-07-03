@@ -17,6 +17,7 @@ import org.eclipse.swt.*;
 import org.eclipse.swt.accessibility.*;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.*;
+import org.eclipse.swt.internal.*;
 import org.eclipse.swt.widgets.*;
 
 /**
@@ -4276,4 +4277,11 @@ private void updateMaxImage() {
 		maxItem.setImage(maxImage);
 	}
 }
+
+
+
+int getZoom() {
+	return DPIUtil.getZoomForAutoscaleProperty(nativeZoom);
+}
+
 }
