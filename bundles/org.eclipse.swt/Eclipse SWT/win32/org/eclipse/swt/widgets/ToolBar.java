@@ -1744,7 +1744,7 @@ private static void handleDPIChange(Widget widget, int newZoom, float scalingFac
 	}
 	ToolItem[] toolItems = toolBar._getItems ();
 	// Only Items with SWT.Sepreator Style have an own width assigned to them
-	var seperatorWidth  =  new int[toolItems.length];
+	var seperatorWidth = new int[toolItems.length];
 	var enabledState = new boolean[toolItems.length];
 	var selectedState = new boolean[toolItems.length];
 	for (int i = 0; i < toolItems.length; i++) {
@@ -1790,25 +1790,29 @@ private static void handleDPIChange(Widget widget, int newZoom, float scalingFac
 		toolItem.setControl(content);
 
 		// In SWT, Width can only be set for Separators
-		if ((toolItem.style & SWT.SEPARATOR) != 0) {
+		if ((toolItem.style & SWT.SEPARATOR) != 0 && toolItem.control != null) {
 			var width = (int)((seperatorWidth[i]) * scalingFactor);
 			toolItem.setWidth(width);
 			toolItem.resizeControl();
 		}
-
 		toolItem.setEnabled(enabledState[i]);
 		toolItem.setSelection(selectedState[i]);
 	}
 
+//	toolBar.setDropDownItems(false);
+//	toolBar.setDropDownItems(true);
 	// Force a refresh of the toolbar by resetting the Font
-	toolBar.setDropDownItems(false);
-	long hFont = OS.SendMessage(toolBar.handle, OS.WM_GETFONT, 0, 0);
-	OS.SendMessage(toolBar.handle, OS.WM_SETFONT, hFont, 0);
-	if((toolBar.style & SWT.VERTICAL) != 0) {
+//	long hFont = OS.SendMessage(toolBar.handle, OS.WM_GETFONT, 0, 0);
+//	OS.SendMessage(toolBar.handle, OS.WM_SETFONT, hFont, 0);
+	if ((toolBar.style & SWT.VERTICAL) != 0) {
+		//toolBar.layout(true);
+		//toolBar.sendResize();
+		//toolBar.redraw();
 		// Reset row count to prevent wrapping of buttons
-		toolBar.setRowCount((int)OS.SendMessage (toolBar.handle, OS.TB_BUTTONCOUNT, 0, 0));
+		//toolBar.setRowCount((int)OS.SendMessage (toolBar.handle, OS.TB_BUTTONCOUNT, 0, 0));
+	} else if ((toolBar.style & SWT.HORIZONTAL) != 0) {
+		toolBar.pack(true);
 	}
-	toolBar.setDropDownItems(true);
 	toolBar.layout(true);
 	toolBar.sendResize();
 	toolBar.redraw();
