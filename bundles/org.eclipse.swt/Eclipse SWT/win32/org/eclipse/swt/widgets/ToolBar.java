@@ -1046,10 +1046,10 @@ void setDropDownItems (boolean set) {
 }
 
 void setDisabledImageList (ImageList imageList) {
-	if (disabledImageList == imageList) return;
+//	if (disabledImageList == imageList) return;
 	long hImageList = 0;
 	if ((disabledImageList = imageList) != null) {
-		hImageList = disabledImageList.getHandle ();
+		hImageList = ImageList.win32_getHandle(disabledImageList, getZoom());
 	}
 	setDropDownItems (false);
 	OS.SendMessage (handle, OS.TB_SETDISABLEDIMAGELIST, 0, hImageList);
@@ -1083,10 +1083,10 @@ public void setFont (Font font) {
 }
 
 void setHotImageList (ImageList imageList) {
-	if (hotImageList == imageList) return;
+//	if (hotImageList == imageList) return;
 	long hImageList = 0;
 	if ((hotImageList = imageList) != null) {
-		hImageList = hotImageList.getHandle ();
+		hImageList = ImageList.win32_getHandle(hotImageList, getZoom());
 	}
 	setDropDownItems (false);
 	OS.SendMessage (handle, OS.TB_SETHOTIMAGELIST, 0, hImageList);
@@ -1094,10 +1094,11 @@ void setHotImageList (ImageList imageList) {
 }
 
 void setImageList (ImageList imageList) {
-	if (this.imageList == imageList) return;
+//	if (this.imageList == imageList) return;
 	long hImageList = 0;
 	if ((this.imageList = imageList) != null) {
-		hImageList = imageList.getHandle ();
+//		hImageList = imageList.getHandle ();
+		hImageList = ImageList.win32_getHandle(imageList, getZoom());
 	}
 	setDropDownItems (false);
 	OS.SendMessage (handle, OS.TB_SETIMAGELIST, 0, hImageList);
@@ -1293,9 +1294,9 @@ void updateOrientation () {
 		display.releaseToolImageList (imageList);
 		display.releaseToolHotImageList (hotImageList);
 		display.releaseToolDisabledImageList (disabledImageList);
-		OS.SendMessage (handle, OS.TB_SETIMAGELIST, 0, newImageList.getHandle ());
-		OS.SendMessage (handle, OS.TB_SETHOTIMAGELIST, 0, newHotImageList.getHandle ());
-		OS.SendMessage (handle, OS.TB_SETDISABLEDIMAGELIST, 0, newDisabledImageList.getHandle ());
+		OS.SendMessage (handle, OS.TB_SETIMAGELIST, 0, ImageList.win32_getHandle(newImageList, getZoom()));
+		OS.SendMessage (handle, OS.TB_SETHOTIMAGELIST, 0, ImageList.win32_getHandle(newHotImageList, getZoom()));
+		OS.SendMessage (handle, OS.TB_SETDISABLEDIMAGELIST, 0, ImageList.win32_getHandle(newDisabledImageList, getZoom()));
 		imageList = newImageList;
 		hotImageList = newHotImageList;
 		disabledImageList = newDisabledImageList;
@@ -1759,7 +1760,7 @@ private static void handleDPIChange(Widget widget, int newZoom, float scalingFac
 
 	}
 	for (ToolItem item : toolItems) {
-		toolBar.destroyItem(item);
+//		toolBar.destroyItem(item);
 		// Resize after, as zoom update changes references to imageLists
 		DPIZoomChangeRegistry.applyChange(item, newZoom, scalingFactor);
 	}
@@ -1767,7 +1768,7 @@ private static void handleDPIChange(Widget widget, int newZoom, float scalingFac
 	for (int i = 0; i < toolItems.length; i++) {
 		ToolItem toolItem = toolItems[i];
 
-		toolBar.createItem(toolItem, i);
+//		toolBar.createItem(toolItem, i);
 		String currentText =  toolItem.getText();
 		toolItem.setText(" ");
 		toolItem.setText(currentText);

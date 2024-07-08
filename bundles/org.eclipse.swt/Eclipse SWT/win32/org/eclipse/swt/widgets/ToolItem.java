@@ -1232,12 +1232,18 @@ private static void handleDPIChange(Widget widget, int newZoom, float scalingFac
 		Rectangle bounds = DPIUtil.autoScaleBounds(image.getBounds(), newZoom, 100);
 		if (parent.getImageList() == null) {
 			parent.setImageList (display.getImageListToolBar (listStyle, bounds.width, bounds.height, item.getZoom()));
+		} else {
+			parent.setImageList(parent.getImageList());
 		}
 		if (parent.getDisabledImageList() == null) {
 			parent.setDisabledImageList (display.getImageListToolBarDisabled (listStyle, bounds.width, bounds.height, item.getZoom()));
+		} else {
+			parent.setDisabledImageList(parent.getDisabledImageList());
 		}
 		if (parent.getHotImageList() == null) {
 			parent.setHotImageList (display.getImageListToolBarHot (listStyle, bounds.width, bounds.height, item.getZoom()));
+		} else {
+			parent.setHotImageList(parent.getHotImageList());
 		}
 	}
 	item.setWidthInPixels(0);
