@@ -1984,6 +1984,14 @@ private static void handleDPIChange(Widget widget, int newZoom, float scalingFac
 	for (Control child : composite.getChildren()) {
 		DPIZoomChangeRegistry.applyChange(child, newZoom, scalingFactor);
 	}
-	composite.redrawInPixels (null, true);
+	if(composite.parent != null && composite.parent.layout == null) {
+		composite.pack();
+	}
+	else if(composite.layout != null) {
+		composite.redrawInPixels (null, true);
+	}
+	else {
+		composite.setSize(composite.computeSize (SWT.DEFAULT, SWT.DEFAULT, true));
+	}
 }
 }

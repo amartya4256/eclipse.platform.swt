@@ -1800,6 +1800,11 @@ private static void handleDPIChange(Widget widget, int newZoom, float scalingFac
 		toolItem.setSelection(selectedState[i]);
 	}
 
+	toolBar._width = -1;
+	toolBar._height = -1;
+
+	toolBar.layout(true);
+
 //	toolBar.setDropDownItems(false);
 //	toolBar.setDropDownItems(true);
 	// Force a refresh of the toolbar by resetting the Font
@@ -1809,12 +1814,12 @@ private static void handleDPIChange(Widget widget, int newZoom, float scalingFac
 		//toolBar.layout(true);
 		//toolBar.sendResize();
 		//toolBar.redraw();
+		toolBar.pack(true);
 		// Reset row count to prevent wrapping of buttons
 		//toolBar.setRowCount((int)OS.SendMessage (toolBar.handle, OS.TB_BUTTONCOUNT, 0, 0));
 	} else if ((toolBar.style & SWT.HORIZONTAL) != 0) {
 		toolBar.pack(true);
 	}
-	toolBar.layout(true);
 	toolBar.sendResize();
 	toolBar.redraw();
 }
