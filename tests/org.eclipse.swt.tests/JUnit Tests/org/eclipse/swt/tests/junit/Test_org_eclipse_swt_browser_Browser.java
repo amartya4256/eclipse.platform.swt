@@ -538,7 +538,7 @@ public void test_isLocationForCustomText_isSetUrlNotCustomTextUrlAfterSetText() 
 	locationChanged.set(false);
 	browser.setUrl(url);
 	assertTrue("Time Out: The Browser didn't navigate to the URL", waitForPassCondition(locationChanged::get));
-	assertFalse("The navigated URL is falsly indicated to be the custom text URL", browser.isLocationForCustomText(browser.getUrl()));
+	assertFalse("The navigated URL is falsly indicated to be the custom text URL", browser.getUrlOptional().isEmpty());
 }
 
 @Test
@@ -548,12 +548,12 @@ public void test_isLocationForCustomText_isFirstSetTextURLStillCustomTextUrlAfte
 	String url = getValidUrl();
 	browser.setText("Custom text");
 	assertTrue(waitForPassCondition(locationChanged::get));
-	String firstUrl = browser.getUrl();
+	String firstUrl = browser.getUrlOptional().orElse(null);
 	locationChanged.set(false);
 	browser.setUrl(url);
 	assertTrue("Time Out: The Browser didn't navigate to the URL", waitForPassCondition(locationChanged::get));
 	assertTrue(browser.isLocationForCustomText(firstUrl));
-	assertFalse(browser.isLocationForCustomText(browser.getUrl()));
+	assertFalse(browser.getUrlOptional().isEmpty());
 }
 
 private String getValidUrl() {
@@ -575,7 +575,7 @@ public void test_isLocationForCustomText_isSetUrlNotCustomTextUrl() {
 	String url = getValidUrl();
 	browser.setUrl(url);
 	waitForPassCondition(locationChanged::get);
-	assertFalse("Url is wrongly considered Custom Text Url", browser.isLocationForCustomText(browser.getUrl()));
+	assertFalse("Url is wrongly considered Custom Text Url", browser.getUrlOptional().isEmpty());
 }
 
 @Test
@@ -584,7 +584,7 @@ public void test_isLocationForCustomText() {
 	browser.addLocationListener(changedAdapter(e -> locationChanged.set(true)));
 	browser.setText("Hello world");
 	assertTrue("Timeout: LocationListener.changing() event was never fired", waitForPassCondition(locationChanged::get));
-	assertTrue("Custom Text URI was not loaded on setText", browser.isLocationForCustomText(browser.getUrl()));
+	assertTrue("Custom Text URI was not loaded on setText", browser.getUrlOptional().isEmpty());
 }
 
 @Test
@@ -713,12 +713,8 @@ public void test_LocationListener_ProgressListener_cancledLoad () {
 		}
 	});
 
-	browser.addProgressListener(completedAdapter(event -> {
-		String location = browser.getUrl();
-		if (location.length() != 0) { // See footnote 1
-			unexpectedProgressCompleted.set(true);
-		}
-	}));
+	browser.addProgressListener(completedAdapter(event ->browser.getUrlOptional()
+			.ifPresent(__ -> unexpectedProgressCompleted.set(true))));
 	shell.open();
 	browser.setText("You should not see this message.");
 

@@ -774,6 +774,13 @@ public String getUrl () {
 	return webBrowser.getUrl ();
 }
 
+public Optional<String> getUrlOptional() {
+	checkWidget();
+	String url = webBrowser.getUrl ();
+	if(url == "about:blank" || url == "") return Optional.empty();
+	else return Optional.of(url);
+}
+
 /**
  * Returns the JavaXPCOM <code>nsIWebBrowser</code> for the receiver, or <code>null</code>
  * if it is not available.  In order for an <code>nsIWebBrowser</code> to be returned all

@@ -212,15 +212,14 @@ class BrowserTab extends Tab {
 	void disposeExampleWidgets () {
 		/* store the state of the Browser if applicable */
 		if (browser != null) {
-			String url = browser.getUrl();
-			if (url.length() > 0 && !browser.isLocationForCustomText(url)) { //$NON-NLS-1$
-				lastUrl = url;
-			} else {
-				String text = browser.getText();
-				if (text.length() > 0) {
-					lastText = text;
-				}
-			}
+			browser.getUrlOptional().ifPresentOrElse(
+					url -> lastUrl = url,
+					() -> {
+						String text = browser.getText();
+						if (text.length() > 0) {
+							lastText = text;
+						}
+					});
 		}
 		super.disposeExampleWidgets();
 	}
