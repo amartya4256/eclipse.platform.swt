@@ -293,6 +293,27 @@ class WebViewWrapper {
 	private ICoreWebView2_11 webView_11;
 	private ICoreWebView2_12 webView_12;
 	private ICoreWebView2_13 webView_13;
+
+	void releaseWebViews() {
+		if(webView != null) {
+			webView.Release();
+		}
+		if(webView_2 != null) {
+			webView_2.Release();
+		}
+		if(webView_10 != null) {
+			webView_10.Release();
+		}
+		if(webView_11 != null) {
+			webView_11.Release();
+		}
+		if(webView_12 != null) {
+			webView_12.Release();
+		}
+		if(webView_13 != null) {
+			webView_13.Release();
+		}
+	}
 }
 
 class WebViewProvider {
@@ -317,6 +338,11 @@ class WebViewProvider {
 
 	private void abortInitialization() {
 		webViewWrapperFuture.cancel(true);
+	}
+
+	void releaseWebView() {
+		processOSMessagesUntil(webViewWrapperFuture::isDone, browser.getDisplay());
+		webViewWrapperFuture.join().releaseWebViews();
 	}
 
 	private ICoreWebView2_2 initializeWebView_2(ICoreWebView2 webView) {
@@ -746,14 +772,9 @@ void setupBrowser(int hr, long pv) {
 void browserDispose(Event event) {
 	containingEnvironment.instances.remove(this);
 	webViewProvider.scheduleWebViewTask(() -> {
-		webViewProvider.getWebView(false).Release();
+		webViewProvider.releaseWebView();
 		if (environment2 != null) environment2.Release();
 		if (settings != null) settings.Release();
-		if (webViewProvider.isWebView_2Available()) webViewProvider.getWebView_2(false).Release();
-		if (webViewProvider.isWebView_10Available()) webViewProvider.getWebView_10(false).Release();
-		if (webViewProvider.isWebView_11Available()) webViewProvider.getWebView_11(false).Release();
-		if (webViewProvider.isWebView_12Available()) webViewProvider.getWebView_12(false).Release();
-		if (webViewProvider.isWebView_13Available()) webViewProvider.getWebView_13(false).Release();
 		if(controller != null) {
 			// Bug in WebView2. Closing the controller from an event handler results
 			// in a crash. The fix is to delay the closure with asyncExec.
