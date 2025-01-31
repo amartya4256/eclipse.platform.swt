@@ -263,7 +263,7 @@ static int callAndWait(long[] ppv, ToIntFunction<IUnknown> callable) {
 	phr[0] = callable.applyAsInt(completion);
 	// "completion" callback may be called asynchronously,
 	// so keep processing next OS message that may call it
-	processOSMessagesUntil(() -> phr[0] != COM.S_OK || ppv[0] != 0, Display.getCurrent());
+	processOSMessagesUntil(() -> phr[0] != COM.S_OK || ppv[0] != 0, Optional.empty(), Display.getCurrent());
 	completion.Release();
 	return phr[0];
 }
@@ -281,7 +281,7 @@ int callAndWait(String[] pstr, ToIntFunction<IUnknown> callable) {
 	phr[0] = callable.applyAsInt(completion);
 	// "completion" callback may be called asynchronously,
 	// so keep processing next OS message that may call it
-	processOSMessagesUntil(() -> phr[0] != COM.S_OK || pstr[0] != null, browser.getDisplay());
+	processOSMessagesUntil(() -> phr[0] != COM.S_OK || pstr[0] != null, Optional.empty(), browser.getDisplay());
 	completion.Release();
 	return phr[0];
 }
@@ -317,9 +317,8 @@ class WebViewWrapper {
 }
 
 class WebViewProvider {
-
 	private CompletableFuture<WebViewWrapper> webViewWrapperFuture = wakeDisplayAfterFuture(new CompletableFuture<>());
-	private CompletableFuture<Void> lastWebViewTask = webViewWrapperFuture.thenRun(() -> {});;
+	private CompletableFuture<Void> lastWebViewTask = webViewWrapperFuture.thenRun(() -> {});
 
 	ICoreWebView2 initializeWebView(ICoreWebView2Controller controller) {
 		long[] ppv = new long[1];
@@ -331,8 +330,13 @@ class WebViewProvider {
 		webViewWrapper.webView_10 = initializeWebView_10(webView);
 		webViewWrapper.webView_11 = initializeWebView_11(webView);
 		webViewWrapper.webView_12 = initializeWebView_12(webView);
-		webViewWrapper.webView_13 = initializeWebView_13(webView);
-		webViewWrapperFuture.complete(webViewWrapper);
+		webViewWrapper.webView_13= initializeWebView_13(webView);
+		boolean success = webViewWrapperFuture.complete(webViewWrapper);
+		// Release the webViews if the webViewWrapperFuture has already timed out and completed exceptionally
+		if(!success && webViewWrapperFuture.isCompletedExceptionally()) {
+			webViewWrapper.releaseWebViews();
+			return null;
+		}
 		return webView;
 	}
 
@@ -341,7 +345,7 @@ class WebViewProvider {
 	}
 
 	void releaseWebView() {
-		processOSMessagesUntil(webViewWrapperFuture::isDone, browser.getDisplay());
+		processOSMessagesUntil(webViewWrapperFuture::isDone, Optional.of(() -> webViewWrapperFuture.completeExceptionally(createTimeOutException())), browser.getDisplay());
 		webViewWrapperFuture.join().releaseWebViews();
 	}
 
@@ -392,13 +396,13 @@ class WebViewProvider {
 
 	private WebViewWrapper getWebViewWrapper(boolean waitForPendingWebviewTasksToFinish) {
 		if(waitForPendingWebviewTasksToFinish) {
-			processOSMessagesUntil(lastWebViewTask::isDone, browser.getDisplay());
+			processOSMessagesUntil(lastWebViewTask::isDone, Optional.empty(), browser.getDisplay());
 		}
 		return webViewWrapperFuture.join();
 	}
 
 	private WebViewWrapper getWebViewWrapper() {
-		processOSMessagesUntil(webViewWrapperFuture::isDone, browser.getDisplay());
+		processOSMessagesUntil(webViewWrapperFuture::isDone, Optional.of(() -> webViewWrapperFuture.completeExceptionally(createTimeOutException())), browser.getDisplay());
 		return webViewWrapperFuture.join();
 	}
 
@@ -483,7 +487,7 @@ class WebViewProvider {
  * events for initialization. Thus, this method does not implement an ordinary
  * readAndDispatch loop, but waits for an OS event to be processed.
  */
-private static void processOSMessagesUntil(Supplier<Boolean> condition, Display display) {
+private static void processOSMessagesUntil(Supplier<Boolean> condition, Optional<Runnable> timeoutHandler, Display display) {
 	MSG msg = new MSG();
 	AtomicBoolean timeoutOccurred = new AtomicBoolean();
 	// The timer call also wakes up the display to avoid being stuck in display.sleep()
@@ -496,8 +500,13 @@ private static void processOSMessagesUntil(Supplier<Boolean> condition, Display 
 		}
 	}
 	if (!condition.get()) {
+		timeoutHandler.ifPresent(handler -> handler.run());
 		SWT.error(SWT.ERROR_UNSPECIFIED, null, " Waiting for Edge operation to terminate timed out");
 	}
+}
+
+private static SWTException createTimeOutException() {
+	return new SWTException(SWT.ERROR_UNSPECIFIED, " Waiting for Edge operation to terminate timed out");
 }
 
 static ICoreWebView2CookieManager getCookieManager() {
@@ -640,7 +649,10 @@ private IUnknown createControllerInitializationCallback(int previousAttempts) {
 		switch ((int) result) {
 		case COM.S_OK:
 			new IUnknown(pv).AddRef();
-			setupBrowser((int) result, pv);
+			boolean success = setupBrowser((int) result, pv);
+			if(!success) {
+				initializationRollback.run();
+			}
 			break;
 		case COM.E_WRONG_THREAD:
 			initializationAbortion.run();
@@ -664,10 +676,13 @@ private IUnknown createControllerInitializationCallback(int previousAttempts) {
 	});
 }
 
-void setupBrowser(int hr, long pv) {
+boolean setupBrowser(int hr, long pv) {
 	long[] ppv = new long[] {pv};
 	controller = new ICoreWebView2Controller(ppv[0]);
 	final ICoreWebView2 webView = webViewProvider.initializeWebView(controller);
+	if(webView == null) {
+		return false;
+	}
 	webView.get_Settings(ppv);
 	settings = new ICoreWebView2Settings(ppv[0]);
 
@@ -767,6 +782,7 @@ void setupBrowser(int hr, long pv) {
 	if (browser.isFocusControl()) {
 		browserFocusIn(new Event());
 	}
+	return true;
 }
 
 void browserDispose(Event event) {
